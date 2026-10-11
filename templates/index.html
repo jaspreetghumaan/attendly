@@ -1,0 +1,333 @@
+<<!--Homepage Structure-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartAttend is a smart QR-based attendance management system that helps teachers and students record, track, and review attendance.">
+    <title>SmartAttend | Smart Attendance Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Stylesheet (the CSS file will be created in a later step) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+
+  <body class="page page--home">
+
+    <!-- Accessibility: lets keyboard users jump past the navigation -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <!-- ==================== SECTION 1: HEADER AND NAVIGATION ==================== -->
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Main navigation">
+
+        <!-- Brand / logo area -->
+        <a class="brand" href="#home" aria-label="SmartAttend home">
+          <span class="brand__mark" aria-hidden="true">S</span>
+          <span class="brand__name">SmartAttend</span>
+        </a>
+
+        <!-- Navigation links -->
+        <ul class="site-nav__list">
+          <li class="site-nav__item"><a class="site-nav__link" href="#home">Home</a></li>
+          <li class="site-nav__item"><a class="site-nav__link" href="#features">Features</a></li>
+          <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How It Works</a></li>
+          <li class="site-nav__item"><a class="site-nav__link" href="#about">About</a></li>
+          <!-- PLACEHOLDER: replace with the real login page URL later -->
+          <li class="site-nav__item"><a class="site-nav__login btn btn--secondary" href="#login-placeholder">Login</a></li>
+        </ul>
+
+      </nav>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <main id="main-content" class="site-main">
+
+      <!-- ==================== SECTION 2: HERO ==================== -->
+      <section id="home" class="hero" aria-labelledby="hero-heading">
+
+        <!-- Hero: left content -->
+        <div class="hero__content">
+          <p class="hero__eyebrow">SMART • SIMPLE • SECURE</p>
+          <h1 id="hero-heading" class="hero__title">Attendance, reimagined.</h1>
+          <p class="hero__description">
+            SmartAttend simplifies attendance with QR code scanning, real-time tracking,
+            and clear analytics, so teachers spend less time on roll calls and
+            students can easily follow their own attendance.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#user-access">Get Started</a>
+            <a class="btn btn--secondary" href="#features">Explore Features</a>
+          </div>
+        </div>
+
+        <!-- Hero: right content (dashboard preview, bento-style layout) -->
+        <section class="dashboard-preview dashboard-preview--illustrative"
+                 aria-labelledby="preview-heading">
+
+          <header class="dashboard-preview__header">
+            <h2 id="preview-heading" class="dashboard-preview__title">Dashboard Preview</h2>
+            <p class="dashboard-preview__note">Illustrative sample data, not live data.</p>
+          </header>
+
+          <div class="dashboard-preview__grid">
+
+            <!-- QR attendance card -->
+            <article class="bento-card bento-card--qr">
+              <h3 class="bento-card__title">QR Attendance</h3>
+              <p class="bento-card__text">Sample session: Subject A</p>
+              <figure class="qr-placeholder">
+                <div class="qr-placeholder__box" role="img"
+                     aria-label="Placeholder for a QR code. This is not a real, scannable code."></div>
+                <figcaption class="qr-placeholder__caption">QR code placeholder</figcaption>
+              </figure>
+            </article>
+
+            <!-- Statistics -->
+            <dl class="dashboard-stats">
+              <div class="bento-card stat-card stat-card--total">
+                <dt class="stat-card__label">Total Students</dt>
+                <dd class="stat-card__value">60</dd>
+              </div>
+              <div class="bento-card stat-card stat-card--present">
+                <dt class="stat-card__label">Present Students</dt>
+                <dd class="stat-card__value">51</dd>
+              </div>
+              <div class="bento-card stat-card stat-card--percentage">
+                <dt class="stat-card__label">Attendance Percentage</dt>
+                <dd class="stat-card__value">85%</dd>
+              </div>
+            </dl>
+
+            <!-- Recent attendance activity -->
+            <article class="bento-card bento-card--activity" aria-labelledby="activity-heading">
+              <h3 id="activity-heading" class="bento-card__title">Recent Attendance Activity</h3>
+              <ul class="activity-list">
+                <li class="activity-list__item">
+                  <span class="activity-list__name">Aarav S.</span>
+                  <span class="activity-list__status activity-list__status--present">Present</span>
+                  <time class="activity-list__time" datetime="09:02">9:02 AM</time>
+                </li>
+                <li class="activity-list__item">
+                  <span class="activity-list__name">Meera K.</span>
+                  <span class="activity-list__status activity-list__status--present">Present</span>
+                  <time class="activity-list__time" datetime="09:03">9:03 AM</time>
+                </li>
+                <li class="activity-list__item">
+                  <span class="activity-list__name">Rohan P.</span>
+                  <span class="activity-list__status activity-list__status--late">Late</span>
+                  <time class="activity-list__time" datetime="09:12">9:12 AM</time>
+                </li>
+                <li class="activity-list__item">
+                  <span class="activity-list__name">Isha T.</span>
+                  <span class="activity-list__status activity-list__status--present">Present</span>
+                  <time class="activity-list__time" datetime="09:14">9:14 AM</time>
+                </li>
+              </ul>
+            </article>
+
+          </div>
+        </section>
+
+      </section>
+
+      <!-- ==================== SECTION 3: FEATURES ==================== -->
+      <section id="features" class="section features" aria-labelledby="features-heading">
+
+        <header class="section__header">
+          <h2 id="features-heading" class="section__title">Everything You Need for Smarter Attendance</h2>
+          <p class="section__intro">
+            SmartAttend brings the essential attendance tools for teachers and students into one place.
+          </p>
+        </header>
+
+        <ul class="feature-grid">
+
+          <li class="feature-grid__item">
+            <article class="feature-card">
+              <span class="feature-card__icon feature-card__icon--qr" aria-hidden="true"></span>
+              <h3 class="feature-card__title">QR Code Attendance</h3>
+              <p class="feature-card__text">Record attendance quickly through QR code scanning.</p>
+            </article>
+          </li>
+
+          <li class="feature-grid__item">
+            <article class="feature-card">
+              <span class="feature-card__icon feature-card__icon--tracking" aria-hidden="true"></span>
+              <h3 class="feature-card__title">Real-Time Tracking</h3>
+              <p class="feature-card__text">Monitor attendance activity and updated records.</p>
+            </article>
+          </li>
+
+          <li class="feature-grid__item">
+            <article class="feature-card">
+              <span class="feature-card__icon feature-card__icon--analytics" aria-hidden="true"></span>
+              <h3 class="feature-card__title">Smart Analytics</h3>
+              <p class="feature-card__text">Review attendance percentages and identify students with low attendance.</p>
+            </article>
+          </li>
+
+          <li class="feature-grid__item">
+            <article class="feature-card">
+              <span class="feature-card__icon feature-card__icon--security" aria-hidden="true"></span>
+              <h3 class="feature-card__title">Secure Access</h3>
+              <p class="feature-card__text">Provide separate access for teachers and students.</p>
+            </article>
+          </li>
+
+        </ul>
+      </section>
+
+      <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
+      <section id="how-it-works" class="section how-it-works" aria-labelledby="how-it-works-heading">
+
+        <header class="section__header">
+          <h2 id="how-it-works-heading" class="section__title">How SmartAttend Works</h2>
+          <p class="section__intro">
+            Taking attendance with SmartAttend follows three simple steps.
+          </p>
+        </header>
+
+        <ol class="steps-list">
+
+          <li class="steps-list__item step-card">
+            <span class="step-card__number" aria-hidden="true">1</span>
+            <h3 class="step-card__title">Teacher Generates a QR Code</h3>
+            <p class="step-card__text">The teacher selects a class or subject and creates an attendance session.</p>
+          </li>
+
+          <li class="steps-list__item step-card">
+            <span class="step-card__number" aria-hidden="true">2</span>
+            <h3 class="step-card__title">Student Scans the Code</h3>
+            <p class="step-card__text">The student scans the session's QR code using a compatible device.</p>
+          </li>
+
+          <li class="steps-list__item step-card">
+            <span class="step-card__number" aria-hidden="true">3</span>
+            <h3 class="step-card__title">Attendance Is Recorded</h3>
+            <p class="step-card__text">The system validates the request and records attendance.</p>
+          </li>
+
+        </ol>
+      </section>
+
+      <!-- ==================== SECTION 5: TEACHER AND STUDENT ACCESS ==================== -->
+      <section id="user-access" class="section user-access" aria-labelledby="user-access-heading">
+
+        <header class="section__header">
+          <h2 id="user-access-heading" class="section__title">Built for Teachers and Students</h2>
+          <p class="section__intro">
+            Each user type gets its own access, designed around what they need to do.
+          </p>
+        </header>
+
+        <div class="access-grid">
+
+          <!-- Teacher card -->
+          <article class="access-card access-card--teacher">
+            <h3 class="access-card__title">For Teachers</h3>
+            <ul class="access-card__list">
+              <li>Manage classes and subjects.</li>
+              <li>Generate QR attendance sessions.</li>
+              <li>View attendance reports.</li>
+              <li>Monitor student attendance.</li>
+            </ul>
+            <!-- PLACEHOLDER: replace with the real teacher login URL later -->
+            <a class="access-card__link btn btn--primary" href="#teacher-login-placeholder">Teacher Login</a>
+          </article>
+
+          <!-- Student card -->
+          <article class="access-card access-card--student">
+            <h3 class="access-card__title">For Students</h3>
+            <ul class="access-card__list">
+              <li>Scan attendance QR codes.</li>
+              <li>View attendance history.</li>
+              <li>Check attendance percentage.</li>
+              <li>Receive low-attendance alerts.</li>
+            </ul>
+            <!-- PLACEHOLDER: replace with the real student login URL later -->
+            <a class="access-card__link btn btn--primary" href="#student-login-placeholder">Student Login</a>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ==================== SECTION 6: BENEFITS ==================== -->
+      <section id="benefits" class="section benefits" aria-labelledby="benefits-heading">
+
+        <header class="section__header">
+          <h2 id="benefits-heading" class="section__title">A Smarter Way to Manage Attendance</h2>
+        </header>
+
+        <ul class="benefits-list">
+
+          <li class="benefits-list__item benefit-card">
+            <h3 class="benefit-card__title">Faster Attendance Recording</h3>
+            <p class="benefit-card__text">Scanning a QR code replaces calling out names one by one.</p>
+          </li>
+
+          <li class="benefits-list__item benefit-card">
+            <h3 class="benefit-card__title">Centralized Attendance Records</h3>
+            <p class="benefit-card__text">All attendance data is stored together in a single system.</p>
+          </li>
+
+          <li class="benefits-list__item benefit-card">
+            <h3 class="benefit-card__title">Easy Attendance Monitoring</h3>
+            <p class="benefit-card__text">Teachers and students can check attendance without manual paperwork.</p>
+          </li>
+
+          <li class="benefits-list__item benefit-card">
+            <h3 class="benefit-card__title">Better Visibility into Attendance Patterns</h3>
+            <p class="benefit-card__text">Clear records make it easier to notice trends and low attendance.</p>
+          </li>
+
+        </ul>
+      </section>
+
+      <!-- ==================== SECTION 7: ABOUT SMARTATTEND ==================== -->
+      <section id="about" class="section about" aria-labelledby="about-heading">
+
+        <h2 id="about-heading" class="section__title">About SmartAttend</h2>
+        <p class="about__text">
+          SmartAttend is a QR-based attendance management system built to make
+          recording and reviewing attendance clear and reliable.
+        </p>
+        <p class="about__text">
+          It aims to simplify attendance management for teachers and students by
+          reducing manual work and keeping attendance records organized in one place.
+        </p>
+
+      </section>
+
+    </main>
+
+    <!-- ==================== SECTION 8: FOOTER ==================== -->
+    <footer class="site-footer">
+
+      <div class="site-footer__about">
+        <p class="site-footer__brand">SmartAttend</p>
+        <p class="site-footer__description">
+          A smart QR-based attendance management system for teachers and students.
+        </p>
+      </div>
+
+      <nav class="site-footer__nav" aria-labelledby="footer-links-heading">
+        <h2 id="footer-links-heading" class="site-footer__heading">Quick Links</h2>
+        <ul class="site-footer__list">
+          <li><a class="site-footer__link" href="#features">Features</a></li>
+          <li><a class="site-footer__link" href="#how-it-works">How It Works</a></li>
+          <li><a class="site-footer__link" href="#about">About</a></li>
+          <!-- PLACEHOLDERS: replace with the real login URLs later -->
+          <li><a class="site-footer__link" href="#teacher-login-placeholder">Teacher Login</a></li>
+          <li><a class="site-footer__link" href="#student-login-placeholder">Student Login</a></li>
+        </ul>
+      </nav>
+
+      <p class="site-footer__copyright">&copy; 2026 SmartAttend. All rights reserved.</p>
+
+    </footer>
+
+  </body>
+</html>
