@@ -58,11 +58,13 @@
       <!-- Hero: left content -->
       <div class="hero__content">
         <p class="hero__eyebrow">SIMPLE • SMART • SECURE</p>
+
         <h1 id="hero-heading" class="hero__title">
-          Smarter Classroom
-          <span
-            style="display: block; font-size: 2.2rem; font-weight: 600; color: white; margin-top: 6px;">Check-Ins</span>
+          Smarter<br>
+          Classroom
+          <span class="hero__subtitle">Check-Ins</span>
         </h1>
+
         <p class="hero__description">
           Replace manual registers with automated QR verification. Built to save lecture time, maintain accurate daily
           logs, and provide instant attendance insights for students and educators
@@ -99,35 +101,43 @@
           </article>
 
 
-          <!-- Attendance statistics: compact bullet-style rows -->
-          <div class="dashboard-stats dashboard-stats--compact">
 
-            <div class="stat-row stat-row--total">
-              <span class="stat-row__dot" aria-hidden="true"></span>
-              <span class="stat-row__label">Total Students</span>
-              <strong class="stat-row__value">60</strong>
-            </div>
+          <div class="attendance-summary">
 
-            <div class="stat-row stat-row--present">
-              <span class="stat-row__dot" aria-hidden="true"></span>
-              <span class="stat-row__label">Present Students</span>
-              <strong class="stat-row__value">48</strong>
-            </div>
+            <center>
+              <div class="summary-block total-block">
+                <div class="summary-icon">👥</div>
+                <p>Total Students</p>
 
-            <div class="stat-row stat-row--absent">
-              <span class="stat-row__dot" aria-hidden="true"></span>
-              <span class="stat-row__label">Absent Students</span>
-              <strong class="stat-row__value">12</strong>
-            </div>
+                <h2>60</h2>
+                <span class="summary-label"></span>
+              </div>
+            </center>
 
-            <div class="bento-card stat-card stat-card--percentage">
-              <dt class="stat-card__label">
-                <b>Attendance Percentage</b>
-              </dt>
-              <dd class="stat-card__value">80%</dd>
-            </div>
+            <center>
+              <div class="summary-block present-block">
+                <div class="summary-icon">✓</div>
+                <p>Present Students</p>
+
+                <h2>48</h2>
+
+                <span class="summary-label"></span>
+              </div>
+            </center>
+
+            <center>
+              <div class="summary-block absent-block">
+                <div class="summary-icon">✕</div>
+                <p>Absent Students</p>
+
+                <h2>12</h2>
+
+                <span class="summary-label"></span>
+              </div>
+            </center>
 
           </div>
+
 
 
           <!-- Fictional demo attendance entries -->

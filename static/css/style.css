@@ -1256,3 +1256,141 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+
+/* Attendance Summary Blocks */
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  margin: 24px 0;
+}
+
+.summary-block {
+  padding: 22px;
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 5px 18px rgba(25, 45, 75, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.summary-block:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(25, 45, 75, 0.11);
+}
+
+.summary-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.summary-block p {
+  margin: 0 0 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.summary-block h2 {
+  margin: 0 0 10px;
+  color: #172b4d;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #8491a5;
+}
+
+.total-block .summary-icon {
+  background: #e8f3ff;
+  color: #1683e8;
+}
+
+.present-block .summary-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.absent-block .summary-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Responsive layout */
+@media (max-width: 700px) {
+  .attendance-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .summary-block {
+    padding: 18px;
+  }
+}
+
+#hero-heading.hero__title {
+  font-size: 3.6rem !important;
+  font-weight: 800 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -2px !important;
+  color: #0785ce !important;
+  background: none !important;
+  -webkit-text-fill-color: #0785ce !important;
+  margin: 0;
+}
+
+#hero-heading.hero__title .hero__subtitle {
+  display: block !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: -1px !important;
+  margin-top: 7px !important;
+  background: linear-gradient(90deg, #0785ce, #5055e8) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #4169e1;
+}
+
+.attendly-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.attendly-logo-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0785ce, #4265e8);
+  color: #ffffff;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(7, 133, 206, 0.22);
+}
+
+.attendly-logo-text {
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  color: #172b4d;
+}
+
+.attendly-logo:hover .attendly-logo-icon {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
