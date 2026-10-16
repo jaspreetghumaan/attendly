@@ -79,7 +79,6 @@
 
         <header class="dashboard-preview__header">
           <h2 id="preview-heading" class="dashboard-preview__title">Attendly Dashboard </h2>
-          <p class="dashboard-preview__note">Demo data only — not connected to a live attendance system.</p>
         </header>
 
         <div class="dashboard-preview__grid">
@@ -99,34 +98,37 @@
             </figure>
           </article>
 
-          <!-- Attendance statistics: sample values -->
-          <dl class="dashboard-stats">
-            <div class="bento-card stat-card stat-card--total">
-              <dt class="stat-card__label"><b>Total Students</b></dt>
-              <center>
-                <dd class="stat-card__value">60</dd>
-              </center>
+
+          <!-- Attendance statistics: compact bullet-style rows -->
+          <div class="dashboard-stats dashboard-stats--compact">
+
+            <div class="stat-row stat-row--total">
+              <span class="stat-row__dot" aria-hidden="true"></span>
+              <span class="stat-row__label">Total Students</span>
+              <strong class="stat-row__value">60</strong>
             </div>
 
-            <div class="bento-card stat-card stat-card--present">
-              <dt class="stat-card__label"><b>Present Students</b></dt>
-              <center>
-                <dd class="stat-card__value">48</dd>
-              </center>
+            <div class="stat-row stat-row--present">
+              <span class="stat-row__dot" aria-hidden="true"></span>
+              <span class="stat-row__label">Present Students</span>
+              <strong class="stat-row__value">48</strong>
             </div>
 
-            <div class="bento-card stat-card stat-card--absent">
-              <dt class="stat-card__label"><b>Absent Students</b></dt>
-              <center>
-                <dd class="stat-card__value">12</dd>
-              </center>
+            <div class="stat-row stat-row--absent">
+              <span class="stat-row__dot" aria-hidden="true"></span>
+              <span class="stat-row__label">Absent Students</span>
+              <strong class="stat-row__value">12</strong>
             </div>
 
             <div class="bento-card stat-card stat-card--percentage">
-              <dt class="stat-card__label"><b>Attendance Percentage</b></dt>
+              <dt class="stat-card__label">
+                <b>Attendance Percentage</b>
+              </dt>
               <dd class="stat-card__value">80%</dd>
             </div>
-          </dl>
+
+          </div>
+
 
           <!-- Fictional demo attendance entries -->
           <article class="bento-card bento-card--activity" aria-labelledby="activity-heading">
