@@ -20,7 +20,11 @@
   --ease: 200ms cubic-bezier(.16, 1, .3, 1);
 }
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
@@ -39,8 +43,15 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, p { margin: 0; }
-a { color: inherit; }
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
 
 /* ---------- Card ---------- */
 .login-container {
@@ -54,7 +65,13 @@ a { color: inherit; }
   box-shadow: 0 40px 80px -30px rgba(11, 27, 51, .28), 0 0 0 1px rgba(11, 27, 51, .05);
   animation: card-in .7s cubic-bezier(.16, 1, .3, 1) both;
 }
-@keyframes card-in { from { opacity: 0; transform: translateY(16px); } }
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
 
 /* ---------- Left: illustration ---------- */
 .login-image-section {
@@ -100,36 +117,59 @@ a { color: inherit; }
 }
 
 /* Brand lockup (drawn in CSS, so no extra HTML needed) */
+/* Nawa Code (Line 91 - 105 di jagah) */
 .login-form-container::before {
   content: "Attendly";
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .65rem;
   margin-bottom: 1.5rem;
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -.03em;
   color: var(--ink);
-}
-.login-form-container::after { content: none; }
 
+  /* Text de barabar size da attendance/calendar SVG icon */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='4' ry='4'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3Cpath d='m9 16 2 2 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 1.35rem 1.35rem;
+  padding-left: 1.85rem;
+}
+
+.login-form-container::after {
+  content: none;
+}
+
+.login-form-container::after {
+  content: none;
+}
+
+/* Nawa Code (Line 107 - 121 di jagah) */
 .login-form-container h2 {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -.035em;
+  font-size: clamp(1.75rem, 3.2vw, 2.15rem);
+  /* Over-bold/bade font nu thoda compact te premium kita */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
   color: var(--ink);
-  margin-bottom: .5rem;
+  margin-bottom: 0.45rem;
 }
 
-.login-form-container > p:not(.flash-message):not(.register-link) {
-  font-size: .9375rem;
-  color: var(--ink-muted);
+.login-form-container>p:not(.flash-message):not(.register-link) {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #64748b;
+  /* Soft slate/muted grey color */
   margin-bottom: 1.75rem;
+  letter-spacing: -0.01em;
 }
+
+
 
 /* ---------- Flash messages ---------- */
 .flash-message {
@@ -145,9 +185,13 @@ a { color: inherit; }
 }
 
 /* ---------- Form ---------- */
-form { text-align: left; }
+form {
+  text-align: left;
+}
 
-.form-group { margin-bottom: 1rem; }
+.form-group {
+  margin-bottom: 1rem;
+}
 
 .form-group label {
   display: block;
@@ -157,62 +201,80 @@ form { text-align: left; }
   color: var(--ink);
 }
 
+/* Nawa Code (Line 144 - 159 di jagah) */
 .form-group input {
   width: 100%;
-  height: 3.1rem;
-  padding: 0 1rem 0 2.9rem;
+  height: 3rem;
+  padding: 0 1rem 0 2.85rem;
   font: inherit;
   font-size: .9375rem;
   color: var(--ink);
-  background-color: #fff;
+  background-color: #fbfcfe;
   background-repeat: no-repeat;
   background-position: 1rem 50%;
-  background-size: 1.1rem;
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  transition: border-color var(--ease), box-shadow var(--ease);
+  background-size: 1.05rem;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  transition: border-color var(--ease), box-shadow var(--ease), background-color var(--ease);
 }
 
-.form-group input::placeholder { color: #94a3b8; }
-.form-group input:hover { border-color: #94a3b8; }
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.form-group input:hover {
+  border-color: #cbd5e1;
+}
+
 .form-group input:focus {
   outline: none;
+  background-color: #ffffff;
   border-color: var(--blue);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, .15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
 }
 
 /* field icons: user for email, lock for password */
 .form-group input[type="email"] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
 }
+
 .form-group input[type="password"] {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E");
 }
 
 /* ---------- Button ---------- */
+/* Nawa Code (Line 173 - 194 di jagah) */
 .login-button {
   display: block;
   width: 100%;
-  height: 3.1rem;
-  margin-top: 1.5rem;
+  height: 2.95rem;
+  margin-top: 1.4rem;
   font: inherit;
-  font-size: 1rem;
+  font-size: .95rem;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
   background: var(--blue);
   border: 0;
-  border-radius: 9999px;
-  box-shadow: 0 10px 22px -8px rgba(37, 99, 235, .6);
+  border-radius: 10px;
+  box-shadow: 0 4px 14px -3px rgba(37, 99, 235, 0.4);
   transition: background var(--ease), transform var(--ease), box-shadow var(--ease);
 }
+
 .login-button:hover {
   background: var(--blue-dark);
   transform: translateY(-1px);
-  box-shadow: 0 14px 26px -8px rgba(37, 99, 235, .65);
+  box-shadow: 0 6px 18px -3px rgba(37, 99, 235, 0.45);
 }
-.login-button:active { transform: translateY(1px); }
-.login-button:focus-visible { outline: 3px solid rgba(37, 99, 235, .4); outline-offset: 3px; }
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.login-button:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
 
 /* ---------- Links ---------- */
 .register-link {
@@ -220,12 +282,17 @@ form { text-align: left; }
   font-size: .875rem;
   color: var(--ink-soft);
 }
+
 .register-link a {
   font-weight: 600;
   color: var(--blue);
   text-decoration: none;
 }
-.register-link a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.register-link a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .back-home {
   display: inline-block;
@@ -237,23 +304,140 @@ form { text-align: left; }
   text-decoration: none;
   transition: color var(--ease);
 }
-.back-home::before { content: "← "; }
-.back-home:hover { color: var(--blue); }
+
+.back-home::before {
+  content: "← ";
+}
+
+.back-home:hover {
+  color: var(--blue);
+}
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
-  .login-container { grid-template-columns: 1fr; min-height: 0; }
-  .login-image-section { padding: 1.25rem 1.25rem 0; }
-  .login-image { max-height: 15rem; }
+  .login-container {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .login-image-section {
+    padding: 1.25rem 1.25rem 0;
+  }
+
+  .login-image {
+    max-height: 15rem;
+  }
 }
 
 @media (max-width: 520px) {
-  body { padding: 0; place-items: stretch; background: #fff; }
-  .login-container { border-radius: 0; box-shadow: none; min-height: 100vh; }
-  .login-image-section { display: none; }
-  .login-form-section { align-items: start; padding-top: 2.5rem; }
+  body {
+    padding: 0;
+    place-items: stretch;
+    background: #fff;
+  }
+
+  .login-container {
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+
+  .login-image-section {
+    display: none;
+  }
+
+  .login-form-section {
+    align-items: start;
+    padding-top: 2.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Nawa Code (Line 91 - 105 di jagah) */
+.login-form-container::before {
+  content: "Attendly";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--ink);
+
+  /* Tuhaada logo link */
+  background-image: url("https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png");
+  background-repeat: no-repeat;
+  background-position: left center;
+  background-size: 1.4rem 1.4rem;
+  /* Text de barabar size */
+  padding-left: 1.85rem;
+  /* Logo te text vich gap */
+}
+
+.login-form-container::after {
+  content: none;
+}
+
+/* Nawa Code (Line 212 - 223 di jagah) */
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+  padding: 0.65rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--blue);
+  background-color: #eff6ff;
+  /* Theme de mutabiq halka blue rang */
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.06);
+  transition: background-color var(--ease), transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+}
+
+.back-home::before {
+  content: "←";
+  font-size: 0.95rem;
+  transition: transform var(--ease);
+}
+
+/* Hover te Click (Active) Effect bilkul Sign In button wangu */
+.back-home:hover {
+  background-color: #dbeafe;
+  /* Thoda hor soft blue color */
+  border-color: rgba(37, 99, 235, 0.3);
+  color: var(--blue-dark);
+  transform: translateY(-1px);
+  /* Halka jeha utte uthega */
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.back-home:hover::before {
+  transform: translateX(-2px);
+  /* Arrow thoda piche nu move hovega */
+}
+
+.back-home:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
+}
+
+.back-home:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
