@@ -9,26 +9,141 @@ app.secret_key = secrets.token_hex(32)
 @app.route("/")
 def home():
     return render_template("index.html")
-
-#Register routes
+# Register routes
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     if request.method == "POST":
-        name = request.form["name"].strip()
-        email = request.form["email"].strip().lower()
-        password = request.form["password"]
-        roll_number = request.form["roll_number"].strip()
-        course = request.form["course"].strip()
 
-        if not all([name, email, password, roll_number, course]):
-            flash("All fields are required.")
+        # Personal details
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
+        dob = request.form.get("dob", "").strip()
+        gender = request.form.get("gender", "").strip()
+        phone = request.form.get("phone", "").strip()
+        alternate_phone = request.form.get("alternate_phone", "").strip()
+
+        # Academic details
+        roll_number = request.form.get("roll_number", "").strip()
+        department = request.form.get("department", "").strip()
+        course = request.form.get("course", "").strip()
+        specialization = request.form.get("specialization", "").strip()
+        year = request.form.get("year", "").strip()
+        semester = request.form.get("semester", "").strip()
+        admission_year = request.form.get("admission_year", "").strip()
+        section = request.form.get("section", "").strip()
+        college = request.form.get("college", "").strip()
+        residence_type = request.form.get("residence_type", "").strip()
+
+        # Address and guardian details
+        address = request.form.get("address", "").strip()
+        city = request.form.get("city", "").strip()
+        state = request.form.get("state", "").strip()
+        pin_code = request.form.get("pin_code", "").strip()
+        guardian_name = request.form.get("guardian_name", "").strip()
+        guardian_phone = request.form.get("guardian_phone", "").strip()
+
+        # Required field validation
+        required_fields = [
+            name, email, password, confirm_password,
+            phone, roll_number, department, course,
+            residence_type
+        ]
+
+        if not all(required_fields):
+            flash("Please fill in all required fields.")
             return redirect(url_for("register"))
 
+        # Password validation
         if len(password) < 8:
             flash("Password must be at least 8 characters long.")
             return redirect(url_for("register"))
 
+        if password != confirm_password:
+            flash("Passwords do not match.")
+            return redirect(url_for("register"))
+
+        # Phone validation
+        if not phone.isdigit() or len(phone) != 10:
+            flash("Enter a valid 10-digit contact number.")
+            return redirect(url_for("register"))
+
+        if alternate_phone and (
+            not alternate_phone.isdigit()
+            or len(alternate_phone) != 10
+        ):
+            flash("Enter a valid 10-digit alternate number.")
+            return redirect(url_for("register"))
+
+        if guardian_phone and (
+            not guardian_phone.isdigit()
+            or len(guardian_phone) != 10
+        ):
+            flash("Enter a valid 10-digit guardian number.")
+            return redirect(url_for("register"))
+
+        if pin_code and (
+            not pin_code.isdigit() or len(pin_code) != 6
+        ):
+            flash("Enter a valid 6-digit PIN code.")
+            return redirect(url_for("register"))
+
+        # Validate the selected department and course on the server.
+        # Never rely on JavaScript alone for validation.
+        department_courses = {
+            "Applied Science": [
+                "B.Tech Artificial Intelligence (AI)",
+                "B.Tech Computer Science Engineering (CSE)",
+                "B.Tech Computer Science and Design (CSD)",
+                "B.Tech Civil Engineering",
+                "B.Tech Mechanical Engineering",
+                "Diploma in Computer Science (CS)",
+                "Diploma in Electronics and Communication Engineering (ECE)"
+            ],
+            "Allied Science": ["RMT", "OTT", "BPT"],
+            "Pharmacy": ["B.Pharma", "D.Pharma", "Pharm.D"],
+            "Computer Science": [
+                "B.Tech Artificial Intelligence (AI)",
+                "B.Tech Computer Science Engineering (CSE)",
+                "B.Tech Computer Science and Design (CSD)",
+                "Diploma in Computer Science (CS)"
+            ],
+            "Law": ["LLB"],
+            "Business Administration": ["BBA", "MBA"],
+            "Hotel Management": [
+                "BHM (Bachelor of Hotel Management)",
+                "B.Sc. Hospitality and Hotel Administration",
+                "Diploma in Hotel Management",
+                "Diploma in Food Production",
+                "Diploma in Front Office Operations"
+            ],
+            "ME/CIVIL/ECE": [
+                "B.Tech Mechanical Engineering",
+                "B.Tech Civil Engineering",
+                "Diploma in Electronics and Communication Engineering (ECE)"
+            ],
+            "Department of Computer Application": ["BCA", "MCA"]
+        }
+
+        if course not in department_courses.get(department, []):
+            flash("Please select a valid course for your department.")
+            return redirect(url_for("register"))
+
+        if residence_type not in ["Hosteller", "Day Scholar"]:
+            flash("Please select a valid residence type.")
+            return redirect(url_for("register"))
+
+        # Convert optional numeric values safely
+        try:
+            year = int(year) if year else None
+            semester = int(semester) if semester else None
+            admission_year = int(admission_year) if admission_year else None
+        except ValueError:
+            flash("Year, semester, and admission year must be valid numbers.")
+            return redirect(url_for("register"))
+
+        # Hash password before storing it
         hashed_password = generate_password_hash(password)
 
         conn = get_db_connection()
@@ -46,10 +161,32 @@ def register():
 
             conn.execute(
                 """
-                INSERT INTO students (user_id, roll_number, course)
-                VALUES (?, ?, ?)
+                INSERT INTO students (
+                    user_id, roll_number, course,
+                    dob, gender, phone, alternate_phone,
+                    department, specialization, year, semester,
+                    admission_year, section, college,
+                    address, city, state, pin_code,
+                    guardian_name, guardian_phone, residence_type
+                )
+                VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                )
                 """,
-                (user_id, roll_number, course)
+                (
+                    user_id, roll_number, course,
+                    dob or None, gender or None,
+                    phone, alternate_phone or None,
+                    department, specialization or None,
+                    year, semester, admission_year,
+                    section or None, college or None,
+                    address or None, city or None,
+                    state or None, pin_code or None,
+                    guardian_name or None,
+                    guardian_phone or None,
+                    residence_type
+                )
             )
 
             conn.commit()
@@ -104,28 +241,85 @@ def login():
 
     return render_template("login.html")
 
-#Student dashboard route
+# Student Dashboard Route
 @app.route("/student/dashboard")
 def student_dashboard():
+
     if "user_id" not in session or session.get("role") != "student":
         return redirect(url_for("login"))
 
     conn = get_db_connection()
 
-    student = conn.execute(
-        """
-        SELECT users.name, users.email, students.roll_number, students.course
-        FROM users
-        JOIN students ON users.id = students.user_id
-        WHERE users.id = ?
-        """,
-        (session["user_id"],)
-    ).fetchone()
+    try:
+        # Get student profile
+        student = conn.execute(
+            """
+            SELECT
+                users.name,
+                users.email,
+                students.id AS student_id,
+                students.roll_number,
+                students.course,
+                students.department,
+                students.specialization,
+                students.year,
+                students.semester,
+                students.section,
+                students.residence_type
+            FROM users
+            JOIN students ON users.id = students.user_id
+            WHERE users.id = ?
+            """,
+            (session["user_id"],)
+        ).fetchone()
 
-    conn.close()
+        if student is None:
+            return "Student profile not found.", 404
 
-    return render_template("student_dashboard.html", student=student)
+        # Calculate attendance statistics
+        attendance_stats = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS total_classes,
+                SUM(
+                    CASE WHEN status = 'Present' THEN 1 ELSE 0 END
+                ) AS classes_attended
+            FROM attendance
+            WHERE student_id = ?
+            """,
+            (student["student_id"],)
+        ).fetchone()
+                # Get the student's attendance history
+        attendance_history = conn.execute(
+            """
+            SELECT attendance_date, status
+            FROM attendance
+            WHERE student_id = ?
+            ORDER BY attendance_date DESC
+            """,
+            (student["student_id"],)
+        ).fetchall()
 
+        total_classes = attendance_stats["total_classes"] or 0
+        classes_attended = attendance_stats["classes_attended"] or 0
+
+        attendance_percentage = (
+            round((classes_attended / total_classes) * 100, 1)
+            if total_classes > 0
+            else 0
+        )
+
+        return render_template(
+            "student_dashboard.html",
+            student=student,
+            total_classes=total_classes,
+            classes_attended=classes_attended,
+            attendance_percentage=attendance_percentage,
+            attendance_history=attendance_history
+        )
+
+    finally:
+        conn.close()
 #Logout route
 @app.route("/logout")
 def logout():
@@ -148,13 +342,29 @@ def admin_dashboard():
     total_attendance = conn.execute(
         "SELECT COUNT(*) FROM attendance WHERE status = 'Present'"
     ).fetchone()[0]
-
+    # Get all registered students
+    students = conn.execute("""
+        SELECT
+            users.name,
+            users.email,
+            students.roll_number,
+            students.department,
+            students.course,
+            students.year,
+            students.semester,
+            students.residence_type
+        FROM students
+        JOIN users ON students.user_id = users.id
+        WHERE users.role = 'student'
+        ORDER BY students.roll_number
+    """).fetchall()
     conn.close()
 
     return render_template(
         "admin_dashboard.html",
         total_students=total_students,
-        total_attendance=total_attendance
+        total_attendance=total_attendance,
+        students=students
     )
 
 if __name__ == "__main__":

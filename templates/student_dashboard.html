@@ -3,23 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student Dashboard | SmartAttend</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/student_dashboard.css') }}">
 </head>
+
 <body>
 
-    <h1>Welcome, {{ student.name }}!</h1>
+    <main class="dashboard-container">
 
-    <h2>Your Profile</h2>
+        <!-- Header -->
+        <header class="dashboard-header">
 
-    <p><strong>Name:</strong> {{ student.name }}</p>
-    <p><strong>Email:</strong> {{ student.email }}</p>
-    <p><strong>Roll Number:</strong> {{ student.roll_number }}</p>
-    <p><strong>Course:</strong> {{ student.course }}</p>
+            <div class="brand">
+                <div class="brand-icon">S</div>
 
-    <p>Your attendance information will appear here soon.</p>
+                <div>
+                    <h2>SmartAttend</h2>
+                    <p>SMART • SIMPLE • SECURE</p>
+                </div>
+            </div>
 
-    <a href="{{ url_for('logout') }}">Logout</a>
+            <a href="{{ url_for('logout') }}" class="logout-button">
+                Logout ↗
+            </a>
+
+        </header>
+
+
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+
+            <p class="welcome-label">STUDENT DASHBOARD</p>
+
+            <h1>Welcome back, {{ student.name }}! 👋</h1>
+
+            <p>
+                Your academic attendance, all in one place.
+                Stay informed and keep track of your progress.
+            </p>
+
+        </section>
+
+
+        <!-- Attendance Statistics -->
+        <section>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Your Attendance</h2>
+                    <p>Your attendance overview will appear here.</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+
+                <article class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <p class="stat-label">Total Classes</p>
+                    <p class="stat-value">{{ total_classes }}</p>
+                    <p class="stat-note">Attendance summary</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon">✓</div>
+                    <p class="stat-label">Classes Attended</p>
+                    <p class="stat-value">{{ classes_attended }}</p>
+                    <p class="stat-note">Your present records</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <p class="stat-label">Attendance Percentage</p>
+                    <p class="stat-value">{{ attendance_percentage }}%</p>
+                    <p class="stat-note">Based on recorded classes</p>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- Student Profile -->
+        <section>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Your Profile</h2>
+                    <p>Your registered academic information.</p>
+                </div>
+            </div>
+
+            <div class="profile-card">
+
+                <div class="profile-grid">
+
+                    <div class="profile-item">
+                        <span class="profile-label">Full Name</span>
+                        <span class="profile-value">{{ student.name }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Email Address</span>
+                        <span class="profile-value">{{ student.email }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Roll Number</span>
+                        <span class="profile-value">{{ student.roll_number or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Department</span>
+                        <span class="profile-value">{{ student.department or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Course</span>
+                        <span class="profile-value">{{ student.course or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Specialization</span>
+                        <span class="profile-value">{{ student.specialization or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Academic Year</span>
+                        <span class="profile-value">{{ student.year or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Semester</span>
+                        <span class="profile-value">{{ student.semester or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Section</span>
+                        <span class="profile-value">{{ student.section or 'Not provided' }}</span>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="profile-label">Residence</span>
+                        <span class="profile-value">{{ student.residence_type or 'Not provided' }}</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+              <!-- Attendance History -->
+        <section>
+            <div class="section-heading">
+                <div>
+                    <h2>Attendance History</h2>
+                    <p>Review your recorded attendance.</p>
+                </div>
+            </div>
+
+            <div class="history-card">
+                {% if attendance_history %}
+                    <div class="history-list">
+                        {% for record in attendance_history %}
+                            <div class="history-item">
+                                <div class="history-date">
+                                    <span class="history-label">Date</span>
+                                    <span>{{ record.attendance_date }}</span>
+                                </div>
+
+                                <div class="history-status">
+                                    <span class="history-label">Status</span>
+                                    <span class="status-badge {{ record.status | lower }}">
+                                        {{ record.status }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <p>No attendance records yet.</p>
+                        <span>Your attendance history will appear here.</span>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- QR Scanner -->
+        <section class="scanner-card">
+
+            <h2>Mark Your Attendance</h2>
+
+            <p>
+                Scan your teacher's active QR code to mark yourself present.
+            </p>
+
+            <button type="button" class="scanner-button" disabled>
+                ▦ QR Scanner — Coming Soon
+            </button>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            © SmartAttend | Smart • Simple • Secure
+        </footer>
+
+    </main>
 
 </body>
 </html>
