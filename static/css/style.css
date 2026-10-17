@@ -212,11 +212,11 @@ h3 {
 }
 
 .brand__mark {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2);
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  object-fit: contain;
+  box-shadow: 0 0 12px rgba(0, 180, 255, 0.25);
 }
 
 .brand__name {
@@ -1105,7 +1105,9 @@ h3 {
    17. FOOTER (Refined light border & inline navigation)
    ========================================================================== */
 .site-footer {
-  background: #ffffff;
+  /* background: #ffffff; */
+  /* background: var(--color-brand-start); */
+  background: #f0f7ff;
   border-top: 1px solid #e2e8f0;
   padding-block: 2.75rem 2rem;
   padding-inline: var(--page-pad);
@@ -1238,6 +1240,7 @@ h3 {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.25rem;
+
   }
 
   .site-footer__list {
@@ -1393,4 +1396,26 @@ h3 {
 .attendly-logo:hover .attendly-logo-icon {
   transform: translateY(-2px);
   transition: transform 0.2s ease;
+}
+
+/* Footer logo */
+.site-footer__brand {
+  font-size: 24px;
+  font-weight: 800;
+
+}
+
+/* Footer vich image da pura size */
+.site-footer .brand__mark {
+  width: 45px !important;
+  height: 45px !important;
+  object-fit: contain !important;
+
+}
+
+.site-footer__about {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
 }
