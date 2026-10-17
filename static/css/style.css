@@ -1,6 +1,5 @@
 /* ==========================================================================
    Attendly | static/css/style.css
-<<<<<<< HEAD
    Full production stylesheet matching index.html
    ========================================================================== */
 
@@ -46,7 +45,6 @@
   --page-pad: max(var(--gutter), calc((100% - var(--container)) / 2));
   --ease: 200ms cubic-bezier(0.16, 1, 0.3, 1);
   --focus: #0284c7;
-=======
    Modern Clean Light Theme — Mapped to Original index.html Structure
    ========================================================================== */
 
@@ -129,7 +127,6 @@
 *::before,
 *::after {
   box-sizing: border-box;
->>>>>>> e17d138eae463bc06aa5588034518ebcad51a61b
 }
 
 /* 2. RESET */
