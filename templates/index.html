@@ -58,11 +58,13 @@
       <!-- Hero: left content -->
       <div class="hero__content">
         <p class="hero__eyebrow">SIMPLE • SMART • SECURE</p>
+
         <h1 id="hero-heading" class="hero__title">
-          Smarter Classroom
-          <span
-            style="display: block; font-size: 2.2rem; font-weight: 600; color: white; margin-top: 6px;">Check-Ins</span>
+          Smarter<br>
+          Classroom
+          <span class="hero__subtitle">Check-Ins</span>
         </h1>
+
         <p class="hero__description">
           Replace manual registers with automated QR verification. Built to save lecture time, maintain accurate daily
           logs, and provide instant attendance insights for students and educators
@@ -79,7 +81,6 @@
 
         <header class="dashboard-preview__header">
           <h2 id="preview-heading" class="dashboard-preview__title">Attendly Dashboard </h2>
-          <p class="dashboard-preview__note">Demo data only — not connected to a live attendance system.</p>
         </header>
 
         <div class="dashboard-preview__grid">
@@ -95,38 +96,49 @@
             <figure class="qr-placeholder">
               <div class="qr-placeholder__box" role="img"
                 aria-label="Placeholder for a QR code. This is not a real, scannable code."></div>
-              <figcaption class="qr-placeholder__caption">Demo QR placeholder — not scannable</figcaption>
+              <figcaption class="qr-placeholder__caption">Demo QR </figcaption>
             </figure>
           </article>
 
-          <!-- Attendance statistics: sample values -->
-          <dl class="dashboard-stats">
-            <div class="bento-card stat-card stat-card--total">
-              <dt class="stat-card__label"><b>Total Students</b></dt>
-              <center>
-                <dd class="stat-card__value">60</dd>
-              </center>
-            </div>
 
-            <div class="bento-card stat-card stat-card--present">
-              <dt class="stat-card__label"><b>Present Students</b></dt>
-              <center>
-                <dd class="stat-card__value">48</dd>
-              </center>
-            </div>
 
-            <div class="bento-card stat-card stat-card--absent">
-              <dt class="stat-card__label"><b>Absent Students</b></dt>
-              <center>
-                <dd class="stat-card__value">12</dd>
-              </center>
-            </div>
+          <div class="attendance-summary">
 
-            <div class="bento-card stat-card stat-card--percentage">
-              <dt class="stat-card__label"><b>Attendance Percentage</b></dt>
-              <dd class="stat-card__value">80%</dd>
-            </div>
-          </dl>
+            <center>
+              <div class="summary-block total-block">
+                <div class="summary-icon">👥</div>
+                <p>Total Students</p>
+
+                <h2>60</h2>
+                <span class="summary-label"></span>
+              </div>
+            </center>
+
+            <center>
+              <div class="summary-block present-block">
+                <div class="summary-icon">✓</div>
+                <p>Present Students</p>
+
+                <h2>48</h2>
+
+                <span class="summary-label"></span>
+              </div>
+            </center>
+
+            <center>
+              <div class="summary-block absent-block">
+                <div class="summary-icon">✕</div>
+                <p>Absent Students</p>
+
+                <h2>12</h2>
+
+                <span class="summary-label"></span>
+              </div>
+            </center>
+
+          </div>
+
+
 
           <!-- Fictional demo attendance entries -->
           <article class="bento-card bento-card--activity" aria-labelledby="activity-heading">
