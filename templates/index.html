@@ -42,7 +42,7 @@
         <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How It Works</a></li>
         <li class="site-nav__item"><a class="site-nav__link" href="#about">About</a></li>
         <!-- PLACEHOLDER: replace with the real login page URL later -->
-        <li class="site-nav__item"><a class="site-nav__login btn btn--secondary" href="#login-placeholder">Login</a>
+        <li class="site-nav__item"><a class="site-nav__login btn btn--secondary" href="{{ url_for('register') }}">Register</a>
         </li>
       </ul>
 
@@ -244,10 +244,6 @@
       </ul>
     </section>
 
-
-
-    <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
-
     <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
     <section id="how-it-works" class="section how-it-works" aria-labelledby="how-it-works-heading">
 
@@ -333,7 +329,7 @@
             <li>Review attendance reports and summaries.</li>
           </ul>
 
-          <center> <a class="access-card__link btn btn--primary" href="#teacher-login-placeholder"
+          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
               aria-label="Access the teacher login portal">
               Teacher Login
             </a></center>
@@ -359,7 +355,7 @@
             <li>Identify when attendance is running low.</li>
           </ul>
 
-          <center> <a class="access-card__link btn btn--primary" href="#student-login-placeholder"
+          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
               aria-label="Access the student login portal">
               Student Login
             </a></center>
