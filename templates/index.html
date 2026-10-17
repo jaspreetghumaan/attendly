@@ -28,7 +28,9 @@
       <!-- Brand / logo area -->
       <a class="brand" href="#home" aria-label="Attendly home">
 
-        <img class="brand__mark" src="https://i.ibb.co/xKsjRng0/Neon-A-Scan-Emblem.png" , alt="Attendly Logo">
+        <img class="brand__mark"
+          src="https://images.openai.com/static-rsc-5/l7wmMSQ5oPWCUUEmaZut6E4bl0R6Af4ukfQOPrKs1hebiuZhmR0h3VD3enWEzy_aQSpNmZqNO04hpBywVHAxixSu43hXrYLS3hclfCR8alz5h8s8LPN32MBALvF2gY0T0t2roqgLTrfNNiNzICVJe8TPPPKRSPDL0ZS5AW9-Am7Mqleh1QjESIldd4A25Soo2_o5tF2iLuJOMAarffpT6eMMZXGJesazMLynF8w6hcxFS4uZE1BwaGT5heOuuqJikwPQXv6GZseaXKU6UZAYnMYkwOa9wl4pMS8Exnoko-XoyU5S92q010jyBfUgSSNdvAAB1Xsr7ccQLmv-H6e7Wer3c9aK7ylHwoFaKzMwic7Td1qJcmQK3ku6LBGv7_jo"
+          , alt="Attendly Logo">
         <span class="brand__name">Attendly</span>
       </a>
 
@@ -39,7 +41,8 @@
         <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How It Works</a></li>
         <li class="site-nav__item"><a class="site-nav__link" href="#about">About</a></li>
         <!-- PLACEHOLDER: replace with the real login page URL later -->
-        <li class="site-nav__item"><a class="site-nav__login btn btn--secondary" href="#login-placeholder">Login</a>
+        <li class="site-nav__item"><a class="site-nav__login btn btn--secondary"
+            href="{{ url_for('register') }}">Register</a>
         </li>
       </ul>
 
@@ -59,8 +62,11 @@
         <h1 id="hero-heading" class="hero__title">
           Smarter<br>
           Classroom
-          <span class="hero__subtitle">Check-Ins</span>
         </h1>
+
+        <h2 class="hero__subtitle hero__check-ins">
+          Check-Ins
+        </h2>
 
         <p class="hero__description">
           Replace manual registers with automated QR verification. Built to save lecture time, maintain accurate daily
@@ -84,12 +90,27 @@
 
           <!-- QR attendance card: sample class details -->
           <article class="bento-card bento-card--qr">
-            <h3 class="bento-card__title">QR Attendance</h3>
-            <p class="bento-card__text">Course: B.Tech (Artificial Intelligence)</p>
-            <p class="bento-card__text">Semester: 3rd Semester</p>
-            <p class="bento-card__text">Section: A</p>
-            <p class="bento-card__text">Subject: Data Structures &amp; Algorithms (DSA)</p>
+            <div class="attendance-summary">
 
+              <div class="summary-block total-block">
+                <div class="summary-icon">👥</div>
+                <p>Total Students</p>
+                <h2>60</h2>
+              </div>
+
+              <div class="summary-block present-block">
+                <div class="summary-icon">✓</div>
+                <p>Present Students</p>
+                <h2>48</h2>
+              </div>
+
+              <div class="summary-block absent-block">
+                <div class="summary-icon">✕</div>
+                <p>Absent Students</p>
+                <h2>12</h2>
+              </div>
+
+            </div>
             <figure class="qr-placeholder">
               <div class="qr-placeholder__box" role="img"
                 aria-label="Placeholder for a QR code. This is not a real, scannable code."></div>
@@ -241,10 +262,6 @@
       </ul>
     </section>
 
-
-
-    <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
-
     <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
     <section id="how-it-works" class="section how-it-works" aria-labelledby="how-it-works-heading">
 
@@ -330,7 +347,7 @@
             <li>Review attendance reports and summaries.</li>
           </ul>
 
-          <center> <a class="access-card__link btn btn--primary" href="#teacher-login-placeholder"
+          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
               aria-label="Access the teacher login portal">
               Teacher Login
             </a></center>
@@ -356,7 +373,7 @@
             <li>Identify when attendance is running low.</li>
           </ul>
 
-          <center> <a class="access-card__link btn btn--primary" href="#student-login-placeholder"
+          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
               aria-label="Access the student login portal">
               Student Login
             </a></center>
