@@ -1,3 +1,4 @@
+<!--Login-->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,101 +14,36 @@
 
 <body>
 
-    <main class="login-container">
+    <h1>SmartAttend Login</h1>
+    <p>Log in to your account.</p>
 
-        <!-- LEFT SIDE: IMAGE SECTION -->
-        <section class="login-image-section">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-            <img
-                src="{{ url_for('static', filename='images/login-image.png') }}"
-                alt="Students learning together"
-                class="login-image"
-            >
+    <form action="{{ url_for('login') }}" method="POST">
 
-            <div class="image-overlay">
-                <h1>Welcome to SmartAttend</h1>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+        <br><br>
 
-                <p>
-                    Smarter attendance, simpler management.
-                    Your attendance journey starts here.
-                </p>
-            </div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+        <br><br>
 
-        </section>
+        <button type="submit">Login</button>
 
+    </form>
 
-        <!-- RIGHT SIDE: SIGN IN SECTION -->
-        <section class="login-form-section">
+    <p>Don't have an account?
+        <a href="{{ url_for('register') }}">Register here</a>
+    </p>
 
-            <div class="login-form-container">
-
-                <h2>Sign In</h2>
-
-                <p>Welcome back! Please enter your details.</p>
-
-
-                <!-- FLASH MESSAGES -->
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}
-                            <p class="flash-message">{{ message }}</p>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
-
-                <!-- LOGIN FORM -->
-                <form action="{{ url_for('login') }}" method="POST">
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email"
-                            autocomplete="email"
-                            required
-                        >
-                    </div>
-
-
-                    <div class="form-group">
-                        <label for="password">Password</label>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
-                    </div>
-
-
-                    <button type="submit" class="login-button">
-                        Sign In
-                    </button>
-
-                </form>
-
-
-                <p class="register-link">
-                    Don't have an account?
-                    <a href="{{ url_for('register') }}">Sign up</a>
-                </p>
-
-                <a href="{{ url_for('home') }}" class="back-home">
-                    Back to Home
-                </a>
-
-            </div>
-
-        </section>
-
-    </main>
+    <p><a href="{{ url_for('home') }}">Back to Home</a></p>
 
 </body>
 
