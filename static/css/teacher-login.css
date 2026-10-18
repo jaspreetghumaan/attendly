@@ -124,7 +124,7 @@ body {
   border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 28px;
   overflow: hidden;
-  box-shadow: 
+  box-shadow:
     0 30px 60px -20px rgba(11, 27, 51, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
   min-height: 36rem;
@@ -136,6 +136,7 @@ body {
     opacity: 0;
     transform: translateY(18px) scale(0.99);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
