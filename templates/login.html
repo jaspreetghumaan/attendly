@@ -7,90 +7,123 @@
 
     <title>Login | Attendly</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher-login.css') }}">
 </head>
 
 <body>
 
-    <main class="login-container">
+    <!-- Background glowing orbs -->
+    <div class="bg-blur bg-blur-1"></div>
+    <div class="bg-blur bg-blur-2"></div>
 
-        <!-- LEFT SIDE: IMAGE SECTION -->
-        <section class="login-image-section">
+    <main class="page-container">
 
-            <img src="{{ url_for('static', filename='images/login-image.png') }}" alt="Students learning together"
-                class="login-image">
+        <!-- TOP BRAND BAR -->
+        <header class="top-brand">
+            <a href="{{ url_for('home') }}" class="brand-link">
+                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
+                    class="brand-logo">
+                <span class="brand-name">Attendly</span>
+            </a>
+            <span class="faculty-tag">Faculty Portal</span>
+        </header>
 
-            <div class="image-overlay">
-                <h1>Welcome to Attendly</h1>
+        <!-- MAIN DUAL CARD WRAPPER -->
+        <div class="portal-card">
 
-                <p>
-                    Smarter attendance, simpler management.
-                    Your attendance journey starts here.
-                </p>
-            </div>
+            <!-- LEFT: MODERN PREVIEW PANEL -->
+            <section class="portal-preview">
+                <div class="preview-content">
+                    <span class="badge-subtle">Educator Control</span>
+                    <h1 class="preview-title">Classroom & QR Session Control</h1>
+                    <p class="preview-desc">
+                        Manage daily attendance, generate instant dynamic QR codes, and view student percentage logs in
+                        real time.
+                    </p>
+                </div>
 
-        </section>
+                <!-- Teacher dashboard illustration -->
+                <div class="preview-image-wrap">
+                    <img src="{{ url_for('static', filename='images/login-image.png') }}"
+                        alt="Attendly Teacher Dashboard" class="dashboard-img">
+                </div>
+            </section>
 
+            <!-- RIGHT: CLEAN FORM PANEL -->
+            <section class="portal-form-pane">
+                <div class="form-box">
 
-        <!-- RIGHT SIDE: SIGN IN SECTION -->
-        <section class="login-form-section">
-
-            <div class="login-form-container">
-
-                <h2><b>Sign In</b></h2>
-
-                <p>Welcome back! Please enter your details.</p>
-
-
-                <!-- FLASH MESSAGES -->
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                {% for message in messages %}
-                <p class="flash-message">{{ message }}</p>
-                {% endfor %}
-                {% endif %}
-                {% endwith %}
-
-
-                <!-- LOGIN FORM -->
-                <form action="{{ url_for('login') }}" method="POST">
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-
-                        <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="email"
-                            required>
+                    <div class="form-intro">
+                        <span class="role-chip">Teacher Access</span>
+                        <h2>Teacher Sign In</h2>
+                        <p>Enter your institutional credentials to continue</p>
                     </div>
 
+                    <!-- FLASH MESSAGES -->
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <p class="flash-message">{{ message }}</p>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
 
-                    <div class="form-group">
-                        <label for="password">Password</label>
+                    <!-- FORM -->
+                    <form action="{{ url_for('login') }}" method="POST" class="sign-form">
 
-                        <input type="password" id="password" name="password" placeholder="Enter your password"
-                            autocomplete="current-password" required>
+                        <div class="input-field">
+                            <label for="email">Institutional / Staff Email</label>
+                            <div class="field-control">
+                                <span class="field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                        </path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                </span>
+                                <input type="email" id="email" name="email" placeholder="faculty@institution.edu"
+                                    autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="input-field">
+                            <label for="password">Password</label>
+                            <div class="field-control">
+                                <span class="field-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </span>
+                                <input type="password" id="password" name="password" placeholder="••••••••••••"
+                                    autocomplete="current-password" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="submit-action-btn">
+                            <span>Access Teacher Dashboard</span>
+                            <span class="arrow-symbol">→</span>
+                        </button>
+
+                    </form>
+
+                    <div class="foot-options">
+                        <p class="switch-txt">Are you a student? <a href="{{ url_for('login') }}">Switch to Student
+                                Login</a></p>
+                        <a href="{{ url_for('home') }}" class="back-link">← Back to Home</a>
                     </div>
 
+                </div>
+            </section>
 
-                    <button type="submit" class="login-button">
-                        Sign In
-                    </button>
-
-                </form>
-
-
-                <p class="register-link">
-                    Don't have an account?
-                    <a href="{{ url_for('register') }}">Sign up</a>
-                </p>
-
-                <a href="{{ url_for('home') }}" class="back-home">
-                    Back to Home
-                </a>
-
-            </div>
-
-        </section>
-
+        </div>
     </main>
 
 </body>

@@ -1,38 +1,48 @@
 /* =========================================================
-   SmartAttend — Student Registration
-   Layout: Aurora Bento Form
-   Separate from the Login Page design
+   Attendly — Student Registration Theme
+   Aurora Bento Aesthetic | Ultra Clean & Professional
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ---------- Design Tokens ---------- */
-
 :root {
+  --purple-dark: #1b0036;
   --purple: #240046;
   --purple-light: #5a189a;
-  --lavender: #e0aaff;
-  --lavender-soft: #f3e8ff;
+  --purple-soft: #7b2cbf;
+  --lavender: #c77dff;
+  --lavender-soft: #f4ecfd;
+  --lavender-tint: #faf6ff;
   --amber: #fbb02d;
+  --amber-hover: #e59a1e;
 
-  --background: #faf7ff;
+  --background: #f8f5fd;
   --surface: #ffffff;
-  --text: #240046;
-  --text-muted: #756a7e;
+  --surface-alt: #fdfbff;
+  --text: #1b0036;
+  --text-muted: #6b5c77;
 
-  --border: #e5d8f0;
-  --input-bg: #fdfbff;
+  --border: #e6dbf2;
+  --border-focus: #5a189a;
+  --input-bg: #fcfaff;
 
   --success: #15803d;
   --error: #b91c1c;
   --error-bg: #fff1f2;
 
-  --radius: 18px;
-  --transition: 200ms ease;
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-sm: 8px;
+
+  --shadow-sm: 0 2px 8px rgba(36, 0, 70, 0.04);
+  --shadow-md: 0 10px 30px -4px rgba(36, 0, 70, 0.06);
+  --shadow-lg: 0 20px 45px -8px rgba(36, 0, 70, 0.08);
+
+  --transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ---------- Reset ---------- */
-
+/* ---------- Reset & Base ---------- */
 * {
   box-sizing: border-box;
 }
@@ -44,21 +54,19 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  padding: 36px 24px 60px;
+  padding: 40px 20px 80px;
 
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: var(--text-muted);
 
   background:
-    radial-gradient(circle at 8% 5%,
-      rgba(224, 170, 255, 0.22),
-      transparent 28%),
-    radial-gradient(circle at 95% 90%,
-      rgba(251, 176, 45, 0.10),
-      transparent 25%),
+    radial-gradient(circle at 10% 4%, rgba(199, 125, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 92% 88%, rgba(251, 176, 45, 0.12), transparent 30%),
+    radial-gradient(circle at 50% 40%, rgba(90, 24, 154, 0.04), transparent 50%),
     var(--background);
+  background-attachment: fixed;
 
   -webkit-font-smoothing: antialiased;
 }
@@ -75,284 +83,218 @@ h2,
 h3 {
   font-family: 'Manrope', sans-serif;
   color: var(--purple);
+  letter-spacing: -0.025em;
 }
 
 a {
   color: var(--purple-light);
   text-decoration: none;
-  transition: color var(--transition);
+  transition: var(--transition);
 }
 
 a:hover {
-  color: var(--purple);
+  color: var(--purple-dark);
 }
 
-/* ---------- Main Registration Container ---------- */
-
+/* ---------- Main Container ---------- */
 .register-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
 /* ---------- Header ---------- */
-
 .register-header {
   position: relative;
-  margin-bottom: 28px;
-  padding: 28px 32px;
-
+  margin-bottom: 24px;
+  padding: 34px 38px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 22px;
-
-  box-shadow: 0 8px 30px rgba(36, 0, 70, 0.035);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
 }
 
 .register-header::before {
   content: "";
   position: absolute;
   top: 0;
-  left: 32px;
-
-  width: 58px;
+  left: 0;
+  width: 100%;
   height: 4px;
+  background: linear-gradient(90deg, var(--amber) 0%, var(--lavender) 50%, var(--purple-light) 100%);
+}
 
-  background: var(--amber);
-  border-radius: 0 0 6px 6px;
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .register-header h1 {
-  margin-bottom: 2px;
-
-  font-size: 1.65rem;
+  margin-bottom: 0;
+  font-size: 1.7rem;
   font-weight: 800;
-  letter-spacing: -0.7px;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .register-header .tagline {
-  margin-bottom: 24px;
-
+  margin: 0;
   color: var(--purple-light);
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
   letter-spacing: 2px;
+  padding: 4px 10px;
+  background: var(--lavender-soft);
+  border-radius: 20px;
 }
 
 .register-header h2 {
   margin-bottom: 8px;
-
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
   font-weight: 800;
-  letter-spacing: -0.8px;
-  line-height: 1.25;
+  color: var(--purple-dark);
 }
 
 .register-header>p:last-child {
   margin-bottom: 0;
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
 }
 
 /* ---------- Flash Messages ---------- */
-
 .flash-messages {
   margin-bottom: 22px;
 }
 
 .flash-messages p {
   margin: 0 0 8px;
-  padding: 13px 16px;
-
+  padding: 14px 18px;
   color: var(--error);
   background: var(--error-bg);
-
   border: 1px solid #fecdd3;
-  border-radius: 12px;
-
-  font-size: 0.9rem;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* ---------- Form ---------- */
-
+/* ---------- Form Layout ---------- */
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;
 }
 
-/* ---------- Individual Sections ---------- */
-
+/* ---------- Form Sections ---------- */
 .form-section {
-  min-width: 0;
-  padding: 28px 30px;
-
+  padding: 32px 36px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-
-  box-shadow: 0 8px 28px rgba(36, 0, 70, 0.035);
-
-  animation: section-appear 450ms ease both;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
-.form-section:nth-child(2) {
-  animation-delay: 60ms;
-}
-
-.form-section:nth-child(3) {
-  animation-delay: 120ms;
-}
-
-.form-section:nth-child(4) {
-  animation-delay: 180ms;
-}
-
-/* Residence Type Dropdown */
-
-#residence_type {
-  display: block;
-  width: 100%;
-  min-height: 47px;
-  padding: 12px 14px;
-
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  color: var(--text);
-
-  background-color: var(--input-bg);
-  border: 1px solid var(--border);
-  border-radius: 11px;
-
-  cursor: pointer;
-  outline: none;
-
-  transition: border-color 200ms ease, box-shadow 200ms ease;
-}
-
-#residence_type:hover {
-  border-color: #c7a6df;
-}
-
-#residence_type:focus {
-  background-color: #ffffff;
-  border-color: var(--purple-light);
-  box-shadow: 0 0 0 3px rgba(90, 24, 154, 0.10);
-}
-
-@keyframes section-appear {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.form-section:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #d8c7ed;
 }
 
 .form-section h3 {
   display: flex;
   align-items: center;
-  gap: 12px;
-
-  margin-bottom: 24px;
+  gap: 14px;
+  margin-bottom: 26px;
   padding-bottom: 16px;
-
-  border-bottom: 1px solid #f0e7f7;
-
-  font-size: 1.05rem;
+  border-bottom: 1px solid #f0e6f7;
+  font-size: 1.12rem;
   font-weight: 800;
-  letter-spacing: -0.2px;
+  color: var(--purple-dark);
 }
 
-.form-section h3::first-letter {
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--lavender-soft);
   color: var(--purple-light);
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
-/* ---------- Responsive Field Grid ---------- */
-
+/* ---------- Form Grid & Groups ---------- */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px 22px;
+  gap: 22px 24px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 
 .form-group.full-width {
   grid-column: 1 / -1;
 }
 
-/* ---------- Labels ---------- */
-
 .form-group label {
-  margin-bottom: 7px;
-
+  margin-bottom: 8px;
   color: var(--purple);
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-.form-group label:has(+ input[required])::after,
-.form-group label:has(+ select[required])::after {
-  content: "";
-}
-
-/* ---------- Inputs, Dropdowns & Textarea ---------- */
-
+/* ---------- Standard Form Inputs ---------- */
 .form-group input,
 .form-group select,
 .form-group textarea {
   display: block;
   width: 100%;
-  min-width: 0;
-
-  padding: 12px 14px;
-
+  padding: 12px 16px;
   color: var(--text);
   background: var(--input-bg);
-
-  border: 1px solid var(--border);
-  border-radius: 11px;
-
-  font: inherit;
-  font-size: 0.9rem;
-
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 0.92rem;
   outline: none;
-
-  transition:
-    border-color var(--transition),
-    box-shadow var(--transition),
-    background var(--transition);
+  transition: var(--transition);
 }
 
 .form-group input,
 .form-group select {
-  min-height: 47px;
+  height: 48px;
 }
 
 .form-group textarea {
-  min-height: 100px;
+  min-height: 105px;
   resize: vertical;
+  line-height: 1.5;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #a398af;
-  opacity: 1;
+  color: #a496b3;
+  font-weight: 400;
 }
 
 .form-group input:hover,
 .form-group select:hover,
 .form-group textarea:hover {
-  border-color: #c7a6df;
+  border-color: #be9ee0;
+  background: #ffffff;
 }
 
 .form-group input:focus,
@@ -360,228 +302,300 @@ a:hover {
 .form-group textarea:focus {
   background: #ffffff;
   border-color: var(--purple-light);
-
-  box-shadow: 0 0 0 3px rgba(90, 24, 154, 0.10);
+  box-shadow: 0 0 0 4px rgba(90, 24, 154, 0.12);
 }
 
-.form-group input:focus-visible,
-.form-group select:focus-visible,
-.form-group textarea:focus-visible {
-  outline: 2px solid transparent;
+/* Custom Select Wrapper (Clean dropdown chevron) */
+.select-wrapper {
+  position: relative;
+  width: 100%;
 }
 
-/* Browser dropdown appearance */
-
-.form-group select {
+.select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 42px;
   cursor: pointer;
 }
 
-.form-group input[type="date"],
-.form-group input[type="number"] {
-  cursor: pointer;
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--purple-light);
+  border-bottom: 2px solid var(--purple-light);
+  rotate: 45deg;
+  pointer-events: none;
+  transition: var(--transition);
 }
 
-/* ---------- Password Note ---------- */
+.select-wrapper:hover::after {
+  border-color: var(--purple-dark);
+}
 
+/* Date Picker Wrapper & Icon */
+.date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.date-input-wrapper input {
+  padding-right: 44px;
+  cursor: pointer;
+  background-color: var(--input-bg);
+}
+
+.date-input-wrapper .calendar-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  height: 19px;
+  color: var(--purple-light);
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.date-input-wrapper input:focus~.calendar-icon {
+  color: var(--purple);
+}
+
+/* ---------- Password Toggle Wrapper & Button ---------- */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  padding-right: 46px;
+  /* Icon layi space chaddi hai */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--purple-light);
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.toggle-password:hover {
+  color: var(--purple-dark);
+  background: var(--lavender-soft);
+}
+
+.toggle-password:focus {
+  outline: none;
+}
+
+/* ---------- Note Box ---------- */
 .form-note {
-  margin: 16px 0 0;
-  padding: 12px 14px;
-
+  margin: 18px 0 0;
+  padding: 13px 18px;
   color: var(--purple-light);
   background: var(--lavender-soft);
-
-  border-left: 3px solid var(--lavender);
-  border-radius: 0 9px 9px 0;
-
-  font-size: 0.82rem;
+  border-left: 4px solid var(--lavender);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-/* ---------- Form Actions ---------- */
-
+/* ---------- Form Actions & Submit ---------- */
 .form-actions {
-  padding: 26px 30px;
-
+  padding: 32px 36px;
   text-align: center;
-
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-
-  box-shadow: 0 8px 28px rgba(36, 0, 70, 0.035);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ---------- Submit Button ---------- */
-
 .register-button {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   width: 100%;
   min-height: 52px;
-
-  padding: 14px 22px;
-
+  padding: 14px 28px;
   color: #ffffff;
-  background: var(--purple);
-
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
   border: 0;
-  border-radius: 12px;
-
+  border-radius: var(--radius-md);
   font-family: 'Manrope', sans-serif;
-  font-size: 0.96rem;
+  font-size: 1rem;
   font-weight: 800;
-
+  letter-spacing: 0.01em;
   cursor: pointer;
-
-  box-shadow: 0 7px 18px rgba(36, 0, 70, 0.14);
-
-  transition:
-    background var(--transition),
-    transform var(--transition),
-    box-shadow var(--transition);
+  box-shadow: 0 8px 24px rgba(36, 0, 70, 0.18);
+  transition: var(--transition);
 }
 
 .register-button:hover {
-  background: var(--purple-light);
-  transform: translateY(-1px);
-
-  box-shadow: 0 10px 22px rgba(36, 0, 70, 0.19);
+  background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple-soft) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(90, 24, 154, 0.28);
 }
 
 .register-button:active {
   transform: translateY(0);
 }
 
-.register-button:focus-visible {
-  outline: 3px solid var(--amber);
-  outline-offset: 4px;
-}
-
-/* ---------- Login & Home Links ---------- */
-
 .form-actions>p {
-  margin: 20px 0 12px;
-  font-size: 0.9rem;
+  margin: 22px 0 10px;
+  font-size: 0.94rem;
+  color: var(--text-muted);
 }
 
 .form-actions>p a {
   font-weight: 700;
+  color: var(--purple-light);
+  border-bottom: 1.5px solid transparent;
+}
+
+.form-actions>p a:hover {
+  border-color: var(--purple-light);
 }
 
 .home-link {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 6px 10px;
-
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-
-  transition:
-    color var(--transition),
-    transform var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 11px 24px;
+  color: var(--purple-light);
+  background: var(--surface-alt);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
 .home-link:hover {
-  color: var(--purple);
-  transform: translateX(-2px);
+  color: var(--purple-dark);
+  background: var(--lavender-soft);
+  border-color: var(--lavender);
+  box-shadow: 0 6px 16px rgba(90, 24, 154, 0.12);
+  transform: translateY(-2px);
 }
 
-/* ---------- Tablet ---------- */
+.home-link:active {
+  transform: translateY(0);
+}
 
-@media (max-width: 700px) {
+/* =========================================================
+   Flatpickr Custom Theme Styling (Professional Look)
+   ========================================================= */
+.flatpickr-calendar {
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 45px rgba(36, 0, 70, 0.16) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  padding: 12px !important;
+  width: 320px !important;
+}
+
+.flatpickr-months {
+  background: var(--lavender-soft) !important;
+  border-radius: 12px !important;
+  padding: 6px 4px !important;
+}
+
+.flatpickr-months .flatpickr-month {
+  color: var(--purple) !important;
+  fill: var(--purple) !important;
+  height: 38px !important;
+}
+
+.flatpickr-current-month {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  padding-top: 5px !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  font-weight: 700 !important;
+  color: var(--purple) !important;
+}
+
+span.flatpickr-weekday {
+  color: var(--purple-light) !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+}
+
+.flatpickr-day {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  color: var(--text) !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  margin-top: 2px !important;
+  transition: all 0.15s ease !important;
+}
+
+.flatpickr-day:hover {
+  background: var(--lavender-soft) !important;
+  border-color: var(--lavender-soft) !important;
+  color: var(--purple) !important;
+}
+
+.flatpickr-day.today {
+  border-color: var(--amber) !important;
+  color: var(--purple) !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--purple) !important;
+  border-color: var(--purple) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(36, 0, 70, 0.25) !important;
+}
+
+/* =========================================================
+   Responsive Breakpoints
+   ========================================================= */
+@media (max-width: 768px) {
   body {
-    padding: 24px 16px 36px;
+    padding: 24px 16px 50px;
   }
 
   .register-header {
-    padding: 25px 22px;
-  }
-
-  .register-header::before {
-    left: 22px;
+    padding: 26px 22px;
   }
 
   .form-section {
-    padding: 24px 22px;
+    padding: 24px 20px;
   }
 
   .form-grid {
-    gap: 18px 16px;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
   .form-actions {
-    padding: 22px;
-  }
-}
-
-/* ---------- Mobile ---------- */
-
-@media (max-width: 520px) {
-  body {
-    padding: 14px 12px 28px;
-  }
-
-  .register-header {
-    margin-bottom: 16px;
-    padding: 24px 18px;
-
-    border-radius: 17px;
-  }
-
-  .register-header::before {
-    left: 18px;
-  }
-
-  .register-header h1 {
-    font-size: 1.45rem;
-  }
-
-  .register-header .tagline {
-    margin-bottom: 20px;
-    font-size: 0.65rem;
-  }
-
-  .register-header h2 {
-    font-size: 1.55rem;
-  }
-
-  .register-form {
-    gap: 16px;
-  }
-
-  .form-section {
-    padding: 22px 17px;
-    border-radius: 15px;
-  }
-
-  .form-section h3 {
-    margin-bottom: 20px;
-    font-size: 0.98rem;
-  }
-
-  .form-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-  }
-
-  .form-group.full-width {
-    grid-column: auto;
-  }
-
-  .form-actions {
-    padding: 20px 17px;
-    border-radius: 15px;
-  }
-}
-
-/* ---------- Reduced Motion Accessibility ---------- */
-
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation: none !important;
-    transition: none !important;
+    padding: 24px 20px;
   }
 }
