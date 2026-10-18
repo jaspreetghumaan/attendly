@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Dashboard | SmartAttend</title>
+    <title>Student Dashboard | Attendly</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
 </head>
 
 <body>
@@ -18,16 +18,17 @@
         <header class="dashboard-header">
 
             <div class="brand">
-                <div class="brand-icon">S</div>
+                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo" class="brand-icon">
 
-                <div>
-                    <h2>SmartAttend</h2>
+                <div class="brand-text">
+                    <h2>Attendly</h2>
                     <p>SMART • SIMPLE • SECURE</p>
                 </div>
             </div>
 
             <a href="{{ url_for('logout') }}" class="logout-button">
-                Logout ↗
+                <span>Logout</span>
+                <span class="logout-arrow">↗</span>
             </a>
 
         </header>
@@ -157,7 +158,7 @@
         </section>
 
 
-              <!-- Attendance History -->
+        <!-- Attendance History -->
         <section>
             <div class="section-heading">
                 <div>
@@ -168,28 +169,28 @@
 
             <div class="history-card">
                 {% if attendance_history %}
-                    <div class="history-list">
-                        {% for record in attendance_history %}
-                            <div class="history-item">
-                                <div class="history-date">
-                                    <span class="history-label">Date</span>
-                                    <span>{{ record.attendance_date }}</span>
-                                </div>
+                <div class="history-list">
+                    {% for record in attendance_history %}
+                    <div class="history-item">
+                        <div class="history-date">
+                            <span class="history-label">Date</span>
+                            <span>{{ record.attendance_date }}</span>
+                        </div>
 
-                                <div class="history-status">
-                                    <span class="history-label">Status</span>
-                                    <span class="status-badge {{ record.status | lower }}">
-                                        {{ record.status }}
-                                    </span>
-                                </div>
-                            </div>
-                        {% endfor %}
+                        <div class="history-status">
+                            <span class="history-label">Status</span>
+                            <span class="status-badge {{ record.status | lower }}">
+                                {{ record.status }}
+                            </span>
+                        </div>
                     </div>
+                    {% endfor %}
+                </div>
                 {% else %}
-                    <div class="empty-state">
-                        <p>No attendance records yet.</p>
-                        <span>Your attendance history will appear here.</span>
-                    </div>
+                <div class="empty-state">
+                    <p>No attendance records yet.</p>
+                    <span>Your attendance history will appear here.</span>
+                </div>
                 {% endif %}
             </div>
         </section>
@@ -212,10 +213,11 @@
 
         <!-- Footer -->
         <footer class="dashboard-footer">
-            © SmartAttend | Smart • Simple • Secure
+            © Attendly | Smart • Simple • Secure
         </footer>
 
     </main>
 
 </body>
+
 </html>
