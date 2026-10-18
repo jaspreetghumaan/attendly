@@ -24,6 +24,14 @@
 <body>
 
     <main class="register-container">
+        <a class="home-link" href="{{ url_for('home') }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Home</span>
+                </a>
 
         <header class="register-header">
             <div class="brand-badge">
@@ -52,7 +60,7 @@
             <section class="form-section">
 
                 <h3>
-                    <span class="step-num">01</span>
+                    <span class="step-num">I.</span>
                     <span>Personal Details</span>
                 </h3>
 
@@ -123,7 +131,7 @@
             <section class="form-section">
 
                 <h3>
-                    <span class="step-num">02</span>
+                    <span class="step-num">II.</span>
                     <span>Academic Details</span>
                 </h3>
 
@@ -224,7 +232,7 @@
             <section class="form-section">
 
                 <h3>
-                    <span class="step-num">03</span>
+                    <span class="step-num">III.</span>
                     <span>Address & Guardian Details</span>
                 </h3>
 
@@ -284,7 +292,7 @@
             <section class="form-section">
 
                 <h3>
-                    <span class="step-num">04</span>
+                    <span class="step-num">IV.</span>
                     <span>Account Security</span>
                 </h3>
 
@@ -372,7 +380,12 @@
                 </p>
 
                 <a class="home-link" href="{{ url_for('home') }}">
-                    ← Back to Home
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Home</span>
                 </a>
 
             </div>
@@ -391,6 +404,7 @@
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "F j, Y",
+                altInputClass: "form-control",
                 maxDate: "today",
                 yearSelectorType: "dropdown",
                 showMonths: 1,
@@ -400,52 +414,27 @@
         }
     </script>
     <script>
-        const toggleBtn = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        const eyeShow = toggleBtn.querySelector('.eye-show');
-        const eyeHide = toggleBtn.querySelector('.eye-hide');
-
-        toggleBtn.addEventListener('click', function () {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-
-            // Type toggle
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-
-            // Icons switch
-            if (isPassword) {
-                eyeShow.style.display = 'none';
-                eyeHide.style.display = 'block';
-            } else {
-                eyeShow.style.display = 'block';
-                eyeHide.style.display = 'none';
-            }
-        });
-    </script>
-    <script>
         function setupPasswordToggle(buttonId, inputId) {
             const toggleBtn = document.getElementById(buttonId);
             const passwordInput = document.getElementById(inputId);
 
             if (!toggleBtn || !passwordInput) return;
 
-            const eyeShow = toggleBtn.querySelector('.eye-show');
-            const eyeHide = toggleBtn.querySelector('.eye-hide');
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
 
-            toggleBtn.addEventListener('click', function () {
-                const isPassword = passwordInput.getAttribute('type') === 'password';
-                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                const eyeShow = toggleBtn.querySelector('.eye-show');
+                const eyeHide = toggleBtn.querySelector('.eye-hide');
 
-                if (isPassword) {
-                    eyeShow.style.display = 'none';
-                    eyeHide.style.display = 'block';
-                } else {
-                    eyeShow.style.display = 'block';
-                    eyeHide.style.display = 'none';
+                if (eyeShow && eyeHide) {
+                    eyeShow.style.display = isPassword ? 'none' : 'block';
+                    eyeHide.style.display = isPassword ? 'block' : 'none';
                 }
             });
         }
 
-        // Active toggles for both fields
         setupPasswordToggle('togglePassword', 'password');
         setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
     </script>
