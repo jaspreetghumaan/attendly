@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login | Attendly</title>
+
+    <!-- Separate CSS file -->
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/login.css') }}"
+    >
+</head>
+
+<body>
+
+    <main class="login-container">
+
+        <!-- Left Section: Branding -->
+        <section class="login-branding">
+
+            <a href="{{ url_for('home') }}" class="brand-name">
+                Attendly<span>.</span>
+            </a>
+
+            <div class="branding-content">
+                <p class="eyebrow">STUDENT PORTAL</p>
+
+                <h1>
+                    Your attendance.<br>
+                    Your progress.
+                </h1>
+
+                <p class="branding-description">
+                    Stay connected with your classes, track your attendance,
+                    and keep your academic journey on track.
+                </p>
+            </div>
+
+            <p class="branding-footer">
+                Smart attendance management, made simple.
+            </p>
+
+        </section>
+
+
+        <!-- Right Section: Login Form -->
+        <section class="login-form-section">
+
+            <div class="login-form-wrapper">
+
+                <a href="{{ url_for('home') }}" class="back-home">
+                    &larr; Back to Home
+                </a>
+
+                <div class="form-heading">
+                    <p class="eyebrow">WELCOME BACK</p>
+
+                    <h2>Student Login</h2>
+
+                    <p>
+                        Enter your registered credentials to continue.
+                    </p>
+                </div>
+
+
+                <!-- Flask flash messages -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="flash-messages" role="alert">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+
+                <!-- Student Login Form -->
+                <form
+                    action="{{ url_for('login') }}"
+                    method="POST"
+                    class="login-form"
+                >
+
+                    <div class="form-group">
+                        <label for="email">Registered Email Address</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                    </div>
+
+
+                    <button type="submit" class="login-button">
+                        Sign In
+                        <span aria-hidden="true">&rarr;</span>
+                    </button>
+
+                </form>
+
+
+                <div class="form-divider">
+                    <span>OR</span>
+                </div>
+
+
+                <p class="register-prompt">
+                    New to Attendly?
+                    <a href="{{ url_for('register') }}">Create an account</a>
+                </p>
+
+
+                <p class="faculty-prompt">
+                    Are you a teacher?
+                    <a href="{{ url_for('faculty_login') }}">
+                        Faculty Login
+                    </a>
+                </p>
+
+
+                <p class="form-footer">
+                    &copy; 2026 Attendly. All rights reserved.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>
