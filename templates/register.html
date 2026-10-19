@@ -25,13 +25,13 @@
 
     <main class="register-container">
         <a class="home-link" href="{{ url_for('home') }}">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                    <span>Back to Home</span>
-                </a>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Back to Home</span>
+        </a>
 
         <header class="register-header">
             <div class="brand-badge">
@@ -355,10 +355,6 @@
 
                 </div>
 
-                <p class="form-note">
-                    Your password will be securely hashed before it is stored.
-                </p>
-
             </section>
 
 
@@ -398,18 +394,55 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
     <script>
-        // Professional Calendar Initialization
+        // Professional Calendar Initialization with Direct Year Dropdown for DOB
         if (typeof flatpickr !== 'undefined') {
             flatpickr("#dob", {
                 dateFormat: "Y-m-d",
                 altInput: true,
-                altFormat: "F j, Y",
-                altInputClass: "form-control",
+                altFormat: "d M, Y", // Example: 15 Aug, 2005
                 maxDate: "today",
-                yearSelectorType: "dropdown",
-                showMonths: 1,
+                minDate: "1970-01-01",
+                disableMobile: true,
                 animate: true,
-                disableMobile: true
+                onReady: function (selectedDates, dateStr, instance) {
+                    // Direct Year Dropdown toiri kora hocche jate student-ra sohoje জন্মসাল select korte pare
+                    const currentYear = new Date().getFullYear();
+                    const startYear = 1970;
+                    const yearSelect = document.createElement("select");
+                    yearSelect.className = "fp-year-select";
+                    yearSelect.setAttribute("aria-label", "Select Year");
+
+                    for (let y = currentYear; y >= startYear; y--) {
+                        const opt = document.createElement("option");
+                        opt.value = y;
+                        opt.textContent = y;
+                        if (y === instance.currentYear) {
+                            opt.selected = true;
+                        }
+                        yearSelect.appendChild(opt);
+                    }
+
+                    yearSelect.addEventListener("change", function (e) {
+                        instance.changeYear(parseInt(e.target.value, 10));
+                    });
+
+                    // Header-e Year Dropdown add kora
+                    const currentMonthContainer = instance.calendarContainer.querySelector(".flatpickr-current-month");
+                    if (currentMonthContainer) {
+                        currentMonthContainer.appendChild(yearSelect);
+                    }
+                    instance._yearSelect = yearSelect;
+                },
+                onYearChange: function (selectedDates, dateStr, instance) {
+                    if (instance._yearSelect) {
+                        instance._yearSelect.value = instance.currentYear;
+                    }
+                },
+                onMonthChange: function (selectedDates, dateStr, instance) {
+                    if (instance._yearSelect) {
+                        instance._yearSelect.value = instance.currentYear;
+                    }
+                }
             });
         }
     </script>

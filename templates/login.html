@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,7 @@
     <title>Student Login | Attendly</title>
 
     <!-- Separate CSS file -->
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/login.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 
 <body>
@@ -21,7 +19,7 @@
         <section class="login-branding">
 
             <a href="{{ url_for('home') }}" class="brand-name">
-                Attendly<span>.</span>
+                Attendly
             </a>
 
             <div class="branding-content">
@@ -67,48 +65,32 @@
 
                 <!-- Flask flash messages -->
                 {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <div class="flash-messages" role="alert">
-                            {% for message in messages %}
-                                <p>{{ message }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                {% if messages %}
+                <div class="flash-messages" role="alert">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% endwith %}
 
 
                 <!-- Student Login Form -->
-                <form
-                    action="{{ url_for('login') }}"
-                    method="POST"
-                    class="login-form"
-                >
+                <form action="{{ url_for('login') }}" method="POST" class="login-form">
 
                     <div class="form-group">
-                        <label for="email">Registered Email Address</label>
+                        <label for="email"> Email Address</label>
 
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email address"
-                            autocomplete="email"
-                            required
-                        >
+                        <input type="email" id="email" name="email" placeholder="Enter your email address"
+                            autocomplete="email" required>
                     </div>
 
 
                     <div class="form-group">
                         <label for="password">Password</label>
 
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
+                        <input type="password" id="password" name="password" placeholder="Enter your password"
+                            autocomplete="current-password" required>
                     </div>
 
 
@@ -148,6 +130,21 @@
         </section>
 
     </main>
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
 
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function () {
+                // Type toggle karo
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+
+                // Icon color change ya active feel den layi
+                this.style.color = type === 'text' ? '#0284c7' : '#94a3b8';
+            });
+        }
+    </script>
 </body>
+
 </html>

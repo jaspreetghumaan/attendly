@@ -294,7 +294,7 @@ body {
 .field-control input {
   width: 100%;
   height: 3rem;
-  padding: 0 1rem 0 2.85rem;
+  padding: 0 2.85rem 0 2.85rem;
   font-family: inherit;
   font-size: 0.92rem;
   color: var(--ink);
@@ -303,6 +303,31 @@ body {
   border-radius: 12px;
   outline: none;
   transition: all var(--ease);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.85rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color var(--ease);
+}
+
+.toggle-password:hover {
+  color: var(--ink);
+}
+
+.toggle-password svg {
+  width: 1.15rem;
+  height: 1.15rem;
 }
 
 .field-control input::placeholder {
@@ -380,19 +405,42 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.55rem 1rem;
-  font-size: 0.84rem;
+  align-self: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--ink-muted);
-  background: #f1f5f9;
-  border-radius: 8px;
+  color: var(--ink-soft);
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   text-decoration: none;
+  box-shadow: 0 2px 5px rgba(11, 27, 51, 0.04);
   transition: all var(--ease);
 }
 
+.back-link .back-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--ink-muted);
+  transition: transform var(--ease), color var(--ease);
+}
+
 .back-link:hover {
-  color: var(--ink);
-  background: #e2e8f0;
+  color: var(--blue-dark);
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+  transform: translateY(-1px);
+}
+
+.back-link:hover .back-icon {
+  color: var(--blue-dark);
+  transform: translateX(-4px);
+}
+
+.back-link:active {
+  transform: translateY(0);
 }
 
 @media (max-width: 960px) {

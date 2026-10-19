@@ -371,15 +371,7 @@ input:disabled {
   padding-left: 2.85rem;
 }
 
-.form-note {
-  margin-top: 1rem;
-  padding: .6rem .9rem;
-  font-size: .8125rem;
-  color: var(--ink-muted);
-  background: #eef4ff;
-  border-left: 3px solid var(--blue);
-  border-radius: 8px;
-}
+
 
 /* ---------- Submit ---------- */
 .form-actions {
@@ -404,12 +396,16 @@ input:disabled {
 }
 
 .register-button {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   width: 100%;
   height: 3.1rem;
   font: inherit;
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1;
   color: #fff;
   cursor: pointer;
   background: var(--blue);
@@ -417,6 +413,15 @@ input:disabled {
   border-radius: 9999px;
   box-shadow: 0 10px 22px -8px rgba(37, 99, 235, .6);
   transition: background var(--ease), transform var(--ease), box-shadow var(--ease);
+}
+
+.register-button svg {
+  flex-shrink: 0;
+  transition: transform var(--ease);
+}
+
+.register-button:hover svg {
+  transform: translateX(4px);
 }
 
 .register-button:hover {
@@ -566,8 +571,28 @@ input:disabled {
 
 .date-input-wrapper input {
   padding-left: 2.85rem !important;
-  /* Left space for calendar icon */
+  padding-right: 2.5rem !important;
   cursor: pointer;
+  background-color: #fff;
+}
+
+/* Right side dropdown arrow jate bojha jay eta clickable */
+.date-input-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  background: var(--i-chev) center / contain no-repeat;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: transform var(--ease);
+}
+
+.date-input-wrapper:focus-within::after {
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .calendar-icon {
@@ -579,8 +604,195 @@ input:disabled {
   height: 1.15rem;
   stroke: #64748b;
   pointer-events: none;
-  /* Click input te pass hove */
   z-index: 2;
+  transition: stroke var(--ease);
+}
+
+.date-input-wrapper:focus-within .calendar-icon {
+  stroke: var(--blue);
+}
+
+/* ==========================================================================
+   Professional Flatpickr Custom Theme (Attendly Blue Theme)
+   ========================================================================== */
+.flatpickr-calendar {
+  font-family: var(--font-sans) !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 24px 48px -12px rgba(11, 27, 51, 0.18), 0 0 0 1px rgba(11, 27, 51, 0.05) !important;
+  padding: 14px !important;
+  width: 330px !important;
+  margin-top: 8px !important;
+}
+
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  display: none !important;
+  /* Default choto arrow hide kora holo */
+}
+
+/* Header (Month & Year Bar) */
+.flatpickr-months {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark)) !important;
+  border-radius: 14px !important;
+  padding: 8px 6px !important;
+  margin-bottom: 12px !important;
+  align-items: center !important;
+}
+
+.flatpickr-months .flatpickr-month {
+  background: transparent !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  height: 36px !important;
+}
+
+.flatpickr-current-month {
+  font-family: var(--font-display) !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+}
+
+/* Month Dropdown & Custom Year Select */
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month .fp-year-select {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  cursor: pointer !important;
+  outline: none !important;
+  appearance: auto !important;
+  height: auto !important;
+  width: auto !important;
+  display: inline-block !important;
+  transition: background-color 150ms ease !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover,
+.flatpickr-current-month .fp-year-select:hover {
+  background-color: rgba(255, 255, 255, 0.26) !important;
+}
+
+.flatpickr-current-month .flatpickr-monthDropdown-months option,
+.flatpickr-current-month .fp-year-select option {
+  background: #ffffff !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+}
+
+/* Hide default awkward number spinner for year */
+.flatpickr-current-month .numInputWrapper {
+  display: none !important;
+}
+
+/* Prev / Next Month Arrows */
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+  position: relative !important;
+  top: 0 !important;
+  padding: 6px !important;
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  height: 32px !important;
+  width: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 3 !important;
+  transition: background 150ms ease !important;
+}
+
+.flatpickr-months .flatpickr-prev-month:hover,
+.flatpickr-months .flatpickr-next-month:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  fill: #ffffff !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* Weekdays (Sun, Mon, Tue...) */
+.flatpickr-weekdays {
+  background: transparent !important;
+  height: 30px !important;
+  margin-bottom: 4px !important;
+}
+
+span.flatpickr-weekday {
+  background: transparent !important;
+  color: var(--ink-muted) !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+/* Days Grid */
+.flatpickr-days,
+.dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+}
+
+.flatpickr-day {
+  border-radius: 10px !important;
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  max-width: 38px !important;
+  margin: 2px 0 !important;
+  border: 1.5px solid transparent !important;
+  transition: all 150ms ease !important;
+}
+
+.flatpickr-day:hover {
+  background: #eff6ff !important;
+  color: var(--blue) !important;
+  border-color: #bfdbfe !important;
+}
+
+.flatpickr-day.today {
+  border-color: var(--blue) !important;
+  color: var(--blue) !important;
+  font-weight: 700 !important;
+  background: #f8fafc !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: var(--blue) !important;
+  border-color: var(--blue) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35) !important;
+}
+
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay,
+.flatpickr-day.flatpickr-disabled {
+  color: #cbd5e1 !important;
 }
 
 /* Password wrapper fix (jive pehla setup hai) */
