@@ -213,8 +213,6 @@ def login():
     if request.method == "POST":
         email = request.form["email"].strip().lower()
         password = request.form["password"]
-        print("Entered email:", email)
-        print("Password received:", bool(password))
 
         conn = get_db_connection()
 
@@ -226,13 +224,19 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
+
+            # Only Teacher and Student can log in
+            if user["role"] not in ("teacher", "student"):
+                flash("This account role is not supported.")
+                return redirect(url_for("login"))
+
             session.clear()
             session["user_id"] = user["id"]
             session["name"] = user["name"]
             session["role"] = user["role"]
 
-            if user["role"] == "admin":
-                return redirect(url_for("admin_dashboard"))
+            if user["role"] == "teacher":
+                return redirect(url_for("teacher_dashboard"))
 
             return redirect(url_for("student_dashboard"))
 
@@ -240,7 +244,6 @@ def login():
         return redirect(url_for("login"))
 
     return render_template("login.html")
-
 # Student Dashboard Route
 @app.route("/student/dashboard")
 def student_dashboard():
@@ -320,52 +323,74 @@ def student_dashboard():
 
     finally:
         conn.close()
-#Logout route
+
+# Teacher Dashboard
+@app.route("/teacher/dashboard")
+def teacher_dashboard():
+    if "user_id" not in session or session.get("role") != "teacher":
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+
+    try:
+        # Get teacher details
+        teacher = conn.execute("""
+            SELECT name, email
+            FROM users
+            WHERE id = ? AND role = 'teacher'
+        """, (session["user_id"],)).fetchone()
+
+        if teacher is None:
+            session.clear()
+            return redirect(url_for("login"))
+
+        # Count registered students
+        total_students = conn.execute("""
+            SELECT COUNT(*)
+            FROM students
+            JOIN users ON students.user_id = users.id
+            WHERE users.role = 'student'
+        """).fetchone()[0]
+
+        # Count attendance records marked Present
+        total_attendance = conn.execute("""
+            SELECT COUNT(*)
+            FROM attendance
+            WHERE status = 'Present'
+        """).fetchone()[0]
+
+        # Fetch registered students
+        students = conn.execute("""
+            SELECT
+                users.name,
+                users.email,
+                students.roll_number,
+                students.department,
+                students.course,
+                students.year,
+                students.semester,
+                students.residence_type
+            FROM students
+            JOIN users ON students.user_id = users.id
+            WHERE users.role = 'student'
+            ORDER BY students.roll_number
+        """).fetchall()
+
+        return render_template(
+            "teacher_dashboard.html",
+            teacher=teacher,
+            total_students=total_students,
+            total_attendance=total_attendance,
+            students=students
+        )
+
+    finally:
+        conn.close()
+
 @app.route("/logout")
 def logout():
     session.clear()
     flash("You have been logged out.")
     return redirect(url_for("login"))
-
-#Admin dashboard route
-@app.route("/admin/dashboard")
-def admin_dashboard():
-    if "user_id" not in session or session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    conn = get_db_connection()
-
-    total_students = conn.execute(
-        "SELECT COUNT(*) FROM students"
-    ).fetchone()[0]
-
-    total_attendance = conn.execute(
-        "SELECT COUNT(*) FROM attendance WHERE status = 'Present'"
-    ).fetchone()[0]
-    # Get all registered students
-    students = conn.execute("""
-        SELECT
-            users.name,
-            users.email,
-            students.roll_number,
-            students.department,
-            students.course,
-            students.year,
-            students.semester,
-            students.residence_type
-        FROM students
-        JOIN users ON students.user_id = users.id
-        WHERE users.role = 'student'
-        ORDER BY students.roll_number
-    """).fetchall()
-    conn.close()
-
-    return render_template(
-        "admin_dashboard.html",
-        total_students=total_students,
-        total_attendance=total_attendance,
-        students=students
-    )
-
 if __name__ == "__main__":
     app.run(debug=True)

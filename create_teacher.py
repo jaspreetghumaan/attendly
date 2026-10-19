@@ -3,12 +3,12 @@ from werkzeug.security import generate_password_hash
 from getpass import getpass
 
 
-def create_admin():
-    print("=== SmartAttend Admin Setup ===")
+def create_teacher():
+    print("=== SmartAttend Teacher Setup ===")
 
-    name = input("Enter admin name: ").strip()
-    email = input("Enter admin email: ").strip().lower()
-    password = getpass("Enter admin password: ")
+    name = input("Enter teacher name: ").strip()
+    email = input("Enter teacher email: ").strip().lower()
+    password = getpass("Enter teacher password: ")
 
     if not name or not email or not password:
         print("All fields are required.")
@@ -23,28 +23,33 @@ def create_admin():
     conn = get_db_connection()
 
     try:
+        existing_user = conn.execute(
+            "SELECT id FROM users WHERE email = ?",
+            (email,)
+        ).fetchone()
+
+        if existing_user:
+            print("An account with this email already exists.")
+            return
+
         conn.execute(
             """
             INSERT INTO users (name, email, password, role)
-            VALUES (?, ?, ?, 'admin')
+            VALUES (?, ?, ?, 'teacher')
             """,
             (name, email, hashed_password)
         )
 
         conn.commit()
-        print("Admin account created successfully!")
+        print("Teacher account created successfully!")
 
-    except Exception as error:
+    except Exception:
         conn.rollback()
-
-        if "UNIQUE constraint failed" in str(error):
-            print("An account with this email already exists.")
-        else:
-            print("Could not create admin account.")
+        print("Could not create teacher account.")
 
     finally:
         conn.close()
 
 
 if __name__ == "__main__":
-    create_admin()
+    create_teacher()

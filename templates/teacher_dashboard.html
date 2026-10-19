@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Teacher Dashboard | SmartAttend</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/teacher_dashboard.css') }}"
+    >
+</head>
+
+<body>
+
+    <header>
+        <h1>SmartAttend</h1>
+        <nav>
+            <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- Teacher Information -->
+        <section>
+            <h2>Welcome, {{ teacher.name }}!</h2>
+            <p>Teacher Dashboard</p>
+            <p>Email: {{ teacher.email }}</p>
+        </section>
+
+        <hr>
+
+        <!-- Dashboard Statistics -->
+        <section>
+            <h2>Attendance Overview</h2>
+
+            <article>
+                <h3>Total Registered Students</h3>
+                <p>{{ total_students }}</p>
+            </article>
+
+            <article>
+                <h3>Total Attendance Marked Present</h3>
+                <p>{{ total_attendance }}</p>
+            </article>
+        </section>
+
+        <hr>
+
+        <!-- Student Records -->
+        <section>
+            <h2>Registered Students</h2>
+
+            {% if students %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Semester</th>
+                                <th>Residence</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for student in students %}
+                                <tr>
+                                    <td>{{ student.roll_number }}</td>
+                                    <td>{{ student.name }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.department or '-' }}</td>
+                                    <td>{{ student.course }}</td>
+                                    <td>{{ student.year or '-' }}</td>
+                                    <td>{{ student.semester or '-' }}</td>
+                                    <td>{{ student.residence_type or '-' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No registered students found.</p>
+            {% endif %}
+        </section>
+
+        <hr>
+
+        <!-- Attendance Management -->
+        <section>
+            <h2>Attendance Management</h2>
+
+            <article>
+                <h3>Class Sessions</h3>
+                <p>Create and manage attendance sessions for classes and subjects.</p>
+                <p><em>Session management is not implemented yet.</em></p>
+            </article>
+
+            <article>
+                <h3>QR Code Attendance</h3>
+                <p>Generate time-limited QR codes for students to mark attendance.</p>
+                <p><em>QR generation is not implemented yet.</em></p>
+            </article>
+
+            <article>
+                <h3>Attendance Reports</h3>
+                <p>Review student attendance records and attendance percentages.</p>
+                <p><em>Detailed reports are not implemented yet.</em></p>
+            </article>
+        </section>
+
+    </main>
+
+</body>
+</html>
