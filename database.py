@@ -12,32 +12,49 @@ def create_tables():
     conn = get_db_connection()
 
     try:
-        # Users table
+               # Classes table
         conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS classes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                role TEXT NOT NULL
-                    CHECK (role IN ('teacher', 'student'))
-            )
-        """)
-
-        # Students table
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS students (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER UNIQUE NOT NULL,
-                roll_number TEXT UNIQUE NOT NULL,
-                course TEXT NOT NULL,
-
-                FOREIGN KEY (user_id)
+                class_name TEXT NOT NULL,
+                section TEXT NOT NULL,
+                created_by INTEGER NOT NULL,
+                FOREIGN KEY (created_by)
                     REFERENCES users(id)
-                    ON DELETE CASCADE
+                    ON DELETE CASCADE,
+                UNIQUE (class_name, section, created_by)
             )
         """)
 
+        # Subjects table
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS subjects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                subject_name TEXT NOT NULL,
+                subject_code TEXT NOT NULL,
+                created_by INTEGER NOT NULL,
+                FOREIGN KEY (created_by)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE,
+                UNIQUE (subject_code, created_by)
+            )
+        """)
+
+        # Subjects assigned to classes
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS class_subjects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                class_id INTEGER NOT NULL,
+                subject_id INTEGER NOT NULL,
+                FOREIGN KEY (class_id)
+                    REFERENCES classes(id)
+                    ON DELETE CASCADE,
+                FOREIGN KEY (subject_id)
+                    REFERENCES subjects(id)
+                    ON DELETE CASCADE,
+                UNIQUE (class_id, subject_id)
+            )
+        """)
         # Add new registration columns to existing databases.
         # Existing student data will remain unchanged.
         existing_columns = {
