@@ -5,19 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Student Registration | SmartAttend</title>
+    <title>Student Registration | Attendly</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/register.css') }}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Flatpickr (Professional Modern Datepicker) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
 </head>
 
 <body>
 
     <main class="register-container">
+        <a class="home-link" href="{{ url_for('home') }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Home</span>
+                </a>
 
         <header class="register-header">
-            <h1>SmartAttend</h1>
-            <p class="tagline">SMART • SIMPLE • SECURE</p>
+            <div class="brand-badge">
+                <h1>Attendly</h1>
+                <p class="tagline">SMART • SIMPLE • SECURE</p>
+            </div>
 
             <h2>Create Your Account</h2>
             <p>Register to access your student attendance dashboard.</p>
@@ -25,89 +45,81 @@
 
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('register') }}"
-              method="POST"
-              class="register-form">
+        <form action="{{ url_for('register') }}" method="POST" class="register-form">
 
             <!-- PERSONAL DETAILS -->
             <section class="form-section">
 
-                <h3>01. Personal Details</h3>
+                <h3>
+                    <span class="step-num">I.</span>
+                    <span>Personal Details</span>
+                </h3>
 
                 <div class="form-grid">
 
                     <div class="form-group">
                         <label for="name">Full Name *</label>
-                        <input type="text"
-                               id="name"
-                               name="name"
-                               placeholder="Enter your full name"
-                               autocomplete="name"
-                               required>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" autocomplete="name"
+                            required>
                     </div>
 
                     <div class="form-group">
                         <label for="dob">Date of Birth</label>
-                        <input type="date"
-                               id="dob"
-                               name="dob">
+                        <div class="date-input-wrapper">
+                            <input type="text" id="dob" name="dob" placeholder="Select your date of birth"
+                                readonly="readonly">
+                            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="gender">Gender</label>
-                        <select id="gender" name="gender">
-                            <option value="">Select gender</option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
-                            <option value="Other">Other</option>
-                            <option value="Prefer not to say">
-                                Prefer not to say
-                            </option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="gender" name="gender">
+                                <option value="">Select gender</option>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Other">Other</option>
+                                <option value="Prefer not to say">
+                                    Prefer not to say
+                                </option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email Address *</label>
-                        <input type="email"
-                               id="email"
-                               name="email"
-                               placeholder="you@example.com"
-                               autocomplete="email"
-                               required>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"
+                            required>
                     </div>
 
                     <div class="form-group">
                         <label for="phone">Contact Number *</label>
-                        <input type="tel"
-                               id="phone"
-                               name="phone"
-                               placeholder="10-digit mobile number"
-                               pattern="[0-9]{10}"
-                               maxlength="10"
-                               inputmode="numeric"
-                               required>
+                        <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number"
+                            pattern="[0-9]{10}" maxlength="10" inputmode="numeric" required>
                     </div>
 
                     <div class="form-group">
                         <label for="alternate_phone">
                             Alternate Contact Number
                         </label>
-                        <input type="tel"
-                               id="alternate_phone"
-                               name="alternate_phone"
-                               placeholder="Optional"
-                               pattern="[0-9]{10}"
-                               maxlength="10"
-                               inputmode="numeric">
+                        <input type="tel" id="alternate_phone" name="alternate_phone" placeholder="Optional"
+                            pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
                     </div>
 
                 </div>
@@ -118,102 +130,97 @@
             <!-- ACADEMIC DETAILS -->
             <section class="form-section">
 
-                <h3>02. Academic Details</h3>
+                <h3>
+                    <span class="step-num">II.</span>
+                    <span>Academic Details</span>
+                </h3>
 
                 <div class="form-grid">
 
                     <div class="form-group">
                         <label for="roll_number">Roll Number *</label>
-                        <input type="text"
-                               id="roll_number"
-                               name="roll_number"
-                               placeholder="Enter your roll number"
-                               required>
+                        <input type="text" id="roll_number" name="roll_number" placeholder="Enter your roll number"
+                            required>
                     </div>
 
-           <!-- Department Dropdown -->
-<div class="form-group">
-    <label for="department">Department *</label>
+                    <!-- Department Dropdown -->
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <div class="select-wrapper">
+                            <select id="department" name="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Applied Science">Applied Science</option>
+                                <option value="Allied Science">Allied Science</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Law">Law</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Hotel Management">Hotel Management</option>
+                                <option value="ME/CIVIL/ECE">ME/CIVIL/ECE</option>
+                                <option value="Department of Computer Application">
+                                    Department of Computer Application
+                                </option>
+                            </select>
+                        </div>
+                    </div>
 
-    <select id="department" name="department" required>
-        <option value="">Select Department</option>
-
-        <option value="Applied Science">Applied Science</option>
-        <option value="Allied Science">Allied Science</option>
-        <option value="Pharmacy">Pharmacy</option>
-        <option value="Computer Science">Computer Science</option>
-        <option value="Law">Law</option>
-        <option value="Business Administration">Business Administration</option>
-        <option value="Hotel Management">Hotel Management</option>
-        <option value="ME/CIVIL/ECE">ME/CIVIL/ECE</option>
-        <option value="Department of Computer Application">
-            Department of Computer Application
-        </option>
-    </select>
-</div>
-
-<!-- Course Dropdown -->
-<div class="form-group">
-    <label for="course">Course *</label>
-
-    <select id="course" name="course" required disabled>
-        <option value="">First select a department</option>
-    </select>
-</div>
+                    <!-- Course Dropdown -->
+                    <div class="form-group">
+                        <label for="course">Course *</label>
+                        <div class="select-wrapper">
+                            <select id="course" name="course" required disabled>
+                                <option value="">First select a department</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="year">Current Year</label>
-                        <select id="year" name="year">
-                            <option value="">Select year</option>
-                            <option value="1">1st Year</option>
-                            <option value="2">2nd Year</option>
-                            <option value="3">3rd Year</option>
-                            <option value="4">4th Year</option>
-                            <option value="5">5th Year</option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="year" name="year">
+                                <option value="">Select year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="semester">Current Semester</label>
-                        <select id="semester" name="semester">
-                            <option value="">Select semester</option>
-                            <option value="1">Semester 1</option>
-                            <option value="2">Semester 2</option>
-                            <option value="3">Semester 3</option>
-                            <option value="4">Semester 4</option>
-                            <option value="5">Semester 5</option>
-                            <option value="6">Semester 6</option>
-                            <option value="7">Semester 7</option>
-                            <option value="8">Semester 8</option>
-                            <option value="9">Semester 9</option>
-                            <option value="10">Semester 10</option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="semester" name="semester">
+                                <option value="">Select semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                                <option value="9">Semester 9</option>
+                                <option value="10">Semester 10</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="admission_year">Admission Year</label>
-                        <input type="number"
-                               id="admission_year"
-                               name="admission_year"
-                               min="2000"
-                               max="2100"
-                               placeholder="e.g. 2025">
+                        <input type="number" id="admission_year" name="admission_year" min="2000" max="2100"
+                            placeholder="e.g. 2025">
                     </div>
 
                     <div class="form-group">
                         <label for="section">Section</label>
-                        <input type="text"
-                               id="section"
-                               name="section"
-                               placeholder="e.g. A">
+                        <input type="text" id="section" name="section" placeholder="e.g. A">
                     </div>
 
                     <div class="form-group">
                         <label for="college">College / Institute</label>
-                        <input type="text"
-                               id="college"
-                               name="college"
-                               placeholder="Enter institute name">
+                        <input type="text" id="college" name="college" placeholder="Enter institute name">
                     </div>
 
                 </div>
@@ -224,74 +231,56 @@
             <!-- ADDRESS DETAILS -->
             <section class="form-section">
 
-                <h3>03. Address & Guardian Details</h3>
+                <h3>
+                    <span class="step-num">III.</span>
+                    <span>Address & Guardian Details</span>
+                </h3>
 
                 <div class="form-grid">
 
                     <div class="form-group">
-    <label for="residence_type">Residence Type *</label>
-
-    <select id="residence_type" name="residence_type" required>
-        <option value="">Select Residence Type</option>
-        <option value="Hosteller">Hosteller</option>
-        <option value="Day Scholar">Day Scholar</option>
-    </select>
-</div>  
+                        <label for="residence_type">Residence Type *</label>
+                        <div class="select-wrapper">
+                            <select id="residence_type" name="residence_type" required>
+                                <option value="">Select Residence Type</option>
+                                <option value="Hosteller">Hosteller</option>
+                                <option value="Day Scholar">Day Scholar</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group full-width">
                         <label for="address">Address</label>
-                        <textarea id="address"
-                                  name="address"
-                                  rows="3"
-                                  placeholder="Enter your address"></textarea>
+                        <textarea id="address" name="address" rows="3" placeholder="Enter your address"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text"
-                               id="city"
-                               name="city"
-                               placeholder="Enter city">
+                        <input type="text" id="city" name="city" placeholder="Enter city">
                     </div>
 
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text"
-                               id="state"
-                               name="state"
-                               placeholder="Enter state">
+                        <input type="text" id="state" name="state" placeholder="Enter state">
                     </div>
 
                     <div class="form-group">
                         <label for="pin_code">PIN Code</label>
-                        <input type="text"
-                               id="pin_code"
-                               name="pin_code"
-                               pattern="[0-9]{6}"
-                               maxlength="6"
-                               inputmode="numeric"
-                               placeholder="6-digit PIN code">
+                        <input type="text" id="pin_code" name="pin_code" pattern="[0-9]{6}" maxlength="6"
+                            inputmode="numeric" placeholder="6-digit PIN code">
                     </div>
 
                     <div class="form-group">
                         <label for="guardian_name">Parent / Guardian Name</label>
-                        <input type="text"
-                               id="guardian_name"
-                               name="guardian_name"
-                               placeholder="Enter guardian name">
+                        <input type="text" id="guardian_name" name="guardian_name" placeholder="Enter guardian name">
                     </div>
 
                     <div class="form-group">
                         <label for="guardian_phone">
                             Parent / Guardian Contact
                         </label>
-                        <input type="tel"
-                               id="guardian_phone"
-                               name="guardian_phone"
-                               pattern="[0-9]{10}"
-                               maxlength="10"
-                               inputmode="numeric"
-                               placeholder="10-digit mobile number">
+                        <input type="tel" id="guardian_phone" name="guardian_phone" pattern="[0-9]{10}" maxlength="10"
+                            inputmode="numeric" placeholder="10-digit mobile number">
                     </div>
 
                 </div>
@@ -302,32 +291,66 @@
             <!-- ACCOUNT SECURITY -->
             <section class="form-section">
 
-                <h3>04. Account Security</h3>
+                <h3>
+                    <span class="step-num">IV.</span>
+                    <span>Account Security</span>
+                </h3>
 
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label for="password">Create Password *</label>
-                        <input type="password"
-                               id="password"
-                               name="password"
-                               minlength="8"
-                               autocomplete="new-password"
-                               placeholder="Minimum 8 characters"
-                               required>
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter password" required>
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="Show password">
+                                <!-- Eye Icon (Open) -->
+                                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <!-- Eye Icon (Cut/Hide) -->
+                                <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="confirm_password">
                             Confirm Password *
                         </label>
-                        <input type="password"
-                               id="confirm_password"
-                               name="confirm_password"
-                               minlength="8"
-                               autocomplete="new-password"
-                               placeholder="Re-enter your password"
-                               required>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" minlength="8"
+                                autocomplete="new-password" placeholder="Re-enter your password" required>
+                            <button type="button" class="toggle-password" id="toggleConfirmPassword"
+                                aria-label="Show confirm password">
+                                <!-- Eye Icon (Open) -->
+                                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <!-- Eye Icon (Cut/Hide) -->
+                                <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -343,7 +366,12 @@
             <div class="form-actions">
 
                 <button type="submit" class="register-button">
-                    Create Student Account
+                    <span>Create Student Account</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
                 </button>
 
                 <p>
@@ -352,7 +380,12 @@
                 </p>
 
                 <a class="home-link" href="{{ url_for('home') }}">
-                    ← Back to Home
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Home</span>
                 </a>
 
             </div>
@@ -360,6 +393,52 @@
         </form>
 
     </main>
-<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script>
+        // Professional Calendar Initialization
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("#dob", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                altInputClass: "form-control",
+                maxDate: "today",
+                yearSelectorType: "dropdown",
+                showMonths: 1,
+                animate: true,
+                disableMobile: true
+            });
+        }
+    </script>
+    <script>
+        function setupPasswordToggle(buttonId, inputId) {
+            const toggleBtn = document.getElementById(buttonId);
+            const passwordInput = document.getElementById(inputId);
+
+            if (!toggleBtn || !passwordInput) return;
+
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+
+                const eyeShow = toggleBtn.querySelector('.eye-show');
+                const eyeHide = toggleBtn.querySelector('.eye-hide');
+
+                if (eyeShow && eyeHide) {
+                    eyeShow.style.display = isPassword ? 'none' : 'block';
+                    eyeHide.style.display = isPassword ? 'block' : 'none';
+                }
+            });
+        }
+
+        setupPasswordToggle('togglePassword', 'password');
+        setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+    </script>
+
 </body>
+
 </html>

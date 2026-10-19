@@ -238,13 +238,8 @@ p {
   color: var(--blue-bright);
 }
 
-.site-nav__link:hover::after,
-.site-nav__item:first-child .site-nav__link::after {
+.site-nav__link:hover::after {
   transform: scaleX(1);
-}
-
-.site-nav__item:first-child .site-nav__link {
-  color: var(--blue-bright);
 }
 
 .site-nav__list .site-nav__login {
