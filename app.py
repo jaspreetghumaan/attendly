@@ -1,17 +1,42 @@
 import secrets
-from flask import Flask, render_template,  request, redirect, session, url_for, flash
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    session,
+    url_for,
+    flash
+)
+
 from database import get_db_connection
-from werkzeug.security import generate_password_hash, check_password_hash 
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
+
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 
+# =========================================================
+# HOME PAGE
+# =========================================================
+
 @app.route("/")
 def home():
     return render_template("index.html")
-# Register routes
+
+
+# =========================================================
+# STUDENT REGISTRATION
+# =========================================================
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     if request.method == "POST":
 
         # Personal details
@@ -19,6 +44,7 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         confirm_password = request.form.get("confirm_password", "")
+
         dob = request.form.get("dob", "").strip()
         gender = request.form.get("gender", "").strip()
         phone = request.form.get("phone", "").strip()
@@ -46,8 +72,14 @@ def register():
 
         # Required field validation
         required_fields = [
-            name, email, password, confirm_password,
-            phone, roll_number, department, course,
+            name,
+            email,
+            password,
+            confirm_password,
+            phone,
+            roll_number,
+            department,
+            course,
             residence_type
         ]
 
@@ -84,13 +116,13 @@ def register():
             return redirect(url_for("register"))
 
         if pin_code and (
-            not pin_code.isdigit() or len(pin_code) != 6
+            not pin_code.isdigit()
+            or len(pin_code) != 6
         ):
             flash("Enter a valid 6-digit PIN code.")
             return redirect(url_for("register"))
 
-        # Validate the selected department and course on the server.
-        # Never rely on JavaScript alone for validation.
+        # Validate department and course
         department_courses = {
             "Applied Science": [
                 "B.Tech Artificial Intelligence (AI)",
@@ -101,16 +133,22 @@ def register():
                 "Diploma in Computer Science (CS)",
                 "Diploma in Electronics and Communication Engineering (ECE)"
             ],
+
             "Allied Science": ["RMT", "OTT", "BPT"],
+
             "Pharmacy": ["B.Pharma", "D.Pharma", "Pharm.D"],
+
             "Computer Science": [
                 "B.Tech Artificial Intelligence (AI)",
                 "B.Tech Computer Science Engineering (CSE)",
                 "B.Tech Computer Science and Design (CSD)",
                 "Diploma in Computer Science (CS)"
             ],
+
             "Law": ["LLB"],
+
             "Business Administration": ["BBA", "MBA"],
+
             "Hotel Management": [
                 "BHM (Bachelor of Hotel Management)",
                 "B.Sc. Hospitality and Hotel Administration",
@@ -118,11 +156,13 @@ def register():
                 "Diploma in Food Production",
                 "Diploma in Front Office Operations"
             ],
+
             "ME/CIVIL/ECE": [
                 "B.Tech Mechanical Engineering",
                 "B.Tech Civil Engineering",
                 "Diploma in Electronics and Communication Engineering (ECE)"
             ],
+
             "Department of Computer Application": ["BCA", "MCA"]
         }
 
@@ -134,16 +174,17 @@ def register():
             flash("Please select a valid residence type.")
             return redirect(url_for("register"))
 
-        # Convert optional numeric values safely
+        # Convert optional numeric values
         try:
             year = int(year) if year else None
             semester = int(semester) if semester else None
             admission_year = int(admission_year) if admission_year else None
+
         except ValueError:
             flash("Year, semester, and admission year must be valid numbers.")
             return redirect(url_for("register"))
 
-        # Hash password before storing it
+        # Hash password
         hashed_password = generate_password_hash(password)
 
         conn = get_db_connection()
@@ -162,12 +203,27 @@ def register():
             conn.execute(
                 """
                 INSERT INTO students (
-                    user_id, roll_number, course,
-                    dob, gender, phone, alternate_phone,
-                    department, specialization, year, semester,
-                    admission_year, section, college,
-                    address, city, state, pin_code,
-                    guardian_name, guardian_phone, residence_type
+                    user_id,
+                    roll_number,
+                    course,
+                    dob,
+                    gender,
+                    phone,
+                    alternate_phone,
+                    department,
+                    specialization,
+                    year,
+                    semester,
+                    admission_year,
+                    section,
+                    college,
+                    address,
+                    city,
+                    state,
+                    pin_code,
+                    guardian_name,
+                    guardian_phone,
+                    residence_type
                 )
                 VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
@@ -175,14 +231,24 @@ def register():
                 )
                 """,
                 (
-                    user_id, roll_number, course,
-                    dob or None, gender or None,
-                    phone, alternate_phone or None,
-                    department, specialization or None,
-                    year, semester, admission_year,
-                    section or None, college or None,
-                    address or None, city or None,
-                    state or None, pin_code or None,
+                    user_id,
+                    roll_number,
+                    course,
+                    dob or None,
+                    gender or None,
+                    phone,
+                    alternate_phone or None,
+                    department,
+                    specialization or None,
+                    year,
+                    semester,
+                    admission_year,
+                    section or None,
+                    college or None,
+                    address or None,
+                    city or None,
+                    state or None,
+                    pin_code or None,
                     guardian_name or None,
                     guardian_phone or None,
                     residence_type
@@ -207,36 +273,47 @@ def register():
         return redirect(url_for("register"))
 
     return render_template("register.html")
-#Login routes
+
+
+# =========================================================
+# STUDENT LOGIN
+# URL: /login
+# Template: login.html
+# =========================================================
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     if request.method == "POST":
-        email = request.form["email"].strip().lower()
-        password = request.form["password"]
+
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
 
         conn = get_db_connection()
 
-        user = conn.execute(
-            "SELECT * FROM users WHERE email = ?",
-            (email,)
-        ).fetchone()
+        try:
+            user = conn.execute(
+                """
+                SELECT *
+                FROM users
+                WHERE email = ?
+                """,
+                (email,)
+            ).fetchone()
 
-        conn.close()
+        finally:
+            conn.close()
 
         if user and check_password_hash(user["password"], password):
 
-            # Only Teacher and Student can log in
-            if user["role"] not in ("teacher", "student"):
-                flash("This account role is not supported.")
-                return redirect(url_for("login"))
+            if user["role"] != "student":
+                flash("Please use the faculty login page.")
+                return redirect(url_for("faculty_login"))
 
             session.clear()
             session["user_id"] = user["id"]
             session["name"] = user["name"]
             session["role"] = user["role"]
-
-            if user["role"] == "teacher":
-                return redirect(url_for("teacher_dashboard"))
 
             return redirect(url_for("student_dashboard"))
 
@@ -244,11 +321,67 @@ def login():
         return redirect(url_for("login"))
 
     return render_template("login.html")
-# Student Dashboard Route
+
+
+# =========================================================
+# FACULTY LOGIN
+# URL: /faculty_login
+# Template: faculty_login.html
+# =========================================================
+
+@app.route("/faculty_login", methods=["GET", "POST"])
+def faculty_login():
+
+    if request.method == "POST":
+
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        conn = get_db_connection()
+
+        try:
+            user = conn.execute(
+                """
+                SELECT *
+                FROM users
+                WHERE email = ?
+                """,
+                (email,)
+            ).fetchone()
+
+        finally:
+            conn.close()
+
+        if user and check_password_hash(user["password"], password):
+
+            if user["role"] != "teacher":
+                flash("Please use the student login page.")
+                return redirect(url_for("login"))
+
+            session.clear()
+            session["user_id"] = user["id"]
+            session["name"] = user["name"]
+            session["role"] = user["role"]
+
+            return redirect(url_for("teacher_dashboard"))
+
+        flash("Invalid email or password.")
+        return redirect(url_for("faculty_login"))
+
+    return render_template("faculty_login.html")
+
+
+# =========================================================
+# STUDENT DASHBOARD
+# =========================================================
+
 @app.route("/student/dashboard")
 def student_dashboard():
 
-    if "user_id" not in session or session.get("role") != "student":
+    if (
+        "user_id" not in session
+        or session.get("role") != "student"
+    ):
         return redirect(url_for("login"))
 
     conn = get_db_connection()
@@ -277,7 +410,9 @@ def student_dashboard():
         ).fetchone()
 
         if student is None:
-            return "Student profile not found.", 404
+            session.clear()
+            flash("Student profile not found.")
+            return redirect(url_for("login"))
 
         # Calculate attendance statistics
         attendance_stats = conn.execute(
@@ -285,14 +420,18 @@ def student_dashboard():
             SELECT
                 COUNT(*) AS total_classes,
                 SUM(
-                    CASE WHEN status = 'Present' THEN 1 ELSE 0 END
+                    CASE
+                        WHEN status = 'Present' THEN 1
+                        ELSE 0
+                    END
                 ) AS classes_attended
             FROM attendance
             WHERE student_id = ?
             """,
             (student["student_id"],)
         ).fetchone()
-                # Get the student's attendance history
+
+        # Get attendance history
         attendance_history = conn.execute(
             """
             SELECT attendance_date, status
@@ -324,43 +463,60 @@ def student_dashboard():
     finally:
         conn.close()
 
-# Teacher Dashboard
+
+# =========================================================
+# TEACHER DASHBOARD
+# =========================================================
+
 @app.route("/teacher/dashboard")
 def teacher_dashboard():
-    if "user_id" not in session or session.get("role") != "teacher":
-        return redirect(url_for("login"))
+
+    if (
+        "user_id" not in session
+        or session.get("role") != "teacher"
+    ):
+        return redirect(url_for("faculty_login"))
 
     conn = get_db_connection()
 
     try:
         # Get teacher details
-        teacher = conn.execute("""
+        teacher = conn.execute(
+            """
             SELECT name, email
             FROM users
             WHERE id = ? AND role = 'teacher'
-        """, (session["user_id"],)).fetchone()
+            """,
+            (session["user_id"],)
+        ).fetchone()
 
         if teacher is None:
             session.clear()
-            return redirect(url_for("login"))
+            flash("Teacher account not found.")
+            return redirect(url_for("faculty_login"))
 
         # Count registered students
-        total_students = conn.execute("""
+        total_students = conn.execute(
+            """
             SELECT COUNT(*)
             FROM students
             JOIN users ON students.user_id = users.id
             WHERE users.role = 'student'
-        """).fetchone()[0]
+            """
+        ).fetchone()[0]
 
-        # Count attendance records marked Present
-        total_attendance = conn.execute("""
+        # Count present attendance records
+        total_attendance = conn.execute(
+            """
             SELECT COUNT(*)
             FROM attendance
             WHERE status = 'Present'
-        """).fetchone()[0]
+            """
+        ).fetchone()[0]
 
         # Fetch registered students
-        students = conn.execute("""
+        students = conn.execute(
+            """
             SELECT
                 users.name,
                 users.email,
@@ -374,7 +530,8 @@ def teacher_dashboard():
             JOIN users ON students.user_id = users.id
             WHERE users.role = 'student'
             ORDER BY students.roll_number
-        """).fetchall()
+            """
+        ).fetchall()
 
         return render_template(
             "teacher_dashboard.html",
@@ -387,10 +544,28 @@ def teacher_dashboard():
     finally:
         conn.close()
 
+
+# =========================================================
+# LOGOUT
+# =========================================================
+
 @app.route("/logout")
 def logout():
+
+    previous_role = session.get("role")
+
     session.clear()
     flash("You have been logged out.")
+
+    if previous_role == "teacher":
+        return redirect(url_for("faculty_login"))
+
     return redirect(url_for("login"))
+
+
+# =========================================================
+# RUN APPLICATION
+# =========================================================
+
 if __name__ == "__main__":
     app.run(debug=True)
