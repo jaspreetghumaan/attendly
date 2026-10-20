@@ -295,9 +295,9 @@ body::after {
 
 .form-heading .eyebrow {
   display: inline-block;
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.04em;
   color: var(--blue);
   background: rgba(224, 242, 254, 0.75);
@@ -538,4 +538,51 @@ body::after {
   .login-form-section {
     padding: 1.75rem 1.35rem;
   }
+}
+
+/* Password Wrapper Styling */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+  width: 100%;
+  padding-right: 3rem !important;
+  /* Right side icon layi extra space */
+}
+
+/* Toggle Password Eye Button Style */
+.toggle-password-btn {
+  position: absolute;
+  right: 0.85rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  color: #94a3b8;
+  transition: color var(--ease);
+}
+
+.toggle-password-btn:hover {
+  color: var(--ink);
+}
+
+.toggle-password-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.form-group input[type="password"],
+.form-group input[type="text"] {
+  padding-right: 2.8rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.8' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.95rem center;
+  background-size: 1.15rem 1.15rem;
 }
