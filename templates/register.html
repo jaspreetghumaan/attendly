@@ -24,21 +24,36 @@
 <body>
 
     <main class="register-container">
-        <a class="home-link" href="{{ url_for('home') }}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-            <span>Back to Home</span>
-        </a>
+        <!-- LEFT PANEL: Teacher login style glassmorphism info panel -->
+        <aside class="register-left-panel">
+            <div class="left-top">
+                <a href="{{ url_for('home') }}" class="brand-logo">
+                    <span class="logo-box"></span>
+                    <span class="logo-text">Attendly</span>
+                </a>
 
-        <header class="register-header">
-            <div class="brand-badge">
-                <h1>Attendly</h1>
-                <p class="tagline">SMART • SIMPLE • SECURE</p>
+                <div class="left-hero">
+                    <span class="portal-badge">STUDENT PORTAL</span>
+                    <h1>Your attendance.<br>Your control.</h1>
+                    <p>Manage daily attendance, generate instant dynamic QR codes, and keep your academic sessions completely streamlined.</p>
+                </div>
             </div>
 
+            <div class="left-bottom">
+                <div class="feature-pill">
+                    <span class="pill-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                    <span>Smart attendance management, made simple.</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT PANEL HEADER -->
+        <header class="register-header">
+            <span class="welcome-badge">GET STARTED</span>
             <h2>Create Your Account</h2>
             <p>Register to access your student attendance dashboard.</p>
         </header>
@@ -394,18 +409,16 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="{{ url_for('static', filename='js/register.js') }}"></script>
     <script>
-        // Professional Calendar Initialization with Direct Year Dropdown for DOB
         if (typeof flatpickr !== 'undefined') {
             flatpickr("#dob", {
                 dateFormat: "Y-m-d",
                 altInput: true,
-                altFormat: "d M, Y", // Example: 15 Aug, 2005
+                altFormat: "d M, Y",
                 maxDate: "today",
                 minDate: "1970-01-01",
                 disableMobile: true,
                 animate: true,
                 onReady: function (selectedDates, dateStr, instance) {
-                    // Direct Year Dropdown toiri kora hocche jate student-ra sohoje জন্মসাল select korte pare
                     const currentYear = new Date().getFullYear();
                     const startYear = 1970;
                     const yearSelect = document.createElement("select");
@@ -426,7 +439,6 @@
                         instance.changeYear(parseInt(e.target.value, 10));
                     });
 
-                    // Header-e Year Dropdown add kora
                     const currentMonthContainer = instance.calendarContainer.querySelector(".flatpickr-current-month");
                     if (currentMonthContainer) {
                         currentMonthContainer.appendChild(yearSelect);

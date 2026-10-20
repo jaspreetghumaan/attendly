@@ -4,163 +4,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Login | Attendly</title>
-
+    <title>Teacher Login | Attendly</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/faculty_login.css') }}">
 </head>
 
 <body>
 
-    <!-- Background glowing orbs -->
-    <div class="bg-blur bg-blur-1"></div>
-    <div class="bg-blur bg-blur-2"></div>
+    <main class="login-container">
 
-    <main class="page-container">
-
-        <!-- TOP BRAND BAR -->
-        <header class="top-brand">
-            <a href="{{ url_for('home') }}" class="brand-link">
-                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
-                    class="brand-logo">
-                <span class="brand-name">Attendly</span>
+        <!-- Left Section: Branding (Exact Match to Student Login) -->
+        <section class="login-branding">
+            <a href="{{ url_for('home') }}" class="brand-name">
+                Attendly
             </a>
-            <span class="faculty-tag">Faculty Portal</span>
-        </header>
 
-        <!-- MAIN DUAL CARD WRAPPER -->
-        <div class="portal-card">
+            <div class="branding-content">
+                <span class="eyebrow">FACULTY PORTAL</span>
+                <h1>Your classroom.<br>Your control.</h1>
+                <p class="branding-description">
+                    Manage daily attendance, generate instant dynamic QR codes, and keep your academic sessions completely streamlined.
+                </p>
+            </div>
 
-            <!-- LEFT: MODERN PREVIEW PANEL -->
-            <section class="portal-preview">
-                <div class="preview-content">
-                    <span class="badge-subtle">Educator Control</span>
-                    <h1 class="preview-title">Classroom & QR Session Control</h1>
-                    <p class="preview-desc">
-                        Manage daily attendance, generate instant dynamic QR codes, and view student percentage logs in
-                        real time.
-                    </p>
+            <div class="branding-footer">
+                Smart attendance management, made simple.
+            </div>
+        </section>
+
+        <!-- Right Section: Form (Exact Match to Student Login) -->
+        <section class="login-form-section">
+            <div class="login-form-wrapper">
+
+                <div class="form-heading">
+                    <span class="eyebrow">WELCOME BACK</span>
+                    <h2>Teacher Login</h2>
+                    <p>Enter your registered credentials to continue.</p>
                 </div>
 
-                <!-- Teacher dashboard illustration -->
-                <div class="preview-image-wrap">
-                    <img src="{{ url_for('static', filename='images/login-image.png') }}"
-                        alt="Attendly Teacher Dashboard" class="dashboard-img">
-                </div>
-            </section>
-
-            <!-- RIGHT: CLEAN FORM PANEL -->
-            <section class="portal-form-pane">
-                <div class="form-box">
-
-                    <div class="form-intro">
-                        <span class="role-chip">Teacher Access</span>
-                        <h2>Teacher Sign In</h2>
-                        <p>Enter your institutional credentials to continue</p>
-                    </div>
-
-                    <!-- FLASH MESSAGES -->
-                    {% with messages = get_flashed_messages() %}
-                    {% if messages %}
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flash-messages">
                     {% for message in messages %}
-                    <p class="flash-message">{{ message }}</p>
+                    <p>{{ message }}</p>
                     {% endfor %}
-                    {% endif %}
-                    {% endwith %}
+                </div>
+                {% endif %}
+                {% endwith %}
 
-                    <!-- FORM -->
-                    <form action="{{ url_for('faculty_login') }}" method="POST" class="sign-form">
+                <form action="{{ url_for('faculty_login') }}" method="POST" class="login-form">
 
-                        <div class="input-field">
-                            <label for="email">Institutional / Staff Email</label>
-                            <div class="field-control">
-                                <span class="field-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                        </path>
-                                        <polyline points="22,6 12,13 2,6"></polyline>
-                                    </svg>
-                                </span>
-                                <input type="email" id="email" name="email" placeholder="faculty@institution.edu"
-                                    autocomplete="email" required>
-                            </div>
-                        </div>
-
-                       <div class="input-field">
-                            <label for="password">Password</label>
-                            <div class="field-control">
-                                <span class="field-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                                    </svg>
-                                </span>
-                                <input type="password" id="password" name="password" placeholder="••••••••••••"
-                                    autocomplete="current-password" required>
-                                
-                                <!-- Show/Hide Password Button (Right Side Inside Input) -->
-                                <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
-                                    <!-- Eye Open Icon (Show) -->
-                                    <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    <!-- Eye Off Icon (Hide) -->
-                                    <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                                        <line x1="1" y1="1" x2="23" y2="23"></line>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="submit-action-btn">
-                            <span>Access Teacher Dashboard</span>
-                            <span class="arrow-symbol">→</span>
-                        </button>
-
-                    </form>
-
-                    <div class="foot-options">
-                        <p class="switch-txt">Are you a student? <a href="{{ url_for('login') }}">Switch to Student
-                                Login</a></p>
-                        <a href="{{ url_for('home') }}" class="back-link">
-                            <svg class="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="19" y1="12" x2="5" y2="12"></line>
-                                <polyline points="12 19 5 12 12 5"></polyline>
-                            </svg>
-                            <span>Back to Home</span>
-                        </a>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" autocomplete="email" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        Sign In <span>→</span>
+                    </button>
+
+                </form>
+
+                <div class="form-divider">
+                    <span>OR</span>
                 </div>
-            </section>
 
-        </div>
+                <p class="faculty-prompt">
+                    Are you a student? <a href="{{ url_for('login') }}">Student Login</a>
+                </p>
+
+                <a href="{{ url_for('home') }}" class="back-home">
+                    ← Back to Home
+                </a>
+
+            </div>
+        </section>
+
     </main>
-<script>
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
-        const eyeOpen = document.getElementById('eyeOpen');
-        const eyeClosed = document.getElementById('eyeClosed');
 
-        togglePassword.addEventListener('click', function () {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-            
-            // Icon change karne ke liye
-            eyeOpen.style.display = isPassword ? 'none' : 'block';
-            eyeClosed.style.display = isPassword ? 'block' : 'none';
-        });
-    </script>
 </body>
-
 
 </html>

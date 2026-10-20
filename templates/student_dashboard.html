@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Student Dashboard | Attendly</title>
-
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
 </head>
 
@@ -16,10 +14,9 @@
 
         <!-- Header -->
         <header class="dashboard-header">
-
             <div class="brand">
-                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo" class="brand-icon">
-
+                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
+                    class="brand-icon">
                 <div class="brand-text">
                     <h2>Attendly</h2>
                     <p>SMART • SIMPLE • SECURE</p>
@@ -30,140 +27,116 @@
                 <span>Logout</span>
                 <span class="logout-arrow">↗</span>
             </a>
-
         </header>
 
-
-        <!-- Welcome Section -->
+        <!-- Welcome Hero Section -->
         <section class="welcome-section">
-
-            <p class="welcome-label">STUDENT DASHBOARD</p>
-
-            <h1>Welcome back, {{ student.name }}! 👋</h1>
-
-            <p>
-                Your academic attendance, all in one place.
-                Stay informed and keep track of your progress.
-            </p>
-
+            <div class="welcome-content">
+                <span class="welcome-badge">STUDENT PORTAL</span>
+                <h1>Welcome back, {{ student.name }}! 👋</h1>
+                <p>Your academic attendance and profile overview, all managed in one secure place.</p>
+            </div>
+            <div class="welcome-glow"></div>
         </section>
 
-
         <!-- Attendance Statistics -->
-        <section>
-
+        <section class="mb-section">
             <div class="section-heading">
                 <div>
-                    <h2>Your Attendance</h2>
-                    <p>Your attendance overview will appear here.</p>
+                    <h2>Attendance Overview</h2>
+                    <p>Track your current academic engagement.</p>
                 </div>
             </div>
 
             <div class="stats-grid">
-
                 <article class="stat-card">
-                    <div class="stat-icon">📚</div>
-                    <p class="stat-label">Total Classes</p>
-                    <p class="stat-value">{{ total_classes }}</p>
-                    <p class="stat-note">Attendance summary</p>
+                    <div class="stat-icon-wrap">📚</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Classes</span>
+                        <h3 class="stat-value">{{ total_classes }}</h3>
+                        <span class="stat-note">Scheduled sessions</span>
+                    </div>
                 </article>
 
                 <article class="stat-card">
-                    <div class="stat-icon">✓</div>
-                    <p class="stat-label">Classes Attended</p>
-                    <p class="stat-value">{{ classes_attended }}</p>
-                    <p class="stat-note">Your present records</p>
+                    <div class="stat-icon-wrap success-ic">✓</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Classes Attended</span>
+                        <h3 class="stat-value">{{ classes_attended }}</h3>
+                        <span class="stat-note">Present records</span>
+                    </div>
                 </article>
 
                 <article class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <p class="stat-label">Attendance Percentage</p>
-                    <p class="stat-value">{{ attendance_percentage }}%</p>
-                    <p class="stat-note">Based on recorded classes</p>
+                    <div class="stat-icon-wrap warning-ic">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Attendance Rate</span>
+                        <h3 class="stat-value">{{ attendance_percentage }}%</h3>
+                        <span class="stat-note">Overall standing</span>
+                    </div>
                 </article>
-
             </div>
-
         </section>
 
-
-        <!-- Student Profile -->
-        <section>
-
+        <!-- Student Profile Grid -->
+        <section class="mb-section">
             <div class="section-heading">
                 <div>
-                    <h2>Your Profile</h2>
-                    <p>Your registered academic information.</p>
+                    <h2>Student Profile</h2>
+                    <p>Your registered academic details.</p>
                 </div>
             </div>
 
-            <div class="profile-card">
-
-                <div class="profile-grid">
-
-                    <div class="profile-item">
-                        <span class="profile-label">Full Name</span>
-                        <span class="profile-value">{{ student.name }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Email Address</span>
-                        <span class="profile-value">{{ student.email }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Roll Number</span>
-                        <span class="profile-value">{{ student.roll_number or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Department</span>
-                        <span class="profile-value">{{ student.department or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Course</span>
-                        <span class="profile-value">{{ student.course or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Specialization</span>
-                        <span class="profile-value">{{ student.specialization or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Academic Year</span>
-                        <span class="profile-value">{{ student.year or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Semester</span>
-                        <span class="profile-value">{{ student.semester or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Section</span>
-                        <span class="profile-value">{{ student.section or 'Not provided' }}</span>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="profile-label">Residence</span>
-                        <span class="profile-value">{{ student.residence_type or 'Not provided' }}</span>
-                    </div>
-
+            <div class="profile-bento-grid">
+                <div class="profile-box">
+                    <span class="p-label">Full Name</span>
+                    <span class="p-val">{{ student.name }}</span>
                 </div>
-
+                <div class="profile-box">
+                    <span class="p-label">Email Address</span>
+                    <span class="p-val">{{ student.email }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Roll Number</span>
+                    <span class="p-val">{{ student.roll_number or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Department</span>
+                    <span class="p-val">{{ student.department or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Course</span>
+                    <span class="p-val">{{ student.course or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Specialization</span>
+                    <span class="p-val">{{ student.specialization or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Academic Year</span>
+                    <span class="p-val">{{ student.year or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Semester</span>
+                    <span class="p-val">{{ student.semester or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Section</span>
+                    <span class="p-val">{{ student.section or 'Not provided' }}</span>
+                </div>
+                <div class="profile-box">
+                    <span class="p-label">Residence</span>
+                    <span class="p-val">{{ student.residence_type or 'Not provided' }}</span>
+                </div>
             </div>
-
         </section>
 
-
         <!-- Attendance History -->
-        <section>
+        <section class="mb-section">
             <div class="section-heading">
                 <div>
                     <h2>Attendance History</h2>
-                    <p>Review your recorded attendance.</p>
+                    <p>Recent session logs.</p>
                 </div>
             </div>
 
@@ -173,13 +146,11 @@
                     {% for record in attendance_history %}
                     <div class="history-item">
                         <div class="history-date">
-                            <span class="history-label">Date</span>
-                            <span>{{ record.attendance_date }}</span>
+                            <span class="h-sub">Date</span>
+                            <span class="h-main">{{ record.attendance_date }}</span>
                         </div>
-
                         <div class="history-status">
-                            <span class="history-label">Status</span>
-                            <span class="status-badge {{ record.status | lower }}">
+                            <span class="status-pill {{ record.status | lower }}">
                                 {{ record.status }}
                             </span>
                         </div>
@@ -188,32 +159,28 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <p>No attendance records yet.</p>
-                    <span>Your attendance history will appear here.</span>
+                    <div class="empty-icon">📂</div>
+                    <h3>No attendance records yet</h3>
+                    <p>Your history will appear here once sessions are logged.</p>
                 </div>
                 {% endif %}
             </div>
         </section>
 
-        <!-- QR Scanner -->
+        <!-- QR Scanner Section -->
         <section class="scanner-card">
-
-            <h2>Mark Your Attendance</h2>
-
-            <p>
-                Scan your teacher's active QR code to mark yourself present.
-            </p>
-
-            <button type="button" class="scanner-button" disabled>
-                ▦ QR Scanner — Coming Soon
+            <div class="scanner-text">
+                <h2>Mark Attendance via QR</h2>
+                <p>Scan your teacher's active session QR code to record attendance instantly.</p>
+            </div>
+            <button type="button" class="scanner-btn" disabled>
+                <span>▦ QR Scanner — Coming Soon</span>
             </button>
-
         </section>
-
 
         <!-- Footer -->
         <footer class="dashboard-footer">
-            © Attendly | Smart • Simple • Secure
+            <p></p>
         </footer>
 
     </main>
