@@ -1,3 +1,4 @@
+#Main application file for the QR Attendance System
 import secrets
 
 from flask import (

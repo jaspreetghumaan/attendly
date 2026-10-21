@@ -1,3 +1,4 @@
+#Database integrity check script for the QR Attendance System
 import sqlite3
 
 conn = sqlite3.connect("smartattend.db")

@@ -1,3 +1,4 @@
+//Register JS
 const departmentSelect = document.getElementById("department");
 const courseSelect = document.getElementById("course");
 

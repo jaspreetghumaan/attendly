@@ -1,3 +1,4 @@
+#Teacher
 from database import get_db_connection
 from werkzeug.security import generate_password_hash
 from getpass import getpass
