@@ -35,7 +35,7 @@
 
                 <div class="left-hero">
                     <span class="portal-badge">STUDENT PORTAL</span>
-                    <h1>Your attendance.<br>Your control.</h1>
+                    <h1>Your Attendance <br>Your Control </h1>
                     <p>Manage daily attendance, generate instant dynamic QR codes, and keep your academic sessions
                         completely streamlined.</p>
                 </div>
@@ -49,14 +49,13 @@
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </span>
-                    <span>Smart attendance management, made simple.</span>
+                    <span>Smart Attendance Management, Made Simple.</span>
                 </div>
             </div>
         </aside>
 
         <!-- RIGHT PANEL HEADER -->
         <header class="register-header">
-
             <h2>Create Your Account</h2>
             <p>Register to access your student attendance dashboard.</p>
         </header>
@@ -76,14 +75,12 @@
 
             <!-- PERSONAL DETAILS -->
             <section class="form-section">
-
                 <h3>
                     <span class="step-num">I.</span>
                     <span>Personal Details</span>
                 </h3>
 
                 <div class="form-grid">
-
                     <div class="form-group">
                         <label for="name">Full Name *</label>
                         <input type="text" id="name" name="name" placeholder="Enter your full name" autocomplete="name"
@@ -110,12 +107,8 @@
                         <div class="select-wrapper">
                             <select id="gender" name="gender">
                                 <option value="">Select gender</option>
-                                <option value="Female">Female</option>
                                 <option value="Male">Male</option>
-                                <option value="Other">Other</option>
-                                <option value="Prefer not to say">
-                                    Prefer not to say
-                                </option>
+                                <option value="Female">Female</option>
                             </select>
                         </div>
                     </div>
@@ -133,28 +126,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="alternate_phone">
-                            Alternate Contact Number
-                        </label>
+                        <label for="alternate_phone">Alternate Contact Number</label>
                         <input type="tel" id="alternate_phone" name="alternate_phone" placeholder="Optional"
                             pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
                     </div>
-
                 </div>
-
             </section>
-
 
             <!-- ACADEMIC DETAILS -->
             <section class="form-section">
-
                 <h3>
                     <span class="step-num">II.</span>
                     <span>Academic Details</span>
                 </h3>
 
                 <div class="form-grid">
-
                     <div class="form-group">
                         <label for="roll_number">Roll Number *</label>
                         <input type="text" id="roll_number" name="roll_number" placeholder="Enter your roll number"
@@ -175,8 +161,7 @@
                                 <option value="Business Administration">Business Administration</option>
                                 <option value="Hotel Management">Hotel Management</option>
                                 <option value="ME/CIVIL/ECE">ME/CIVIL/ECE</option>
-                                <option value="Department of Computer Application">
-                                    Department of Computer Application
+                                <option value="Department of Computer Application">Department of Computer Application
                                 </option>
                             </select>
                         </div>
@@ -192,6 +177,7 @@
                         </div>
                     </div>
 
+                    <!-- Current Year Dropdown -->
                     <div class="form-group">
                         <label for="year">Current Year</label>
                         <div class="select-wrapper">
@@ -206,21 +192,12 @@
                         </div>
                     </div>
 
+                    <!-- Dynamic Semester Dropdown -->
                     <div class="form-group">
                         <label for="semester">Current Semester</label>
                         <div class="select-wrapper">
-                            <select id="semester" name="semester">
-                                <option value="">Select semester</option>
-                                <option value="1">Semester 1</option>
-                                <option value="2">Semester 2</option>
-                                <option value="3">Semester 3</option>
-                                <option value="4">Semester 4</option>
-                                <option value="5">Semester 5</option>
-                                <option value="6">Semester 6</option>
-                                <option value="7">Semester 7</option>
-                                <option value="8">Semester 8</option>
-                                <option value="9">Semester 9</option>
-                                <option value="10">Semester 10</option>
+                            <select id="semester" name="semester" disabled>
+                                <option value="">First select a year</option>
                             </select>
                         </div>
                     </div>
@@ -240,22 +217,17 @@
                         <label for="college">College / Institute</label>
                         <input type="text" id="college" name="college" placeholder="Enter institute name">
                     </div>
-
                 </div>
-
             </section>
-
 
             <!-- ADDRESS DETAILS -->
             <section class="form-section">
-
                 <h3>
                     <span class="step-num">III.</span>
                     <span>Address & Guardian Details</span>
                 </h3>
 
                 <div class="form-grid">
-
                     <div class="form-group">
                         <label for="residence_type">Residence Type *</label>
                         <div class="select-wrapper">
@@ -294,42 +266,33 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="guardian_phone">
-                            Parent / Guardian Contact
-                        </label>
+                        <label for="guardian_phone">Parent / Guardian Contact</label>
                         <input type="tel" id="guardian_phone" name="guardian_phone" pattern="[0-9]{10}" maxlength="10"
                             inputmode="numeric" placeholder="10-digit mobile number">
                     </div>
-
                 </div>
-
             </section>
-
 
             <!-- ACCOUNT SECURITY -->
             <section class="form-section">
-
                 <h3>
                     <span class="step-num">IV.</span>
                     <span>Account Security</span>
                 </h3>
 
                 <div class="form-grid">
-
                     <div class="form-group">
                         <label for="password">Password</label>
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password" placeholder="Enter password" required>
                             <button type="button" class="toggle-password" id="togglePassword"
                                 aria-label="Show password">
-                                <!-- Eye Icon (Open) -->
                                 <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
-                                <!-- Eye Icon (Cut/Hide) -->
                                 <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
                                     width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -343,22 +306,18 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="confirm_password">
-                            Confirm Password *
-                        </label>
+                        <label for="confirm_password">Confirm Password *</label>
                         <div class="password-wrapper">
                             <input type="password" id="confirm_password" name="confirm_password" minlength="8"
                                 autocomplete="new-password" placeholder="Re-enter your password" required>
                             <button type="button" class="toggle-password" id="toggleConfirmPassword"
                                 aria-label="Show confirm password">
-                                <!-- Eye Icon (Open) -->
                                 <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
-                                <!-- Eye Icon (Cut/Hide) -->
                                 <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
                                     width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -370,15 +329,11 @@
                             </button>
                         </div>
                     </div>
-
                 </div>
-
             </section>
-
 
             <!-- SUBMIT -->
             <div class="form-actions">
-
                 <button type="submit" class="register-button">
                     <span>Create Student Account</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -401,7 +356,6 @@
                     </svg>
                     <span>Back to Home</span>
                 </a>
-
             </div>
 
         </form>
@@ -485,6 +439,227 @@
 
         setupPasswordToggle('togglePassword', 'password');
         setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+    </script>
+    <!-- Modern Dynamic Dropdown Script (Gender, Dept, Course, Year, Semester) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ਸਾਰੇ Dropdown ਐਲੀਮੈਂਟਸ
+            const genderSelect = document.getElementById("gender");
+            const deptSelect = document.getElementById("department");
+            const courseSelect = document.getElementById("course");
+            const yearSelect = document.getElementById("year");
+            const semSelect = document.getElementById("semester");
+            const residenceSelect = document.getElementById("residence_type");
+
+            if (!genderSelect || !deptSelect || !courseSelect || !yearSelect || !semSelect || !residenceSelect) return;
+
+            // ਵਿਭਾਗ ਦੇ ਮੁਤਾਬਕ ਕੋਰਸਾਂ ਦੀ ਲਿਸਟ
+            const deptCourseMap = {
+                "Applied Science": [
+                    "B.Sc. Physics",
+                    "B.Sc. Chemistry",
+                    "B.Sc. Mathematics"
+                ],
+                "Allied Science": [
+                    "B.Sc. Medical Lab Technology (MLT)",
+                    "B.Sc. Radiology & Imaging Technology",
+                    "B.Sc. Operation Theatre Technology"
+                ],
+                "Pharmacy": [
+                    "B.Pharmacy",
+                    "D.Pharmacy",
+                    "M.Pharmacy"
+                ],
+                "Computer Science": [
+                    "B.Tech Computer Science & Engineering",
+                    "B.Tech CSE (AI & ML)",
+                    "B.Tech CSE (Data Science)",
+                    "M.Tech CSE"
+                ],
+                "Law": [
+                    "BA LLB",
+                    "BBA LLB",
+                    "LLB",
+                    "LLM"
+                ],
+                "Business Administration": [
+                    "BBA",
+                    "MBA"
+                ],
+                "Hotel Management": [
+                    "B.Sc. Hotel Management & Catering",
+                    "Diploma in Food & Beverage Service"
+                ],
+                "ME/CIVIL/ECE": [
+                    "B.Tech Mechanical Engineering",
+                    "B.Tech Civil Engineering",
+                    "B.Tech Electronics & Communication"
+                ],
+                "Department of Computer Application": [
+                    "BCA",
+                    "MCA"
+                ]
+            };
+
+            // ਸਾਲ ਦੇ ਮੁਤਾਬਕ ਸਮੈਸਟਰਾਂ ਦੀ ਲਿਸਟ
+            const yearSemMap = {
+                "1": [1, 2],
+                "2": [3, 4],
+                "3": [5, 6],
+                "4": [7, 8],
+                "5": [9, 10]
+            };
+
+            // Custom Modern Dropdown ਬਣਾਉਣ ਦਾ ਫੰਕਸ਼ਨ
+            function setupModernDropdown(selectEl) {
+                selectEl.style.display = "none";
+
+                const container = document.createElement("div");
+                container.className = "custom-select-container";
+
+                const trigger = document.createElement("div");
+                trigger.className = "custom-select-trigger";
+                if (selectEl.disabled) trigger.classList.add("disabled");
+
+                const triggerText = document.createElement("span");
+                triggerText.textContent = selectEl.options[selectEl.selectedIndex]?.text || "Select";
+
+                const arrow = document.createElement("div");
+                arrow.className = "custom-select-arrow";
+
+                trigger.appendChild(triggerText);
+                trigger.appendChild(arrow);
+                container.appendChild(trigger);
+
+                const optionsList = document.createElement("ul");
+                optionsList.className = "custom-select-options";
+                container.appendChild(optionsList);
+
+                selectEl.parentNode.insertBefore(container, selectEl.nextSibling);
+
+                function rebuildOptions() {
+                    optionsList.innerHTML = "";
+                    Array.from(selectEl.options).forEach((opt) => {
+                        if (!opt.value) return;
+                        const li = document.createElement("li");
+                        li.className = "custom-option";
+                        li.textContent = opt.textContent;
+                        li.dataset.value = opt.value;
+                        if (opt.selected) li.classList.add("selected");
+
+                        li.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            selectEl.value = this.dataset.value;
+                            triggerText.textContent = this.textContent;
+
+                            optionsList.querySelectorAll(".custom-option").forEach(el => el.classList.remove("selected"));
+                            this.classList.add("selected");
+                            container.classList.remove("open");
+
+                            // ਡਾਇਨੈਮਿਕ ਬਦਲਾਅ ਲਈ Change Event ਚਲਾਓ
+                            selectEl.dispatchEvent(new Event("change"));
+                        });
+                        optionsList.appendChild(li);
+                    });
+                }
+
+                rebuildOptions();
+
+                trigger.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    if (selectEl.disabled) return;
+                    document.querySelectorAll(".custom-select-container").forEach(c => {
+                        if (c !== container) c.classList.remove("open");
+                    });
+                    container.classList.toggle("open");
+                });
+
+                return { container, trigger, triggerText, rebuildOptions };
+            }
+
+            // ਸਾਰੇ Dropdowns ਨੂੰ ਥੀਮ ਵਾਲੇ ਨਵੇਂ ਮੀਨੂ ਵਿੱਚ ਬਦਲੋ
+            const genderDropdown = setupModernDropdown(genderSelect);
+            const deptDropdown = setupModernDropdown(deptSelect);
+            const courseDropdown = setupModernDropdown(courseSelect);
+            const yearDropdown = setupModernDropdown(yearSelect);
+            const semDropdown = setupModernDropdown(semSelect);
+            const residenceDropdown = setupModernDropdown(residenceSelect);
+
+            // 1. ਡਿਪਾਰਟਮੈਂਟ ਬਦਲਣ 'ਤੇ ਕੋਰਸ ਅਪਡੇਟ ਹੋਣਗੇ
+            deptSelect.addEventListener("change", function () {
+                const selectedDept = this.value;
+                courseSelect.innerHTML = "";
+
+                if (!selectedDept || !deptCourseMap[selectedDept]) {
+                    courseSelect.disabled = true;
+                    courseDropdown.trigger.classList.add("disabled");
+                    courseDropdown.triggerText.textContent = "First select a department";
+
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "First select a department";
+                    courseSelect.appendChild(opt);
+                } else {
+                    courseSelect.disabled = false;
+                    courseDropdown.trigger.classList.remove("disabled");
+                    courseDropdown.triggerText.textContent = "Select Course";
+
+                    const defaultOpt = document.createElement("option");
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Select Course";
+                    courseSelect.appendChild(defaultOpt);
+
+                    deptCourseMap[selectedDept].forEach(function (courseName) {
+                        const opt = document.createElement("option");
+                        opt.value = courseName;
+                        opt.textContent = courseName;
+                        courseSelect.appendChild(opt);
+                    });
+                }
+
+                courseDropdown.rebuildOptions();
+            });
+
+            // 2. ਸਾਲ (Year) ਬਦਲਣ 'ਤੇ ਸਮੈਸਟਰ (Semester) ਅਪਡੇਟ ਹੋਣਗੇ
+            yearSelect.addEventListener("change", function () {
+                const selectedYear = this.value;
+                semSelect.innerHTML = "";
+
+                if (!selectedYear || !yearSemMap[selectedYear]) {
+                    semSelect.disabled = true;
+                    semDropdown.trigger.classList.add("disabled");
+                    semDropdown.triggerText.textContent = "First select a year";
+
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "First select a year";
+                    semSelect.appendChild(opt);
+                } else {
+                    semSelect.disabled = false;
+                    semDropdown.trigger.classList.remove("disabled");
+                    semDropdown.triggerText.textContent = "Select semester";
+
+                    const defaultOpt = document.createElement("option");
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Select semester";
+                    semSelect.appendChild(defaultOpt);
+
+                    yearSemMap[selectedYear].forEach(function (sem) {
+                        const opt = document.createElement("option");
+                        opt.value = sem;
+                        opt.textContent = `Semester ${sem}`;
+                        semSelect.appendChild(opt);
+                    });
+                }
+
+                semDropdown.rebuildOptions();
+            });
+
+            // ਕਿਤੇ ਵੀ ਬਾਹਰ ਕਲਿੱਕ ਕਰਨ 'ਤੇ ਮੀਨੂ ਆਪਣੇ-ਆਪ ਬੰਦ ਹੋ ਜਾਵੇਗਾ
+            document.addEventListener("click", function () {
+                document.querySelectorAll(".custom-select-container").forEach(c => c.classList.remove("open"));
+            });
+        });
     </script>
 
 </body>
