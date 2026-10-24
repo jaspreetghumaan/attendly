@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enroll Students | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">ENROLLMENT</span>
+                <h1>Enroll students in a class</h1>
+                <p>Pick one of your classes, then tick the students who belong to it.</p>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="table-card">
+            {% for message in messages %}
+            <p class="flash-line">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Step 1: choose a class -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>1. Choose a class</h2>
+            </div>
+
+            {% if classes %}
+            <form method="GET" class="form-card">
+                <select name="class_id" required>
+                    <option value="">-- Select a class --</option>
+                    {% for c in classes %}
+                    <option value="{{ c.id }}" {% if selected and selected.id == c.id %}selected{% endif %}>
+                        {{ c.class_name }} - {{ c.section }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="form-btn">Show students</button>
+            </form>
+            {% else %}
+            <div class="table-card empty-state">
+                <h3>No classes yet</h3>
+                <p>Create a class first from "Manage Classes &amp; Subjects".</p>
+            </div>
+            {% endif %}
+        </section>
+
+        {% if selected %}
+
+        <!-- Step 2: pick students to add -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>2. Add students to {{ selected.class_name }} - {{ selected.section }}</h2>
+                <p>Students already in this class are not shown.</p>
+            </div>
+
+            <div class="table-card">
+                {% if students %}
+                <form method="POST">
+                    <input type="hidden" name="class_id" value="{{ selected.id }}">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Roll Number</th>
+                                    <th>Name</th>
+                                    <th>Course</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in students %}
+                                <tr>
+                                    <td><input type="checkbox" name="student_ids" value="{{ s.id }}" class="enroll-check"></td>
+                                    <td><span class="roll-badge">{{ s.roll_number }}</span></td>
+                                    <td class="name-col">{{ s.name }}</td>
+                                    <td>{{ s.course }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="enroll-actions">
+                        <button type="submit" class="form-btn">Add selected students</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No students to add</h3>
+                    <p>Either no students have registered yet, or all of them are already in this class.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Step 3: current members -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Students in this class ({{ enrolled|length }})</h2>
+            </div>
+
+            <div class="table-card">
+                {% if enrolled %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in enrolled %}
+                            <tr>
+                                <td><span class="roll-badge">{{ e.roll_number }}</span></td>
+                                <td class="name-col">{{ e.name }}</td>
+                                <td>{{ e.course }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No students yet</h3>
+                    <p>Tick students above and add them.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        {% endif %}
+
+        <a href="{{ url_for('teacher_classes') }}" class="back-link">← Back to classes &amp; subjects</a>
+
+    </main>
+
+</body>
+
+</html>

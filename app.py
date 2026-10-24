@@ -638,5 +638,108 @@ def teacher_classes():
         classes=classes,
         subjects=subjects
     )
+# =========================================================
+# TEACHER: ENROLL STUDENTS IN CLASSES
+# =========================================================
+
+@app.route("/teacher/enrollments", methods=["GET", "POST"])
+def teacher_enrollments():
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    conn = get_db_connection()
+
+    try:
+        if request.method == "POST":
+            class_id = request.form.get("class_id", type=int)
+
+            owned_class = None
+            if class_id:
+                owned_class = conn.execute(
+                    "SELECT id FROM classes WHERE id = ? AND created_by = ?",
+                    (class_id, teacher_id),
+                ).fetchone()
+
+            if not owned_class:
+                flash("Please choose one of your own classes.")
+                return redirect(url_for("teacher_enrollments"))
+
+            added = 0
+            for student_id in request.form.getlist("student_ids", type=int):
+                cursor = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO student_enrollments (class_id, student_id)
+                    VALUES (?, ?)
+                    """,
+                    (class_id, student_id),
+                )
+                added += cursor.rowcount
+
+            conn.commit()
+            flash(f"{added} student(s) added to the class.")
+            return redirect(url_for("teacher_enrollments", class_id=class_id))
+
+        classes = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE created_by = ?
+            ORDER BY class_name, section
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        selected = None
+        students = []
+        enrolled = []
+
+        selected_id = request.args.get("class_id", type=int)
+
+        if selected_id:
+            selected = conn.execute(
+                "SELECT id, class_name, section FROM classes WHERE id = ? AND created_by = ?",
+                (selected_id, teacher_id),
+            ).fetchone()
+
+        if selected:
+            enrolled = conn.execute(
+                """
+                SELECT s.roll_number, s.course, u.name
+                FROM student_enrollments e
+                JOIN students s ON s.id = e.student_id
+                JOIN users u ON u.id = s.user_id
+                WHERE e.class_id = ?
+                ORDER BY s.roll_number
+                """,
+                (selected["id"],),
+            ).fetchall()
+
+            students = conn.execute(
+                """
+                SELECT s.id, s.roll_number, s.course, u.name
+                FROM students s
+                JOIN users u ON u.id = s.user_id
+                WHERE s.id NOT IN (
+                    SELECT student_id
+                    FROM student_enrollments
+                    WHERE class_id = ?
+                )
+                ORDER BY s.roll_number
+                """,
+                (selected["id"],),
+            ).fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "teacher_enrollments.html",
+        classes=classes,
+        selected=selected,
+        students=students,
+        enrolled=enrolled,
+    )
 if __name__ == "__main__":
     app.run(debug=config.DEBUG)
