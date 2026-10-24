@@ -21,12 +21,14 @@
                 <p>FACULTY PORTAL</p>
             </div>
         </div>
-        <nav class="nav-links">
-            <a href="{{ url_for('logout') }}" class="logout-btn">
-                <span>Logout</span>
-                <span class="logout-arrow">↗</span>
-            </a>
-        </nav>
+         <nav class="nav-links">
+    <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+        <button type="submit" class="logout-btn">
+            <span>Logout</span>
+            <span class="logout-arrow">↗</span>
+        </button>
+    </form>
+</nav>
     </header>
     <main class="dashboard-container">
 
@@ -159,6 +161,7 @@
         <footer class="dashboard-footer">
             <p></p>
         </footer>
+      
 
     </main>
 

@@ -533,7 +533,7 @@ def teacher_dashboard():
 # LOGOUT
 # =========================================================
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
 
     previous_role = session.get("role")

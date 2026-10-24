@@ -81,10 +81,12 @@
                     </div>
                 </div>
 
-                <a href="{{ url_for('logout') }}" class="logout-button">
-                    <span>Logout</span>
-                    <span class="logout-arrow">↗</span>
-                </a>
+                <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+    <button type="submit" class="logout-button">
+        <span>Logout</span>
+        <span class="logout-arrow">↗</span>
+    </button>
+</form>
             </div>
         </header>
 
