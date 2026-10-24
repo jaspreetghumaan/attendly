@@ -2,6 +2,9 @@
 import os
 import secrets
 import sqlite3
+import io
+import qrcode
+from flask import abort, send_file
 from datetime import datetime, timedelta
 from flask import (
     Flask,
@@ -867,5 +870,69 @@ def teacher_sessions():
         subjects=subjects,
         sessions=sessions,
     )
+# =========================================================
+# TEACHER: SESSION QR CODE
+# =========================================================
+
+def get_owned_session(session_id):
+    """Return the session only if it belongs to the logged-in teacher."""
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            """
+            SELECT s.id, s.qr_token, s.expires_at, s.status, s.session_date,
+                   c.class_name, c.section, sub.subject_name
+            FROM attendance_sessions s
+            JOIN classes c ON c.id = s.class_id
+            JOIN subjects sub ON sub.id = s.subject_id
+            WHERE s.id = ? AND s.teacher_id = ?
+            """,
+            (session_id, session["user_id"]),
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def build_scan_url(token):
+    base = config.PUBLIC_BASE_URL or request.host_url.rstrip("/")
+    return f"{base}/attend/{token}"
+
+
+@app.route("/teacher/sessions/<int:session_id>")
+def session_qr_page(session_id):
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    is_open = s["status"] == "open" and s["expires_at"] > now_iso
+
+    return render_template(
+        "teacher_session_qr.html",
+        s=s,
+        is_open=is_open,
+        scan_url=build_scan_url(s["qr_token"]),
+    )
+
+
+@app.route("/teacher/sessions/<int:session_id>/qr.png")
+def session_qr_image(session_id):
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    img = qrcode.make(build_scan_url(s["qr_token"]))
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return send_file(buf, mimetype="image/png")
 if __name__ == "__main__":
     app.run(debug=config.DEBUG)

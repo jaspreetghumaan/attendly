@@ -12,3 +12,5 @@ SECRET_KEY = os.environ.get("ATTENDLY_SECRET_KEY", "dev-only-change-me")
 
 # Debug sirf tab on hoga jab aap ATTENDLY_DEBUG=1 set karo
 DEBUG = os.environ.get("ATTENDLY_DEBUG") == "1"
+# Address jo QR code mein jayega. Phone se scan ke liye baad mein set karenge.
+PUBLIC_BASE_URL = os.environ.get("ATTENDLY_PUBLIC_URL", "").rstrip("/")

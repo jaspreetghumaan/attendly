@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session QR | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">LIVE QR</span>
+                <h1>{{ s.class_name }} - {{ s.section }}</h1>
+                <p>{{ s.subject_name }} · {{ s.session_date }}</p>
+            </div>
+        </section>
+
+        {% if is_open %}
+        <section class="dashboard-section">
+            <div class="table-card qr-card">
+                <img src="{{ url_for('session_qr_image', session_id=s.id) }}" alt="Attendance QR code" class="qr-img">
+                <p class="qr-note">Valid until {{ s.expires_at }}</p>
+                <p class="qr-url">{{ scan_url }}</p>
+            </div>
+        </section>
+        {% else %}
+        <section class="dashboard-section">
+            <div class="table-card empty-state">
+                <h3>This session has closed</h3>
+                <p>Start a new session to get a fresh QR code.</p>
+            </div>
+        </section>
+        {% endif %}
+
+        <a href="{{ url_for('teacher_sessions') }}" class="back-link">← Back to sessions</a>
+
+    </main>
+
+</body>
+
+</html>

@@ -82,6 +82,7 @@
                                 <th>Started</th>
                                 <th>Expires</th>
                                 <th>Status</th>
+                                <th>QR</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -93,6 +94,7 @@
                                 <td>{{ s.start_time }}</td>
                                 <td>{{ s.expires_at }}</td>
                                 <td>{{ s.status }}</td>
+                              <td><a href="{{ url_for('session_qr_page', session_id=s.id) }}" class="back-link">Show QR</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
