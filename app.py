@@ -1,6 +1,7 @@
 #Main application file for the QR Attendance System
 import os
 import secrets
+import sqlite3
 
 from flask import (
     Flask,
@@ -546,10 +547,96 @@ def logout():
 
     return redirect(url_for("login"))
 
-
 # =========================================================
-# RUN APPLICATION
+# TEACHER: CLASSES AND SUBJECTS
 # =========================================================
 
+def is_teacher_logged_in():
+    return "user_id" in session and session.get("role") == "teacher"
+
+
+@app.route("/teacher/classes", methods=["GET", "POST"])
+def teacher_classes():
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    conn = get_db_connection()
+
+    try:
+        if request.method == "POST":
+            form_type = request.form.get("form_type")
+
+            if form_type == "class":
+                class_name = request.form.get("class_name", "").strip()
+                section = request.form.get("section", "").strip().upper()
+
+                if not class_name or not section:
+                    flash("Class name and section are required.")
+                else:
+                    try:
+                        conn.execute(
+                            """
+                            INSERT INTO classes (class_name, section, created_by)
+                            VALUES (?, ?, ?)
+                            """,
+                            (class_name, section, teacher_id),
+                        )
+                        conn.commit()
+                        flash("Class created successfully.")
+                    except sqlite3.IntegrityError:
+                        flash("You already have this class and section.")
+
+            elif form_type == "subject":
+                subject_name = request.form.get("subject_name", "").strip()
+                subject_code = request.form.get("subject_code", "").strip().upper()
+
+                if not subject_name or not subject_code:
+                    flash("Subject name and code are required.")
+                else:
+                    try:
+                        conn.execute(
+                            """
+                            INSERT INTO subjects (subject_name, subject_code, created_by)
+                            VALUES (?, ?, ?)
+                            """,
+                            (subject_name, subject_code, teacher_id),
+                        )
+                        conn.commit()
+                        flash("Subject created successfully.")
+                    except sqlite3.IntegrityError:
+                        flash("You already have a subject with this code.")
+
+            return redirect(url_for("teacher_classes"))
+
+        classes = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE created_by = ?
+            ORDER BY class_name, section
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        subjects = conn.execute(
+            """
+            SELECT id, subject_name, subject_code
+            FROM subjects
+            WHERE created_by = ?
+            ORDER BY subject_name
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "teacher_classes.html",
+        classes=classes,
+        subjects=subjects
+    )
 if __name__ == "__main__":
     app.run(debug=config.DEBUG)
