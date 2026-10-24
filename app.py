@@ -1,4 +1,5 @@
 #Main application file for the QR Attendance System
+import os
 import secrets
 
 from flask import (
@@ -10,13 +11,13 @@ from flask import (
     url_for,
     flash
 )
-
+import config
 from database import get_db_connection
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+app.secret_key = config.SECRET_KEY
 
 
 # =========================================================
@@ -551,4 +552,4 @@ def logout():
 # =========================================================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=config.DEBUG)

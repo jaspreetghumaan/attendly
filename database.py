@@ -1,8 +1,8 @@
 #Database 
 import sqlite3
 
-
-DATABASE_NAME = "smartattend.db"
+import config
+DATABASE_NAME = str(config.DATABASE_PATH)  # Convert Path object to string for sqlite3
 
 
 def get_db_connection():
