@@ -934,5 +934,103 @@ def session_qr_image(session_id):
     img.save(buf, format="PNG")
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
+
+    # =========================================================
+# STUDENT: SCAN QR AND MARK ATTENDANCE
+# =========================================================
+
+@app.route("/attend/<token>")
+def mark_attendance(token):
+
+    if "user_id" not in session or session.get("role") != "student":
+        flash("Please log in as a student, then scan the QR again.")
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+
+    try:
+        student = conn.execute(
+            "SELECT id FROM students WHERE user_id = ?",
+            (session["user_id"],),
+        ).fetchone()
+
+        if not student:
+            flash("Student profile not found.")
+            return redirect(url_for("login"))
+
+        attendance_session = conn.execute(
+            """
+            SELECT id, class_id, status, expires_at
+            FROM attendance_sessions
+            WHERE qr_token = ?
+            """,
+            (token,),
+        ).fetchone()
+
+        if not attendance_session:
+            return render_template(
+                "attend_result.html", ok=False,
+                message="This QR code is not valid."
+            )
+
+        now_iso = datetime.now().isoformat(timespec="seconds")
+
+        if attendance_session["status"] != "open" or attendance_session["expires_at"] <= now_iso:
+            return render_template(
+                "attend_result.html", ok=False,
+                message="This attendance session has closed."
+            )
+
+        enrolled = conn.execute(
+            """
+            SELECT 1 FROM student_enrollments
+            WHERE class_id = ? AND student_id = ?
+            """,
+            (attendance_session["class_id"], student["id"]),
+        ).fetchone()
+
+        if not enrolled:
+            return render_template(
+                "attend_result.html", ok=False,
+                message="You are not enrolled in this class."
+            )
+
+        record = conn.execute(
+            """
+            SELECT id, status FROM attendance_records
+            WHERE session_id = ? AND student_id = ?
+            """,
+            (attendance_session["id"], student["id"]),
+        ).fetchone()
+
+        if record and record["status"] == "Present":
+            return render_template(
+                "attend_result.html", ok=True,
+                message="Your attendance is already marked for this session."
+            )
+
+        if record:
+            conn.execute(
+                "UPDATE attendance_records SET status = 'Present', marked_at = ? WHERE id = ?",
+                (now_iso, record["id"]),
+            )
+        else:
+            conn.execute(
+                """
+                INSERT INTO attendance_records (session_id, student_id, status, marked_at)
+                VALUES (?, ?, 'Present', ?)
+                """,
+                (attendance_session["id"], student["id"], now_iso),
+            )
+
+        conn.commit()
+
+        return render_template(
+            "attend_result.html", ok=True,
+            message="Attendance marked as Present."
+        )
+
+    finally:
+        conn.close()
 if __name__ == "__main__":
     app.run(debug=config.DEBUG)
