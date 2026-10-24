@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Sessions | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">ATTENDANCE SESSIONS</span>
+                <h1>Start an attendance session</h1>
+                <p>Pick your class and subject. Every enrolled student will be marked Absent until they scan the QR.</p>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="table-card">
+            {% for message in messages %}
+            <p class="flash-line">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>New Session</h2>
+            </div>
+
+            {% if classes and subjects %}
+            <form method="POST" class="form-card">
+                <select name="class_id" required>
+                    <option value="">-- Select class --</option>
+                    {% for c in classes %}
+                    <option value="{{ c.id }}">{{ c.class_name }} - {{ c.section }}</option>
+                    {% endfor %}
+                </select>
+
+                <select name="subject_id" required>
+                    <option value="">-- Select subject --</option>
+                    {% for s in subjects %}
+                    <option value="{{ s.id }}">{{ s.subject_name }} ({{ s.subject_code }})</option>
+                    {% endfor %}
+                </select>
+
+                <input type="number" name="duration" min="1" max="60" value="10" placeholder="Minutes">
+
+                <button type="submit" class="form-btn">Start session</button>
+            </form>
+            {% else %}
+            <div class="table-card empty-state">
+                <h3>Setup needed</h3>
+                <p>You need at least one class and one subject first.
+                    <a href="{{ url_for('teacher_classes') }}" class="back-link">Add them here</a>
+                </p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Recent Sessions</h2>
+            </div>
+
+            <div class="table-card">
+                {% if sessions %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Started</th>
+                                <th>Expires</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sessions %}
+                            <tr>
+                                <td>{{ s.session_date }}</td>
+                                <td class="name-col">{{ s.class_name }} - {{ s.section }}</td>
+                                <td>{{ s.subject_name }}</td>
+                                <td>{{ s.start_time }}</td>
+                                <td>{{ s.expires_at }}</td>
+                                <td>{{ s.status }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No sessions yet</h3>
+                    <p>Started sessions will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
+
+    </main>
+
+</body>
+
+</html>

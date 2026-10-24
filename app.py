@@ -2,7 +2,7 @@
 import os
 import secrets
 import sqlite3
-
+from datetime import datetime, timedelta
 from flask import (
     Flask,
     render_template,
@@ -740,6 +740,132 @@ def teacher_enrollments():
         selected=selected,
         students=students,
         enrolled=enrolled,
+    )# =========================================================
+# TEACHER: START ATTENDANCE SESSIONS
+# =========================================================
+
+@app.route("/teacher/sessions", methods=["GET", "POST"])
+def teacher_sessions():
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    conn = get_db_connection()
+
+    try:
+        if request.method == "POST":
+            class_id = request.form.get("class_id", type=int)
+            subject_id = request.form.get("subject_id", type=int)
+            minutes = request.form.get("duration", default=10, type=int)
+
+            if not (1 <= minutes <= 60):
+                flash("Session duration must be between 1 and 60 minutes.")
+                return redirect(url_for("teacher_sessions"))
+
+            owned_class = None
+            if class_id:
+                owned_class = conn.execute(
+                    "SELECT id FROM classes WHERE id = ? AND created_by = ?",
+                    (class_id, teacher_id),
+                ).fetchone()
+
+            owned_subject = None
+            if subject_id:
+                owned_subject = conn.execute(
+                    "SELECT id FROM subjects WHERE id = ? AND created_by = ?",
+                    (subject_id, teacher_id),
+                ).fetchone()
+
+            if not owned_class or not owned_subject:
+                flash("Please choose your own class and subject.")
+                return redirect(url_for("teacher_sessions"))
+
+            now = datetime.now()
+            expires = now + timedelta(minutes=minutes)
+
+            cursor = conn.execute(
+                """
+                INSERT INTO attendance_sessions
+                    (class_id, subject_id, teacher_id, session_date,
+                     start_time, expires_at, qr_token, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'open')
+                """,
+                (
+                    class_id,
+                    subject_id,
+                    teacher_id,
+                    now.date().isoformat(),
+                    now.isoformat(timespec="seconds"),
+                    expires.isoformat(timespec="seconds"),
+                    secrets.token_urlsafe(24),
+                ),
+            )
+            session_id = cursor.lastrowid
+
+            # Every enrolled student starts as Absent.
+            # The QR scan will change their row to Present.
+            cursor = conn.execute(
+                """
+                INSERT INTO attendance_records (session_id, student_id, status)
+                SELECT ?, student_id, 'Absent'
+                FROM student_enrollments
+                WHERE class_id = ?
+                """,
+                (session_id, class_id),
+            )
+
+            conn.commit()
+
+            if cursor.rowcount == 0:
+                flash("Session started, but this class has no students yet.")
+            else:
+                flash(f"Session started for {cursor.rowcount} student(s). It closes in {minutes} minute(s).")
+
+            return redirect(url_for("teacher_sessions"))
+
+        classes = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE created_by = ?
+            ORDER BY class_name, section
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        subjects = conn.execute(
+            """
+            SELECT id, subject_name, subject_code
+            FROM subjects
+            WHERE created_by = ?
+            ORDER BY subject_name
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        sessions = conn.execute(
+            """
+            SELECT s.id, s.session_date, s.start_time, s.expires_at, s.status,
+                   c.class_name, c.section, sub.subject_name
+            FROM attendance_sessions s
+            JOIN classes c ON c.id = s.class_id
+            JOIN subjects sub ON sub.id = s.subject_id
+            WHERE s.teacher_id = ?
+            ORDER BY s.id DESC
+            LIMIT 20
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "teacher_sessions.html",
+        classes=classes,
+        subjects=subjects,
+        sessions=sessions,
     )
 if __name__ == "__main__":
     app.run(debug=config.DEBUG)
