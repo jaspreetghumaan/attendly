@@ -170,7 +170,83 @@ def create_tables():
                 UNIQUE (class_id, subject_id)
             )
         """)
+                # --------------------------------------------------
+        # 8. STUDENT ENROLLMENTS
+        # Which student belongs to which class.
+        # --------------------------------------------------
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS student_enrollments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                class_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
 
+                FOREIGN KEY (class_id)
+                    REFERENCES classes(id)
+                    ON DELETE CASCADE,
+
+                FOREIGN KEY (student_id)
+                    REFERENCES students(id)
+                    ON DELETE CASCADE,
+
+                UNIQUE (class_id, student_id)
+            )
+        """)
+
+        # --------------------------------------------------
+        # 9. ATTENDANCE SESSIONS
+        # One session = one class period, with its own QR.
+        # --------------------------------------------------
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS attendance_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                class_id INTEGER NOT NULL,
+                subject_id INTEGER NOT NULL,
+                teacher_id INTEGER NOT NULL,
+                session_date TEXT NOT NULL,
+                start_time TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                qr_token TEXT UNIQUE,
+                status TEXT NOT NULL DEFAULT 'open'
+                    CHECK (status IN ('open', 'closed')),
+
+                FOREIGN KEY (class_id)
+                    REFERENCES classes(id)
+                    ON DELETE CASCADE,
+
+                FOREIGN KEY (subject_id)
+                    REFERENCES subjects(id)
+                    ON DELETE CASCADE,
+
+                FOREIGN KEY (teacher_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+            )
+        """)
+
+        # --------------------------------------------------
+        # 10. ATTENDANCE RECORDS
+        # One row per student per session.
+        # --------------------------------------------------
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS attendance_records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Absent'
+                    CHECK (status IN ('Present', 'Absent')),
+                marked_at TEXT,
+
+                FOREIGN KEY (session_id)
+                    REFERENCES attendance_sessions(id)
+                    ON DELETE CASCADE,
+
+                FOREIGN KEY (student_id)
+                    REFERENCES students(id)
+                    ON DELETE CASCADE,
+
+                UNIQUE (session_id, student_id)
+            )
+        """)
         # Verify foreign-key relationships before committing.
         foreign_key_errors = conn.execute(
             "PRAGMA foreign_key_check"
