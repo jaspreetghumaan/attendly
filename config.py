@@ -14,3 +14,8 @@ SECRET_KEY = os.environ.get("ATTENDLY_SECRET_KEY", "dev-only-change-me")
 DEBUG = os.environ.get("ATTENDLY_DEBUG") == "1"
 # Address jo QR code mein jayega. Phone se scan ke liye baad mein set karenge.
 PUBLIC_BASE_URL = os.environ.get("ATTENDLY_PUBLIC_URL", "").rstrip("/")
+# Address jis par server sunega. Normal use: 127.0.0.1 (sirf laptop).
+# Phone demo ke time: 0.0.0.0 (WiFi par sab devices).
+HOST = os.environ.get("ATTENDLY_HOST", "127.0.0.1")
+# ATTENDLY_HTTPS=1 par server HTTPS par chalega (phone camera ke liye zaroori)
+USE_HTTPS = os.environ.get("ATTENDLY_HTTPS") == "1"

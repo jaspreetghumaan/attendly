@@ -1,27 +1,47 @@
-#Main application file for the QR Attendance System
-import os
+# Main application file for the QR Attendance System
+import io
 import secrets
 import sqlite3
-import io
-import qrcode
-from flask import abort, send_file
 from datetime import datetime, timedelta
+
+import qrcode
 from flask import (
     Flask,
+    abort,
+    flash,
+    redirect,
     render_template,
     request,
-    redirect,
+    send_file,
     session,
     url_for,
-    flash
 )
+from werkzeug.security import generate_password_hash, check_password_hash
+
 import config
 from database import get_db_connection
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
+
+
+# =========================================================
+# HELPERS
+# =========================================================
+
+def is_teacher_logged_in():
+    return "user_id" in session and session.get("role") == "teacher"
+
+
+def is_safe_next_url(url):
+    """Allow only local paths like /attend/abc. Block other sites."""
+    return (
+        bool(url)
+        and url.startswith("/")
+        and not url.startswith("//")
+        and "\\" not in url
+    )
 
 
 # =========================================================
@@ -283,6 +303,7 @@ def login():
 
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
+        next_url = request.form.get("next", "")
 
         conn = get_db_connection()
 
@@ -299,7 +320,7 @@ def login():
             user["password"], password
         ):
             flash("Invalid email or password.")
-            return redirect(url_for("login"))
+            return redirect(url_for("login", next=next_url) if next_url else url_for("login"))
 
         if user["role"] != "student":
             flash(
@@ -312,6 +333,10 @@ def login():
         session["user_id"] = user["id"]
         session["name"] = user["name"]
         session["role"] = user["role"]
+
+        # If the student came from a QR scan link, send them back to it
+        if is_safe_next_url(next_url):
+            return redirect(next_url)
 
         return redirect(url_for("student_dashboard"))
 
@@ -550,13 +575,10 @@ def logout():
 
     return redirect(url_for("login"))
 
+
 # =========================================================
 # TEACHER: CLASSES AND SUBJECTS
 # =========================================================
-
-def is_teacher_logged_in():
-    return "user_id" in session and session.get("role") == "teacher"
-
 
 @app.route("/teacher/classes", methods=["GET", "POST"])
 def teacher_classes():
@@ -641,6 +663,8 @@ def teacher_classes():
         classes=classes,
         subjects=subjects
     )
+
+
 # =========================================================
 # TEACHER: ENROLL STUDENTS IN CLASSES
 # =========================================================
@@ -743,7 +767,10 @@ def teacher_enrollments():
         selected=selected,
         students=students,
         enrolled=enrolled,
-    )# =========================================================
+    )
+
+
+# =========================================================
 # TEACHER: START ATTENDANCE SESSIONS
 # =========================================================
 
@@ -870,6 +897,8 @@ def teacher_sessions():
         subjects=subjects,
         sessions=sessions,
     )
+
+
 # =========================================================
 # TEACHER: SESSION QR CODE
 # =========================================================
@@ -935,7 +964,8 @@ def session_qr_image(session_id):
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
 
-    # =========================================================
+
+# =========================================================
 # STUDENT: SCAN QR AND MARK ATTENDANCE
 # =========================================================
 
@@ -943,8 +973,8 @@ def session_qr_image(session_id):
 def mark_attendance(token):
 
     if "user_id" not in session or session.get("role") != "student":
-        flash("Please log in as a student, then scan the QR again.")
-        return redirect(url_for("login"))
+        flash("Please log in as a student to mark attendance.")
+        return redirect(url_for("login", next=request.path))
 
     conn = get_db_connection()
 
@@ -1032,5 +1062,8 @@ def mark_attendance(token):
 
     finally:
         conn.close()
+
+
 if __name__ == "__main__":
-    app.run(debug=config.DEBUG)
+    ssl_ctx = "adhoc" if config.USE_HTTPS else None
+    app.run(host=config.HOST, debug=config.DEBUG, ssl_context=ssl_ctx)

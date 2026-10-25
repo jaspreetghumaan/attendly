@@ -218,3 +218,88 @@ body > .dashboard-header { padding-inline: var(--page-pad); }
   .profile-panel { position: fixed; left: var(--gutter); right: var(--gutter); top: 4.25rem; width: auto; }
 }
 @media print { body { background: #fff; } .dashboard-header, .scanner-card { display: none; } .dashboard-container { display: block; } .dashboard-container > * { margin-bottom: 16px; break-inside: avoid; } }
+/* QR scan button (enabled) */
+.scanner-btn-live {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    border-color: transparent;
+    cursor: pointer;
+}
+
+.scanner-btn-live:hover {
+    background: var(--primary-dark);
+}
+
+.qr-status {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-top: 10px;
+}
+/* Hidden file input, still usable by the label button */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+/* Scanner button (live camera) */
+.scanner-btn-live {
+    font-family: inherit;
+    cursor: pointer;
+    background: var(--primary);
+    color: #fff;
+    border-color: transparent;
+}
+
+.scanner-btn-live:hover {
+    background: var(--primary-dark);
+}
+
+.qr-status {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-top: 10px;
+}
+
+/* Live camera overlay */
+.scan-modal[hidden] {
+    display: none;
+}
+
+.scan-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.scan-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    width: min(420px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+#qrVideo {
+    width: 100%;
+    border-radius: 12px;
+    background: #000;
+}
+
+.scan-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+}

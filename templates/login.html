@@ -79,6 +79,9 @@
                 <!-- Student Login Form -->
                 <form action="{{ url_for('login') }}" method="POST" class="login-form">
 
+                    <!-- Keeps the QR scan link so the student returns to it after login -->
+                    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+
                     <div class="form-group">
                         <label for="email"> Email Address</label>
 
