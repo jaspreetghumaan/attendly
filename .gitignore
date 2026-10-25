@@ -13,3 +13,4 @@ database_backup/
 
 # Secrets
 .env
+Add-Content .gitignore "cloudflared.exe"
