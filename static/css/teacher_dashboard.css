@@ -540,3 +540,6 @@ tr:hover td {
     border: 1px solid rgba(99, 102, 241, 0.25);
     text-decoration: none;
 }
+.qr-img {
+    width: min(360px, 100%);
+}

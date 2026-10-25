@@ -82,11 +82,11 @@
                 </div>
 
                 <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
-    <button type="submit" class="logout-button">
-        <span>Logout</span>
-        <span class="logout-arrow">↗</span>
-    </button>
-</form>
+                    <button type="submit" class="logout-button">
+                        <span>Logout</span>
+                        <span class="logout-arrow">↗</span>
+                    </button>
+                </form>
             </div>
         </header>
 
@@ -175,16 +175,30 @@
             </div>
         </section>
 
-        <!-- QR Scanner Section -->
+        <!-- QR Scanner Section (live camera) -->
         <section class="scanner-card">
             <div class="scanner-text">
                 <h2>Mark Attendance via QR</h2>
-                <p>Scan your teacher's active session QR code to record attendance instantly.</p>
+                <p>Tap Scan Code and point your camera at your teacher's QR code.</p>
+                <p id="qrStatus" class="qr-status" aria-live="polite"></p>
             </div>
-            <button type="button" class="scanner-btn" disabled>
-                <span>▦ QR Scanner — Coming Soon</span>
+
+            <button type="button" id="scanBtn" class="scanner-btn scanner-btn-live">
+                <span>▦ Scan QR Code</span>
             </button>
         </section>
+
+        <!-- Live camera overlay -->
+        <div id="scanModal" class="scan-modal" hidden>
+            <div class="scan-box">
+                <video id="qrVideo" playsinline muted></video>
+                <p class="scan-hint">Hold the QR code inside the frame</p>
+                <button type="button" id="scanClose" class="scanner-btn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Hidden canvas used to read video frames -->
+        <canvas id="qrCanvas" hidden></canvas>
 
         <!-- Footer -->
         <footer class="dashboard-footer">
@@ -201,6 +215,149 @@
         btn.addEventListener('click', e => { e.stopPropagation(); setOpen(panel.hidden); });
         document.addEventListener('click', e => { if (!panel.contains(e.target)) setOpen(false); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    </script>
+
+        <!-- Local QR decoder (works offline, no CDN) -->
+    <script src="{{ url_for('static', filename='js/jsQR.min.js') }}"></script>
+
+    <script>
+        (function () {
+            const scanBtn = document.getElementById('scanBtn');
+            const scanModal = document.getElementById('scanModal');
+            const scanClose = document.getElementById('scanClose');
+            const video = document.getElementById('qrVideo');
+            const canvas = document.getElementById('qrCanvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const statusEl = document.getElementById('qrStatus');
+
+            // Chrome on Android has a built-in QR reader. Use it first when available.
+            let detector = null;
+            if ('BarcodeDetector' in window) {
+                try {
+                    detector = new BarcodeDetector({ formats: ['qr_code'] });
+                } catch (e) {
+                    detector = null;
+                }
+            }
+
+            let stream = null;
+            let busy = false;
+            let startedAt = 0;
+
+            function setStatus(text) {
+                statusEl.textContent = text;
+            }
+
+            function stopCamera() {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                stream = null;
+                video.srcObject = null;
+                scanModal.hidden = true;
+            }
+
+            // Returns true if we are leaving the page to mark attendance
+            function handleCode(data) {
+                let path = '';
+                try {
+                    path = new URL(data).pathname;
+                } catch (e) {
+                    path = '';
+                }
+
+                if (!path.startsWith('/attend/')) {
+                    setStatus('That is not an Attendly QR. Keep scanning...');
+                    return false;
+                }
+
+                stopCamera();
+                setStatus('QR found, marking attendance...');
+                window.location.href = path;
+                return true;
+            }
+
+            async function readFrame() {
+                // 1) Built-in reader (fast, Chrome on Android)
+                if (detector) {
+                    try {
+                        const codes = await detector.detect(video);
+                        if (codes.length) return codes[0].rawValue;
+                    } catch (e) {
+                        detector = null;
+                    }
+                }
+
+                // 2) jsQR fallback (works in every browser)
+                if (typeof jsQR !== 'undefined' && video.videoWidth) {
+                    const scale = Math.min(1, 960 / video.videoWidth);
+                    canvas.width = Math.round(video.videoWidth * scale);
+                    canvas.height = Math.round(video.videoHeight * scale);
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(frame.data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+                    if (code) return code.data;
+                }
+
+                return null;
+            }
+
+            async function tick() {
+                if (!stream) return;
+
+                if (!busy && video.readyState >= 2) {
+                    const data = await readFrame();
+                    if (data) {
+                        busy = true;
+                        if (handleCode(data)) return;
+                        // Wrong QR: pause briefly, then keep scanning
+                        setTimeout(() => { busy = false; }, 1500);
+                    }
+                }
+
+                if (Date.now() - startedAt > 15000 && !busy) {
+                    setStatus('Still searching... Hold the phone 15-25 cm away, fill the frame with the QR, and turn the laptop screen brightness up.');
+                }
+
+                requestAnimationFrame(tick);
+            }
+
+            async function startCamera() {
+                if (typeof jsQR === 'undefined' && !detector) {
+                    setStatus('QR reader file is missing: static/js/jsQR.min.js');
+                    return;
+                }
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    setStatus('Camera is blocked on this page. Open the https:// link of the app.');
+                    return;
+                }
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: 'environment' } },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    await video.play();
+                    scanModal.hidden = false;
+                    busy = false;
+                    startedAt = Date.now();
+                    setStatus('Scanning... point the camera at the QR.');
+                    tick();
+                } catch (err) {
+                    stopCamera();
+                    setStatus('Camera permission denied or not available. Allow camera access and try again.');
+                }
+            }
+
+            scanBtn.addEventListener('click', startCamera);
+
+            scanClose.addEventListener('click', function () {
+                stopCamera();
+                setStatus('');
+            });
+
+            window.addEventListener('pagehide', stopCamera);
+        })();
     </script>
 
 </body>
