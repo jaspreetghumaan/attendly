@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes & Subjects | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">CLASSES & SUBJECTS</span>
+                <h1>Set up your classes</h1>
+                <p>Create the classes and subjects you teach. Students and attendance sessions will use these.</p>
+            </div>
+        </section>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="table-card">
+            {% for message in messages %}
+            <p class="flash-line">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Add class -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Add a Class</h2>
+            </div>
+            <form method="POST" class="form-card">
+                <input type="hidden" name="form_type" value="class">
+                <input type="text" name="class_name" placeholder="Class name, e.g. B.Tech CSE 3rd Year" required>
+                <input type="text" name="section" placeholder="Section, e.g. A" required>
+                <button type="submit" class="form-btn">Add Class</button>
+            </form>
+        </section>
+
+        <!-- Add subject -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Add a Subject</h2>
+            </div>
+            <form method="POST" class="form-card">
+                <input type="hidden" name="form_type" value="subject">
+                <input type="text" name="subject_name" placeholder="Subject name, e.g. Data Structures" required>
+                <input type="text" name="subject_code" placeholder="Subject code, e.g. CS301" required>
+                <button type="submit" class="form-btn">Add Subject</button>
+            </form>
+        </section>
+
+        <!-- My classes -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>My Classes</h2>
+            </div>
+            <div class="table-card">
+                {% if classes %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Section</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in classes %}
+                            <tr>
+                                <td class="name-col">{{ c.class_name }}</td>
+                                <td><span class="roll-badge">{{ c.section }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No classes yet</h3>
+                    <p>Add your first class above.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- My subjects -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>My Subjects</h2>
+            </div>
+            <div class="table-card">
+                {% if subjects %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in subjects %}
+                            <tr>
+                                <td class="name-col">{{ s.subject_name }}</td>
+                                <td><span class="roll-badge">{{ s.subject_code }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No subjects yet</h3>
+                    <p>Add your first subject above.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        <a href="{{ url_for('teacher_sessions') }}" class="back-link">Start an attendance session →</a>
+<a href="{{ url_for('teacher_enrollments') }}" class="back-link">Enroll students in a class →</a>
+        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
+
+    </main>
+
+</body>
+
+</html>

@@ -106,14 +106,25 @@ body {
     color: var(--primary);
 }
 
+/* Logout form and button (button needs these, since it is not an <a>) */
+.logout-form {
+    margin: 0;
+}
+
 .logout-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    padding: 9px 18px;
+    font-size: 13.5px;
+    font-weight: 650;
+    border-radius: 10px;
+    cursor: pointer;
     background: rgba(254, 226, 226, 0.6);
     color: var(--danger);
     border: 1px solid #fecdd3;
     box-shadow: var(--glass-shadow);
+    transition: all 0.2s ease;
 }
 
 .logout-btn:hover {
@@ -463,4 +474,69 @@ tr:hover td {
     .welcome-section {
         padding: 28px 20px;
     }
+}
+
+/* ========================================
+   Classes & Subjects page
+======================================== */
+
+.form-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: var(--surface-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    box-shadow: var(--glass-shadow);
+}
+
+.form-card input {
+    flex: 1 1 220px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.form-btn {
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    color: #fff;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.form-btn:hover {
+    background: var(--primary-dark);
+}
+
+.flash-line {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+.back-link {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--primary);
+}
+
+.status-tag.active-link {
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    text-decoration: none;
 }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">ATTENDANCE</span>
+                <h1>{% if ok %}Done ✓{% else %}Not marked{% endif %}</h1>
+                <p>{{ message }}</p>
+            </div>
+        </section>
+
+        <a href="{{ url_for('student_dashboard') }}" class="back-link">← Back to dashboard</a>
+
+    </main>
+
+</body>
+
+</html>

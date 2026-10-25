@@ -24,10 +24,70 @@
                 </div>
             </div>
 
-            <a href="{{ url_for('logout') }}" class="logout-button">
-                <span>Logout</span>
-                <span class="logout-arrow">↗</span>
-            </a>
+            <div class="nav-links">
+                <!-- Profile dropdown -->
+                <div class="profile-menu">
+                    <button type="button" class="profile-btn" id="profileBtn" aria-label="Open profile"
+                        aria-haspopup="true" aria-expanded="false" aria-controls="profilePanel"></button>
+
+                    <div class="profile-panel" id="profilePanel" hidden>
+                        <div class="profile-panel-head">
+                            <h2>Student Profile</h2>
+                            <p>Your registered academic details.</p>
+                        </div>
+
+                        <div class="profile-bento-grid">
+                            <div class="profile-box">
+                                <span class="p-label">Full Name</span>
+                                <span class="p-val">{{ student.name }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Email Address</span>
+                                <span class="p-val">{{ student.email }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Roll Number</span>
+                                <span class="p-val">{{ student.roll_number or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Department</span>
+                                <span class="p-val">{{ student.department or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Course</span>
+                                <span class="p-val">{{ student.course or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Specialization</span>
+                                <span class="p-val">{{ student.specialization or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Academic Year</span>
+                                <span class="p-val">{{ student.year or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Semester</span>
+                                <span class="p-val">{{ student.semester or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Section</span>
+                                <span class="p-val">{{ student.section or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Residence</span>
+                                <span class="p-val">{{ student.residence_type or 'Not provided' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+    <button type="submit" class="logout-button">
+        <span>Logout</span>
+        <span class="logout-arrow">↗</span>
+    </button>
+</form>
+            </div>
         </header>
 
         <!-- Welcome Hero Section -->
@@ -76,59 +136,6 @@
                         <span class="stat-note">Overall standing</span>
                     </div>
                 </article>
-            </div>
-        </section>
-
-        <!-- Student Profile Grid -->
-        <section class="mb-section">
-            <div class="section-heading">
-                <div>
-                    <h2>Student Profile</h2>
-                    <p>Your registered academic details.</p>
-                </div>
-            </div>
-
-            <div class="profile-bento-grid">
-                <div class="profile-box">
-                    <span class="p-label">Full Name</span>
-                    <span class="p-val">{{ student.name }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Email Address</span>
-                    <span class="p-val">{{ student.email }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Roll Number</span>
-                    <span class="p-val">{{ student.roll_number or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Department</span>
-                    <span class="p-val">{{ student.department or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Course</span>
-                    <span class="p-val">{{ student.course or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Specialization</span>
-                    <span class="p-val">{{ student.specialization or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Academic Year</span>
-                    <span class="p-val">{{ student.year or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Semester</span>
-                    <span class="p-val">{{ student.semester or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Section</span>
-                    <span class="p-val">{{ student.section or 'Not provided' }}</span>
-                </div>
-                <div class="profile-box">
-                    <span class="p-label">Residence</span>
-                    <span class="p-val">{{ student.residence_type or 'Not provided' }}</span>
-                </div>
             </div>
         </section>
 
@@ -185,6 +192,16 @@
         </footer>
 
     </main>
+
+    <script>
+        const btn = document.getElementById('profileBtn');
+        const panel = document.getElementById('profilePanel');
+        const setOpen = o => { panel.hidden = !o; btn.setAttribute('aria-expanded', o); };
+
+        btn.addEventListener('click', e => { e.stopPropagation(); setOpen(panel.hidden); });
+        document.addEventListener('click', e => { if (!panel.contains(e.target)) setOpen(false); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    </script>
 
 </body>
 

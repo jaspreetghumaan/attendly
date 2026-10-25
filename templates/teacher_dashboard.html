@@ -22,12 +22,15 @@
             </div>
         </div>
         <nav class="nav-links">
-            <a href="{{ url_for('logout') }}" class="logout-btn">
-                <span>Logout</span>
-                <span class="logout-arrow">↗</span>
-            </a>
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <span>Logout</span>
+                    <span class="logout-arrow">↗</span>
+                </button>
+            </form>
         </nav>
     </header>
+
     <main class="dashboard-container">
 
         <!-- Welcome Hero Section -->
@@ -126,12 +129,12 @@
             </div>
 
             <div class="management-grid">
-                <article class=" management-card">
+                <article class="management-card">
                     <div class="mgmt-icon">📚</div>
                     <div class="mgmt-content">
                         <h3>Class Sessions</h3>
-                        <p>Create and manage active attendance sessions for various subjects.</p>
-                        <span class="status-tag pending">Coming Soon</span>
+                        <p>Create and manage your classes and subjects. Attendance sessions will be added here next.</p>
+                        <a href="{{ url_for('teacher_classes') }}" class="status-tag active-link">Manage Classes &amp; Subjects</a>
                     </div>
                 </article>
 
