@@ -13,5 +13,6 @@ database_backup/
 
 # Secrets
 .env
-Add-Content .gitignore "cloudflared.exe"
-Get-Content .gitignore | Select-String cloudflaredcloudflared.exe
+
+# Local tools (not part of the project)
+cloudflared.exe
