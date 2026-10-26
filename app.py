@@ -433,17 +433,12 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
-        attendance_stats = conn.execute(
+            attendance_stats = conn.execute(
             """
             SELECT
                 COUNT(*) AS total_classes,
-                SUM(
-                    CASE
-                        WHEN status = 'Present' THEN 1
-                        ELSE 0
-                    END
-                ) AS classes_attended
-            FROM attendance
+                SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
+            FROM attendance_records
             WHERE student_id = ?
             """,
             (student["student_id"],)
@@ -451,10 +446,11 @@ def student_dashboard():
 
         attendance_history = conn.execute(
             """
-            SELECT attendance_date, status
-            FROM attendance
-            WHERE student_id = ?
-            ORDER BY attendance_date DESC
+            SELECT s.session_date AS attendance_date, r.status
+            FROM attendance_records r
+            JOIN attendance_sessions s ON s.id = r.session_id
+            WHERE r.student_id = ?
+            ORDER BY s.id DESC
             """,
             (student["student_id"],)
         ).fetchall()
@@ -523,7 +519,7 @@ def teacher_dashboard():
         total_attendance = conn.execute(
             """
             SELECT COUNT(*)
-            FROM attendance
+            FROM attendance_records
             WHERE status = 'Present'
             """
         ).fetchone()[0]
