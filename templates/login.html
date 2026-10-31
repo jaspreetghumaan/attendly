@@ -10,6 +10,16 @@
 
     <!-- Separate CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>

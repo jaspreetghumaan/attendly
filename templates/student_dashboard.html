@@ -7,6 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>

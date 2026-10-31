@@ -216,3 +216,198 @@
   if (document.body) init();
   else document.addEventListener("DOMContentLoaded", init, { once: true });
 })();
+
+/* ==========================================================================
+   Attendly | Homepage effects (added at the end of theme.js)
+   Runs only on the homepage, because the <body> there has class "page--home".
+   ========================================================================== */
+(function () {
+  "use strict";
+  if (!document.body || !document.body.classList.contains("page--home")) return;
+
+  var root = document.documentElement;
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var canObserve = "IntersectionObserver" in window;
+
+  /* 1. Header shadow + scroll progress bar */
+  var header = document.querySelector(".site-header");
+  var progress = null;
+
+  if (!reduceMotion) {
+    progress = document.createElement("div");
+    progress.className = "fx-progress";
+    progress.setAttribute("aria-hidden", "true");
+    document.body.appendChild(progress);
+  }
+
+  var scrollQueued = false;
+  function updateOnScroll() {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(function () {
+      var y = window.scrollY;
+      var max = root.scrollHeight - window.innerHeight;
+      if (header) header.classList.toggle("is-scrolled", y > 8);
+      if (progress) progress.style.transform = "scaleX(" + (max > 0 ? y / max : 0) + ")";
+      scrollQueued = false;
+    });
+  }
+  window.addEventListener("scroll", updateOnScroll, { passive: true });
+  window.addEventListener("resize", updateOnScroll);
+  updateOnScroll();
+
+  /* 2. Highlight the nav link for the section in view */
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.site-nav__link[href^="#"]'));
+  var linkBySection = new Map();
+
+  navLinks.forEach(function (link) {
+    var section = document.getElementById(link.getAttribute("href").slice(1));
+    if (section) linkBySection.set(section, link);
+  });
+
+  if (canObserve && linkBySection.size) {
+    var navObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function (link) {
+          link.classList.remove("is-active");
+          link.removeAttribute("aria-current");
+        });
+        var active = linkBySection.get(entry.target);
+        if (active) {
+          active.classList.add("is-active");
+          active.setAttribute("aria-current", "true");
+        }
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+
+    linkBySection.forEach(function (_, section) { navObserver.observe(section); });
+  }
+
+  // Everything below is motion. Skip it for users who asked for reduced motion.
+  if (reduceMotion) return;
+
+  /* 3. Scroll reveal with a small stagger */
+  if (canObserve) {
+    root.classList.add("fx-ready");
+
+    var revealTargets = document.querySelectorAll([
+      ".hero__content > *",
+      ".section__header",
+      ".feature-grid__item",
+      ".steps-list__item",
+      ".access-card",
+      ".benefits-list__item",
+      ".about > *",
+      ".activity-list__item"
+    ].join(", "));
+
+    var revealObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.remove("fx-pending");
+        entry.target.classList.add("fx-in");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+
+    // Siblings in the same parent start one after another.
+    var countPerParent = new Map();
+    revealTargets.forEach(function (el) {
+      var index = countPerParent.get(el.parentElement) || 0;
+      countPerParent.set(el.parentElement, index + 1);
+      el.style.setProperty("--fx-delay", Math.min(index, 5) * 90 + "ms");
+      el.classList.add("fx-pending");
+      revealObserver.observe(el);
+    });
+  }
+
+  /* 4. Count-up numbers in the dashboard preview */
+  function countUp(el) {
+    // Only the first text node is changed, so the "%" span stays as it is.
+    var node = Array.from(el.childNodes).find(function (n) {
+      return n.nodeType === Node.TEXT_NODE && /\d/.test(n.nodeValue);
+    });
+    var end = node ? parseInt(node.nodeValue, 10) : NaN;
+    if (isNaN(end)) return;
+
+    var duration = 1100;
+    var start = performance.now();
+    node.nodeValue = "0";
+
+    function tick(now) {
+      var t = Math.min((now - start) / duration, 1);
+      node.nodeValue = String(Math.round(end * (1 - Math.pow(1 - t, 3))));
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  if (canObserve) {
+    var countObserver = new IntersectionObserver(function (entries, observer) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        countUp(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.6 });
+
+    document.querySelectorAll(".summary-block h2, .rate-value").forEach(function (el) {
+      countObserver.observe(el);
+    });
+  }
+
+  /* 5. Cursor spotlight on cards */
+  document.querySelectorAll(".feature-card, .step-card, .benefit-card, .access-card, .summary-block")
+    .forEach(function (card) {
+      card.classList.add("fx-glow");
+
+      var spotlight = document.createElement("span");
+      spotlight.className = "fx-spotlight";
+      spotlight.setAttribute("aria-hidden", "true");
+      card.insertBefore(spotlight, card.firstChild);
+
+      card.addEventListener("pointermove", function (e) {
+        var rect = card.getBoundingClientRect();
+        card.style.setProperty("--fx-x", (e.clientX - rect.left) + "px");
+        card.style.setProperty("--fx-y", (e.clientY - rect.top) + "px");
+      });
+    });
+
+  /* 6. Click ripple on buttons */
+  document.querySelectorAll(".btn").forEach(function (btn) {
+    btn.addEventListener("pointerdown", function (e) {
+      var rect = btn.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height) * 2;
+
+      var ripple = document.createElement("span");
+      ripple.className = "fx-ripple";
+      ripple.style.width = size + "px";
+      ripple.style.height = size + "px";
+      ripple.style.left = (e.clientX - rect.left - size / 2) + "px";
+      ripple.style.top = (e.clientY - rect.top - size / 2) + "px";
+
+      btn.appendChild(ripple);
+      setTimeout(function () { ripple.remove(); }, 700);
+    });
+  });
+
+  /* 7. Magnetic pull on primary buttons (mouse only) */
+  if (finePointer) {
+    document.querySelectorAll(".btn--primary").forEach(function (btn) {
+      btn.addEventListener("pointermove", function (e) {
+        var rect = btn.getBoundingClientRect();
+        var x = e.clientX - (rect.left + rect.width / 2);
+        var y = e.clientY - (rect.top + rect.height / 2);
+        btn.style.setProperty("--fx-mx", (x * 0.2).toFixed(1) + "px");
+        btn.style.setProperty("--fx-my", (y * 0.25).toFixed(1) + "px");
+      });
+
+      btn.addEventListener("pointerleave", function () {
+        btn.style.setProperty("--fx-mx", "0px");
+        btn.style.setProperty("--fx-my", "0px");
+      });
+    });
+  }
+})();

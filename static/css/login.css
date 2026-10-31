@@ -552,3 +552,54 @@ body::after {
     padding: 1.75rem 1.35rem;
   }
 }
+
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+  color-scheme: dark;
+  --primary-dark: #6f57db;
+  --surface: #0e1116;
+  --text-primary: #c5c2e2;
+  --text-secondary: #9a97ad;
+  --border: #363950;
+  --success: #6af2c5;
+  --success-bg: #113021;
+  --danger-bg: #2a0d0d;
+}
+html.dark-mode body {
+  background: linear-gradient(135deg, #101b3f 0%, #210e36 50%, #122d3f 100%);
+}
+html.dark-mode body::before {
+  background: radial-gradient(circle, rgba(107, 88, 193, 0.15) 0%, transparent 70%);
+}
+html.dark-mode body::after {
+  background: radial-gradient(circle, rgba(112, 96, 185, 0.12) 0%, transparent 70%);
+}
+html.dark-mode .login-container {
+  background: rgba(14, 17, 22, 0.85);
+  border: 1px solid rgba(43, 49, 59, 0.9);
+}
+html.dark-mode .login-branding {
+  background: linear-gradient(135deg, rgba(20, 11, 45, 0.7) 0%, rgba(14, 17, 22, 0.6) 50%, rgba(48, 31, 12, 0.7) 100%);
+}
+html.dark-mode .login-branding::after {
+  background: radial-gradient(circle, rgba(107, 88, 193, 0.08) 0%, rgba(112, 96, 185, 0.08) 60%, transparent 70%);
+}
+html.dark-mode .branding-content .eyebrow {
+  background: rgba(107, 88, 193, 0.1);
+}
+html.dark-mode .back-home {
+  background: #110d20;
+}
+html.dark-mode .back-home:hover {
+  border-color: #383168;
+}
+html.dark-mode .form-heading .eyebrow {
+  background: rgba(107, 88, 193, 0.1);
+}
+html.dark-mode .flash-messages {
+  border: 1px solid #79202b;
+}
+html.dark-mode .form-group input {
+  background-color: #110d20;
+}
+/* ===== DARK MODE (auto) END ===== */

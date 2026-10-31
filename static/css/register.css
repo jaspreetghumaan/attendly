@@ -942,3 +942,131 @@ span.flatpickr-weekday {
   font-weight: 600;
   box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35);
 }
+
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+  color-scheme: dark;
+  --blue: #5fc8fd;
+  --blue-dark: #554ce6;
+  --purple: #9d6fe5;
+  --ink: #c8d2eb;
+  --ink-soft: #a8b3c4;
+  --ink-muted: #94a0b2;
+  --border: #3b4757;
+  --err: #e96d6d;
+  --err-bg: #3d1111;
+}
+html.dark-mode body {
+  background-color: #141b24;
+  background-image: radial-gradient(circle at 12% 18%, rgba(76, 165, 204, 0.35) 0%, transparent 45%),
+    radial-gradient(circle at 88% 82%, rgba(142, 78, 203, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(14, 17, 22, 0.6) 0%, transparent 100%);
+}
+html.dark-mode .register-container {
+  background: linear-gradient(90deg,
+      rgba(16, 27, 42, 0.65) 42%,
+      rgba(14, 17, 22, 0.92) 42%);
+  border: 1px solid rgba(43, 49, 59, 0.85);
+}
+html.dark-mode .register-left-panel {
+  border-right: 1px solid rgba(59, 71, 87, 0.8);
+}
+html.dark-mode .register-left-panel::after {
+  background: radial-gradient(circle,
+      rgba(142, 78, 203, 0.22) 0%,
+      rgba(76, 165, 204, 0.22) 50%,
+      transparent 72%);
+}
+html.dark-mode .portal-badge {
+  color: #9d6fe5;
+  background: rgba(22, 15, 53, 0.9);
+  border: 1px solid rgba(112, 74, 200, 0.2);
+}
+html.dark-mode .feature-pill {
+  background: rgba(14, 17, 22, 0.88);
+  border: 1px solid rgba(43, 49, 59, 0.95);
+  color: #5fc8fd;
+}
+html.dark-mode .pill-icon {
+  background: linear-gradient(135deg, #5377c6, #5e58c0);
+}
+html.dark-mode .welcome-badge {
+  color: #5fc8fd;
+  background: #122d3f;
+}
+html.dark-mode .flash-messages p {
+  border: 1px solid #7b2121;
+}
+html.dark-mode .form-section {
+  background: rgba(19, 25, 31, 0.75);
+  border: 1px solid rgba(59, 71, 87, 0.9);
+}
+html.dark-mode .form-section h3::after {
+  background: #243243;
+}
+html.dark-mode input, html.dark-mode select, html.dark-mode textarea {
+  background-color: #0e1116;
+}
+html.dark-mode input:hover, html.dark-mode select:hover, html.dark-mode textarea:hover {
+  border-color: #7e8a9a;
+}
+html.dark-mode select:disabled, html.dark-mode input:disabled {
+  background-color: #182027;
+}
+html.dark-mode .home-link {
+  background: #0e1116;
+  border: 1px solid #3b4757;
+}
+html.dark-mode .home-link:hover {
+  background-color: #13191f;
+}
+@media (max-width: 960px) {
+html.dark-mode .register-container {
+  background: rgba(14, 17, 22, 0.92);
+}
+html.dark-mode .register-left-panel {
+  border-bottom: 1px solid rgba(59, 71, 87, 0.8);
+  background: rgba(16, 27, 42, 0.65);
+}
+}
+html.dark-mode .date-input-wrapper input {
+  background-color: #0e1116;
+}
+html.dark-mode .flatpickr-calendar {
+  background: #0e1116 !important;
+  border: 1px solid #3b4757 !important;
+}
+html.dark-mode .flatpickr-current-month .flatpickr-monthDropdown-months, html.dark-mode .flatpickr-current-month .fp-year-select {
+  background-color: rgba(14, 17, 22, 0.16) !important;
+  border: 1px solid rgba(43, 49, 59, 0.25) !important;
+}
+html.dark-mode .flatpickr-current-month .flatpickr-monthDropdown-months option, html.dark-mode .flatpickr-current-month .fp-year-select option {
+  background: #0e1116 !important;
+}
+html.dark-mode .flatpickr-day:hover {
+  background: #0c1b2e !important;
+  border-color: #234e84 !important;
+}
+html.dark-mode .flatpickr-day.today {
+  background: #13191f !important;
+}
+html.dark-mode .toggle-password {
+  color: #94a0b2;
+}
+html.dark-mode .custom-select-trigger {
+  background: #0e1116;
+}
+html.dark-mode .custom-select-trigger:hover {
+  border-color: #7e8a9a;
+}
+html.dark-mode .custom-select-trigger.disabled {
+  background-color: #182027;
+}
+html.dark-mode .custom-select-options {
+  background: rgba(14, 17, 22, 0.96);
+  border: 1px solid rgba(59, 71, 87, 0.9);
+}
+html.dark-mode .custom-option:hover {
+  background: #0c1b2e;
+}
+/* ===== DARK MODE (auto) END ===== */

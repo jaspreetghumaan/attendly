@@ -20,6 +20,16 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body>
@@ -456,44 +466,48 @@
             // ਵਿਭਾਗ ਦੇ ਮੁਤਾਬਕ ਕੋਰਸਾਂ ਦੀ ਲਿਸਟ
             const deptCourseMap = {
                 "Applied Science": [
-                    "B.Sc. Physics",
-                    "B.Sc. Chemistry",
-                    "B.Sc. Mathematics"
+                    "B.Tech Artificial Intelligence (AI)",
+                    "B.Tech Computer Science Engineering (CSE)",
+                    "B.Tech Computer Science and Design (CSD)",
+                    "B.Tech Civil Engineering",
+                    "B.Tech Mechanical Engineering",
+                    "Diploma in Computer Science (CS)",
+                    "Diploma in Electronics and Communication Engineering (ECE)"
                 ],
                 "Allied Science": [
-                    "B.Sc. Medical Lab Technology (MLT)",
-                    "B.Sc. Radiology & Imaging Technology",
-                    "B.Sc. Operation Theatre Technology"
+                    "RMT",
+                    "OTT",
+                    "BPT"
                 ],
                 "Pharmacy": [
-                    "B.Pharmacy",
-                    "D.Pharmacy",
-                    "M.Pharmacy"
+                    "B.Pharma",
+                    "D.Pharma",
+                    "Pharm.D"
                 ],
                 "Computer Science": [
-                    "B.Tech Computer Science & Engineering",
-                    "B.Tech CSE (AI & ML)",
-                    "B.Tech CSE (Data Science)",
-                    "M.Tech CSE"
+                    "B.Tech Artificial Intelligence (AI)",
+                    "B.Tech Computer Science Engineering (CSE)",
+                    "B.Tech Computer Science and Design (CSD)",
+                    "Diploma in Computer Science (CS)"
                 ],
                 "Law": [
-                    "BA LLB",
-                    "BBA LLB",
-                    "LLB",
-                    "LLM"
+                    "LLB"
                 ],
                 "Business Administration": [
                     "BBA",
                     "MBA"
                 ],
                 "Hotel Management": [
-                    "B.Sc. Hotel Management & Catering",
-                    "Diploma in Food & Beverage Service"
+                    "BHM (Bachelor of Hotel Management)",
+                    "B.Sc. Hospitality and Hotel Administration",
+                    "Diploma in Hotel Management",
+                    "Diploma in Food Production",
+                    "Diploma in Front Office Operations"
                 ],
                 "ME/CIVIL/ECE": [
                     "B.Tech Mechanical Engineering",
                     "B.Tech Civil Engineering",
-                    "B.Tech Electronics & Communication"
+                    "Diploma in Electronics and Communication Engineering (ECE)"
                 ],
                 "Department of Computer Application": [
                     "BCA",
