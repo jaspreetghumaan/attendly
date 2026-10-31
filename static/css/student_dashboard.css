@@ -303,3 +303,65 @@ body > .dashboard-header { padding-inline: var(--page-pad); }
     font-size: 13px;
     color: var(--text-muted);
 }
+
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+  color-scheme: dark;
+  --blue: #76cdfc;
+  --blue-bright: #5fc8fd;
+  --blue-soft: #3abef8;
+  --violet: #8e59e2;
+  --ink: #bfd3f1;
+  --muted: #a8b3c4;
+  --soft: #94a0b2;
+  --bg-soft: #13191f;
+  --bg-tint: #0b202d;
+  --border: #3b4757;
+  --success: #8fedb2;
+  --success-bg: #164325;
+  --warn: #f8a96c;
+  --warn-bg: #5b4e18;
+  --danger: #e96d6d;
+  --danger-bg: #3d1111;
+  --neutral: #94a0b2;
+  --neutral-bg: #182027;
+}
+html.dark-mode body {
+  background: radial-gradient(38rem 26rem at 92% -6%, rgba(130, 92, 188, 0.08), transparent 70%), radial-gradient(34rem 24rem at -4% 4%, rgba(2, 132, 199, .09), transparent 70%), var(--bg-soft);
+}
+html.dark-mode .dashboard-header::before {
+  background: rgba(14, 17, 22, 0.85);
+}
+html.dark-mode .profile-btn::before {
+  background: #0e1116;
+}
+html.dark-mode .profile-panel {
+  background: #0e1116;
+}
+html.dark-mode .welcome-section {
+  background: #0e1116;
+}
+html.dark-mode .teacher-email-pill {
+  border: 1px solid #266687;
+}
+html.dark-mode .welcome-glow::before {
+  background: radial-gradient(circle, rgba(130, 92, 188, 0.12), rgba(2, 132, 199, .08) 55%, transparent 72%);
+}
+html.dark-mode .welcome-glow::after {
+  background: radial-gradient(circle, rgba(76, 165, 204, 0.14), transparent 70%);
+}
+html.dark-mode .stat-card {
+  background: #0e1116;
+}
+html.dark-mode .stat-card:hover {
+  border-color: #266687;
+}
+@media print {
+html.dark-mode body {
+  background: #0e1116;
+}
+}
+html.dark-mode .scan-box {
+  background: #0e1116;
+}
+/* ===== DARK MODE (auto) END ===== */

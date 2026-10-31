@@ -540,6 +540,87 @@ tr:hover td {
     border: 1px solid rgba(99, 102, 241, 0.25);
     text-decoration: none;
 }
+
 .qr-img {
     width: min(360px, 100%);
 }
+
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+    color-scheme: dark;
+    --primary-dark: #554ce6;
+    --bg-main: #13191f;
+    --surface: rgba(14, 17, 22, 0.78);
+    --surface-card: rgba(14, 17, 22, 0.68);
+    --text-main: #c8d2eb;
+    --text-muted: #94a0b2;
+    --border-color: rgba(59, 71, 87, 0.8);
+    --success: #6af2c5;
+    --danger-bg: rgba(198, 82, 82, 0.12);
+}
+
+html.dark-mode body {
+    background: linear-gradient(135deg, #101b3f 0%, #210e36 50%, #122d3f 100%);
+}
+
+html.dark-mode .logout-btn {
+    background: rgba(61, 17, 17, 0.6);
+    border: 1px solid #79202b;
+}
+
+html.dark-mode .logout-btn:hover {
+    background: rgba(61, 17, 17, 0.9);
+}
+
+html.dark-mode .welcome-section {
+    background: linear-gradient(135deg, rgba(94, 88, 192, 0.88) 0%, rgba(125, 83, 198, 0.88) 100%);
+    border: 1px solid rgba(43, 49, 59, 0.2);
+}
+
+html.dark-mode .welcome-badge {
+    background: rgba(14, 17, 22, 0.2);
+}
+
+html.dark-mode .teacher-email-pill {
+    background: rgba(14, 17, 22, 0.15);
+    border: 1px solid rgba(43, 49, 59, 0.25);
+}
+
+html.dark-mode .stat-card:hover {
+    background: rgba(14, 17, 22, 0.9);
+    border-color: rgba(76, 79, 196, 0.4);
+}
+
+html.dark-mode th {
+    background: rgba(19, 25, 31, 0.6);
+}
+
+html.dark-mode tr:hover td {
+    background: rgba(14, 17, 22, 0.6);
+}
+
+html.dark-mode .management-card:hover {
+    background: rgba(14, 17, 22, 0.9);
+    border-color: rgba(76, 79, 196, 0.4);
+}
+
+html.dark-mode .mgmt-icon {
+    background: rgba(204, 157, 77, 0.12);
+    color: #faae55;
+}
+
+html.dark-mode .status-tag.pending {
+    background: #5b4e18;
+    color: #faae55;
+    border: 1px solid #af952e;
+}
+
+html.dark-mode .form-card input {
+    background: rgba(14, 17, 22, 0.9);
+}
+
+html.dark-mode .status-tag.active-link {
+    border: 1px solid rgba(76, 79, 196, 0.25);
+}
+
+/* ===== DARK MODE (auto) END ===== */

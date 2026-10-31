@@ -1747,12 +1747,140 @@ html.qa-cursor-down .qa-cursor__ring {
   }
 }
 
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+  color-scheme: dark;
+  --blue: #76cdfc;
+  --blue-bright: #5fc8fd;
+  --blue-soft: #3abef8;
+  --violet: #8e59e2;
+  --ink: #bfd3f1;
+  --ink-soft: #a8b3c4;
+  --ink-muted: #94a0b2;
+  --bg: #0e1116;
+  --bg-soft: #13191f;
+  --bg-tint: #0b202d;
+  --border: #3b4757;
+  --border-soft: #2e3d4c;
+  --ok: #8fedb2;
+  --ok-bg: #164325;
+  --warn: #f8a96c;
+  --warn-bg: #5b4e18;
+  --err: #e96d6d;
+  --err-bg: #3d1111;
+  --focus: #5fc8fd;
+  --qa-ring: #5fc8fd;
+  --qa-accent: #8e59e2;
+}
+html.dark-mode .site-header {
+  background: rgba(14, 17, 22, 0.85);
+}
+html.dark-mode .btn--secondary {
+  background: #0e1116;
+}
+html.dark-mode .hero::after {
+  background: radial-gradient(circle, rgba(130, 92, 188, 0.06), transparent 70%);
+}
+html.dark-mode .bento-card--qr {
+  border-color: #2f834c;
+}
+html.dark-mode .dashboard-preview {
+  background: #0e1116;
+}
+html.dark-mode .bento-card {
+  background: #0e1116;
+}
+html.dark-mode .qr-placeholder__caption {
+  color: #a1ebbd;
+}
+html.dark-mode .stat-card__value {
+  color: #c8d2eb;
+}
+html.dark-mode .stat-card--total .stat-card__value::before {
+  background: conic-gradient(#0284c7 0deg, #0284c7 155deg, #182027 155deg, #182027 360deg);
+}
+html.dark-mode .stat-card--present .stat-card__value::before {
+  background: #4ca5cc;
+}
+html.dark-mode .stat-card--percentage .stat-card__value {
+  color: #5fc8fd;
+}
+html.dark-mode .stat-card--percentage .stat-card__value::before {
+  background: conic-gradient(#0284c7 0deg, #0284c7 288deg, #272f3a 288deg, #272f3a 360deg);
+}
+html.dark-mode .activity-list__item::before {
+  background: linear-gradient(135deg, #18265b 0%, #1b3b64 100%);
+}
+html.dark-mode .activity-list__status--present {
+  color: #79eda4;
+  background: #164325;
+}
+html.dark-mode .activity-list__status--late {
+  color: #f8a96c;
+  background: #5b4e18;
+}
+html.dark-mode .feature-card {
+  background: #0e1116;
+}
+html.dark-mode .feature-card:hover {
+  border-color: #266687;
+}
+html.dark-mode .feature-card__icon {
+  background: linear-gradient(135deg, #122d3f, #160f35);
+}
+html.dark-mode .step-card {
+  background: #0e1116;
+}
+html.dark-mode .access-card {
+  background: #0e1116;
+}
+html.dark-mode .access-card::before {
+  background: linear-gradient(135deg, rgba(2, 132, 199, 0.04), rgba(130, 92, 188, 0.04));
+}
+html.dark-mode .benefit-card {
+  background: #0e1116;
+}
+html.dark-mode .site-footer__copyright {
+  border-top: 1px solid rgba(43, 49, 59, 0.08);
+  color: #94a0b2;
+}
+html.dark-mode .summary-block {
+  background: #0e1116;
+}
+html.dark-mode .total-block .summary-icon {
+  background: #122d3f;
+  color: #76cdfc;
+}
+html.dark-mode .present-block .summary-icon {
+  background: #164325;
+  color: #8fedb2;
+}
+html.dark-mode .absent-block .summary-icon {
+  background: #3d1111;
+  color: #e96d6d;
+}
+html.dark-mode .rate-badge {
+  color: #3abef8;
+  background: rgba(76, 165, 204, 0.12);
+  border: 1px solid rgba(98, 176, 210, 0.25);
+}
+html.dark-mode .rate-value span {
+  color: #3abef8;
+}
+html.dark-mode .bento-card--qr {
+  border: 1px solid #2f834c !important;
+}
+html.dark-mode .feature-card[data-tilt]:hover {
+  border-color: #266687;
+}
+/* ===== DARK MODE (auto) END ===== */
+
 /* =====================================================================
    DARK MODE OVERRIDES
    ===================================================================== */
 
 /* ਮੇਨ ਵੇਰੀਏਬਲ ਜੋ ਡਾਰਕ ਮੋਡ 'ਚ ਬਦਲਣੇ ਹਨ */
-body.dark-mode {
+html.dark-mode {
   --ink: #f8fafc;
   /* ਚਿੱਟਾ/ਹਲਕਾ ਸਲੇਟੀ ਟੈਕਸਟ */
   --ink-soft: #cbd5e1;
@@ -1772,49 +1900,49 @@ body.dark-mode {
 }
 
 /* ਨਵਬਾਰ (Navbar) ਨੂੰ ਡਾਰਕ ਮੋਡ ਵਿੱਚ ਗੂੜ੍ਹਾ ਕਰਨਾ */
-body.dark-mode .site-header {
+html.dark-mode .site-header {
   background: rgba(11, 17, 32, 0.85);
 }
 
 /* ਉਹ ਸਾਰੇ ਕਾਰਡ ਜਿਨ੍ਹਾਂ ਦਾ ਰੰਗ ਪਹਿਲਾਂ ਤੋਂ ਸਿੱਧਾ ਚਿੱਟਾ (#ffffff) ਦਿੱਤਾ ਸੀ */
-body.dark-mode .dashboard-preview,
-body.dark-mode .bento-card,
-body.dark-mode .summary-block,
-body.dark-mode .feature-card,
-body.dark-mode .step-card,
-body.dark-mode .access-card,
-body.dark-mode .benefit-card {
+html.dark-mode .dashboard-preview,
+html.dark-mode .bento-card,
+html.dark-mode .summary-block,
+html.dark-mode .feature-card,
+html.dark-mode .step-card,
+html.dark-mode .access-card,
+html.dark-mode .benefit-card {
   background: #111827;
   border-color: var(--border);
 }
 
 /* ਡੈਸ਼ਬੋਰਡ ਦੇ ਡੈਮੋ QR ਵਾਲੇ ਹਿੱਸੇ ਦਾ ਰੰਗ ਠੀਕ ਕਰਨਾ */
-body.dark-mode .bento-card--qr {
+html.dark-mode .bento-card--qr {
   background: linear-gradient(180deg, #064e3b 0%, #065f46 100%) !important;
   border-color: #047857 !important;
 }
 
-body.dark-mode .qr-placeholder__box {
+html.dark-mode .qr-placeholder__box {
   background-color: #111827;
 }
 
-body.dark-mode .qr-placeholder__caption {
+html.dark-mode .qr-placeholder__caption {
   color: #6ee7b7;
 }
 
 /* ਸੈਕੰਡਰੀ ਬਟਨ (Register ਵਗੈਰਾ) ਨੂੰ ਡਾਰਕ ਬਣਾਉਣਾ */
-body.dark-mode .btn--secondary {
+html.dark-mode .btn--secondary {
   background: #1e293b;
   color: #f8fafc;
   border-color: #334155;
 }
 
-body.dark-mode .btn--secondary:hover {
+html.dark-mode .btn--secondary:hover {
   background: #334155;
 }
 
 /* Activity List ਦੇ ਅੰਦਰਲੇ ਹਿੱਸੇ */
-body.dark-mode .activity-list__item {
+html.dark-mode .activity-list__item {
   border-top-color: #1e293b;
 }
 
@@ -1840,7 +1968,7 @@ body.dark-mode .activity-list__item {
 }
 
 /* ਮੇਨ ਵੇਰੀਏਬਲ ਜੋ ਡਾਰਕ ਮੋਡ 'ਚ ਬਦਲਣੇ ਹਨ (ਬੈਕਗ੍ਰਾਊਂਡ ਅਤੇ ਟੈਕਸਟ) */
-body.dark-mode {
+html.dark-mode {
   --ink: #f8fafc;
   --ink-soft: #cbd5e1;
   --ink-muted: #94a3b8;
@@ -1858,49 +1986,49 @@ body.dark-mode {
 }
 
 /* ਨਵਬਾਰ ਨੂੰ ਡਾਰਕ ਮੋਡ ਵਿੱਚ ਗੂੜ੍ਹਾ ਕਰਨਾ */
-body.dark-mode .site-header {
+html.dark-mode .site-header {
   background: rgba(11, 17, 32, 0.85);
 }
 
 /* ਸਾਰੇ ਕਾਰਡਾਂ ਦਾ ਬੈਕਗ੍ਰਾਊਂਡ ਡਾਰਕ ਕਰਨਾ */
-body.dark-mode .dashboard-preview,
-body.dark-mode .bento-card,
-body.dark-mode .summary-block,
-body.dark-mode .feature-card,
-body.dark-mode .step-card,
-body.dark-mode .access-card,
-body.dark-mode .benefit-card {
+html.dark-mode .dashboard-preview,
+html.dark-mode .bento-card,
+html.dark-mode .summary-block,
+html.dark-mode .feature-card,
+html.dark-mode .step-card,
+html.dark-mode .access-card,
+html.dark-mode .benefit-card {
   background: #111827;
   border-color: var(--border);
 }
 
 /* ਡੈਮੋ QR ਵਾਲੇ ਕਾਰਡ ਨੂੰ ਗੂੜ੍ਹਾ ਹਰਾ ਕਰਨਾ */
-body.dark-mode .bento-card--qr {
+html.dark-mode .bento-card--qr {
   background: linear-gradient(180deg, #064e3b 0%, #065f46 100%) !important;
   border-color: #047857 !important;
 }
 
-body.dark-mode .qr-placeholder__box {
+html.dark-mode .qr-placeholder__box {
   background-color: #111827;
 }
 
-body.dark-mode .qr-placeholder__caption {
+html.dark-mode .qr-placeholder__caption {
   color: #6ee7b7;
 }
 
 /* Register (ਸੈਕੰਡਰੀ) ਬਟਨ ਨੂੰ ਡਾਰਕ ਕਰਨਾ */
-body.dark-mode .btn--secondary {
+html.dark-mode .btn--secondary {
   background: #1e293b;
   color: #f8fafc;
   border-color: #334155;
 }
 
-body.dark-mode .btn--secondary:hover {
+html.dark-mode .btn--secondary:hover {
   background: #334155;
 }
 
 /* ਐਕਟੀਵਿਟੀ ਲਿਸਟ ਦੀਆਂ ਲਾਈਨਾਂ */
-body.dark-mode .activity-list__item {
+html.dark-mode .activity-list__item {
   border-top-color: #1e293b;
 }
 
@@ -2025,42 +2153,42 @@ body.dark-mode .activity-list__item {
 /* =========================================================
    3. DARK MODE (ਜਦੋਂ ਡਾਰਕ ਮੋਡ ਚਾਲੂ ਹੋਵੇ - ਸਕ੍ਰੀਨਸ਼ਾਟ ਵਰਗਾ) 
    ========================================================= */
-body.dark-mode .site-header {
+html.dark-mode .site-header {
   background: #0b1120 !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
 }
 
-body.dark-mode .site-header .brand__name {
+html.dark-mode .site-header .brand__name {
   color: #ffffff !important;
 }
 
-body.dark-mode .site-header .site-nav__link {
+html.dark-mode .site-header .site-nav__link {
   color: #94a3b8 !important;
 }
 
-body.dark-mode .site-header .site-nav__link:hover {
+html.dark-mode .site-header .site-nav__link:hover {
   color: #ffffff !important;
 }
 
-body.dark-mode .site-header .divider {
-  color: #334155 !important;
+html.dark-mode .site-header .divider {
+  color: #64748b !important;
 }
 
-body.dark-mode .site-header #theme-toggle {
+html.dark-mode .site-header #theme-toggle {
   color: #facc15 !important;
 }
 
 /* ਪੀਲਾ ਸੂਰਜ/ਚੰਦ */
 
 /* Dark Mode 'GET STARTED' Button (ਚਿੱਟੇ ਰੰਗ ਦਾ) */
-body.dark-mode .site-header .site-nav__login {
+html.dark-mode .site-header .site-nav__login {
   background: #ffffff !important;
   color: #0f172a !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
-body.dark-mode .site-header .site-nav__login:hover {
+html.dark-mode .site-header .site-nav__login:hover {
   background: #f8fafc !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15) !important;
@@ -2101,12 +2229,12 @@ body.dark-mode .site-header .site-nav__login:hover {
 }
 
 /* Dark mode ma hover shadow badlava mate */
-body.dark-mode .feature-card:hover,
-body.dark-mode .step-card:hover,
-body.dark-mode .access-card:hover,
-body.dark-mode .benefit-card:hover,
-body.dark-mode .summary-block:hover,
-body.dark-mode .bento-card:hover {
+html.dark-mode .feature-card:hover,
+html.dark-mode .step-card:hover,
+html.dark-mode .access-card:hover,
+html.dark-mode .benefit-card:hover,
+html.dark-mode .summary-block:hover,
+html.dark-mode .bento-card:hover {
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6) !important;
   border-color: #38bdf8 !important;
   /* halko blue border */

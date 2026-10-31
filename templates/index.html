@@ -14,6 +14,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body class="page page--home">
@@ -62,7 +72,7 @@
 
         <!-- GET STARTED Button -->
         <li class="site-nav__item">
-          <a class="site-nav__login btn btn--secondary" href="#user-access">GET STARTED</a>
+          <a class="site-nav__login btn btn--secondary" href="register">Register</a>
         </li>
       </ul>
 
@@ -398,7 +408,7 @@
        1. THEME TOGGLE (Dark / Light Mode)
        ---------------------------------------------------- */
     const themeToggleBtn = document.getElementById('theme-toggle');
-    const bodyElement = document.body;
+    const bodyElement = document.documentElement;
     const themeIcon = document.getElementById('theme-icon');
 
     if (localStorage.getItem('theme') === 'dark') {

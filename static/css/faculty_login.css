@@ -586,3 +586,73 @@ body::after {
   background-position: 0.95rem center;
   background-size: 1.15rem 1.15rem;
 }
+
+/* ===== DARK MODE (auto) START ===== */
+html.dark-mode {
+  color-scheme: dark;
+  --blue: #5fc8fd;
+  --blue-dark: #76cdfc;
+  --violet: #8e59e2;
+  --ink: #bfd3f1;
+  --ink-soft: #a8b3c4;
+  --ink-muted: #94a0b2;
+  --border: rgba(59, 71, 87, 0.7);
+  --glass-border: rgba(43, 49, 59, 0.75);
+  --err: #e96d6d;
+  --err-bg: rgba(61, 17, 17, 0.85);
+}
+html.dark-mode body {
+  background: linear-gradient(135deg, #132845 0%, #160f35 50%, #361427 100%);
+}
+html.dark-mode body::after {
+  background: radial-gradient(circle, rgba(130, 92, 188, 0.32) 0%, transparent 70%);
+}
+html.dark-mode .login-container {
+  background: rgba(14, 17, 22, 0.45);
+}
+html.dark-mode .login-branding {
+  background: linear-gradient(160deg, rgba(11, 32, 45, 0.55) 0%, rgba(16, 11, 42, 0.45) 100%);
+  border-right: 1px solid rgba(43, 49, 59, 0.65);
+}
+html.dark-mode .login-branding::after {
+  background: radial-gradient(circle, rgba(130, 92, 188, 0.18) 0%, rgba(2, 132, 199, 0.12) 55%, transparent 70%);
+}
+html.dark-mode .branding-content .eyebrow {
+  background: rgba(130, 92, 188, 0.12);
+  border: 1px solid rgba(170, 145, 210, 0.15);
+}
+html.dark-mode .branding-footer {
+  background: rgba(14, 17, 22, 0.65);
+  border: 1px solid rgba(43, 49, 59, 0.85);
+}
+html.dark-mode .login-form-section {
+  background: rgba(14, 17, 22, 0.65);
+}
+html.dark-mode .back-home {
+  background: rgba(19, 25, 31, 0.75);
+  border: 1px solid rgba(77, 91, 107, 0.7);
+}
+html.dark-mode .back-home:hover {
+  background: rgba(14, 17, 22, 0.95);
+  border-color: #4d5b6b;
+}
+html.dark-mode .form-heading .eyebrow {
+  background: rgba(18, 45, 63, 0.75);
+  border: 1px solid rgba(38, 102, 135, 0.9);
+}
+html.dark-mode .flash-messages {
+  border: 1px solid #7b2121;
+}
+html.dark-mode .form-group input {
+  background-color: rgba(19, 25, 31, 0.7);
+  border: 1.5px solid rgba(77, 91, 107, 0.75);
+}
+html.dark-mode .form-group input:focus {
+  background-color: rgba(14, 17, 22, 0.92);
+}
+@media (max-width: 900px) {
+html.dark-mode .login-branding {
+  border-bottom: 1px solid rgba(43, 49, 59, 0.65);
+}
+}
+/* ===== DARK MODE (auto) END ===== */

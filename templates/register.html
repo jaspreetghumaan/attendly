@@ -20,6 +20,16 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
