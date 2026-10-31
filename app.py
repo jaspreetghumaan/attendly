@@ -433,44 +433,44 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
-            attendance_stats = conn.execute(
-            """
-            SELECT
-                COUNT(*) AS total_classes,
-                SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
-            FROM attendance_records
-            WHERE student_id = ?
-            """,
-            (student["student_id"],)
+        attendance_stats = conn.execute(
+        """
+        SELECT
+            COUNT(*) AS total_classes,
+            SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
+        FROM attendance_records
+        WHERE student_id = ?
+        """,
+        (student["student_id"],)
         ).fetchone()
 
         attendance_history = conn.execute(
-            """
-            SELECT s.session_date AS attendance_date, r.status
-            FROM attendance_records r
-            JOIN attendance_sessions s ON s.id = r.session_id
-            WHERE r.student_id = ?
-            ORDER BY s.id DESC
-            """,
-            (student["student_id"],)
+        """
+        SELECT s.session_date AS attendance_date, r.status
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        WHERE r.student_id = ?
+        ORDER BY s.id DESC
+        """,
+        (student["student_id"],)
         ).fetchall()
 
         total_classes = attendance_stats["total_classes"] or 0
         classes_attended = attendance_stats["classes_attended"] or 0
 
         attendance_percentage = (
-            round((classes_attended / total_classes) * 100, 1)
-            if total_classes > 0
-            else 0
+        round((classes_attended / total_classes) * 100, 1)
+        if total_classes > 0
+        else 0
         )
 
         return render_template(
-            "student_dashboard.html",
-            student=student,
-            total_classes=total_classes,
-            classes_attended=classes_attended,
-            attendance_percentage=attendance_percentage,
-            attendance_history=attendance_history
+        "student_dashboard.html",
+        student=student,
+        total_classes=total_classes,
+        classes_attended=classes_attended,
+        attendance_percentage=attendance_percentage,
+        attendance_history=attendance_history
         )
 
     finally:
