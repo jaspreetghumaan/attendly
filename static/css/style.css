@@ -71,6 +71,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: clip;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -134,6 +135,7 @@ h3 {
   letter-spacing: -0.025em;
   color: var(--ink);
   text-wrap: balance;
+  transition: color 0.3s ease;
 }
 
 p {
@@ -175,6 +177,7 @@ p {
   backdrop-filter: saturate(160%) blur(16px);
   -webkit-backdrop-filter: saturate(160%) blur(16px);
   border-bottom: 1px solid var(--border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .site-nav {
@@ -251,7 +254,7 @@ p {
   background: var(--ink);
   border-radius: var(--r-pill);
   border-color: transparent;
-  transition: background var(--ease), transform var(--ease);
+  transition: background var(--ease), transform var(--ease), color 0.3s ease;
 }
 
 .site-nav__list .site-nav__login:hover {
@@ -425,6 +428,7 @@ p {
   box-shadow: var(--shadow-lg);
   padding: 1.25rem;
   animation: rise 0.7s var(--ease) both;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .dashboard-preview__header {
@@ -476,6 +480,7 @@ p {
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--r-md);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 
@@ -659,7 +664,7 @@ p {
   align-items: center;
   gap: 0.75rem;
   padding: 0.45rem 0;
-  border-top: 1px solid #f8fafc;
+  border-top: 1px solid var(--border-soft);
 }
 
 .activity-list__item:first-child {
@@ -757,7 +762,7 @@ p {
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+  transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), background-color 0.3s ease;
 }
 
 .feature-card:hover {
@@ -874,6 +879,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 
@@ -923,7 +929,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--r-xl);
   isolation: isolate;
-  transition: transform var(--ease), box-shadow var(--ease);
+  transition: transform var(--ease), box-shadow var(--ease), background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .access-card::before {
@@ -992,7 +998,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
-  transition: transform var(--ease);
+  transition: transform var(--ease), background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .benefit-card:hover {
@@ -1224,6 +1230,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .summary-icon {
@@ -1395,4 +1402,759 @@ p {
   border: 1px solid #bbf7d0 !important;
   border-radius: var(--r-md);
   box-shadow: var(--shadow-sm);
+}
+
+/* =====================================================================
+   HOMEPAGE EFFECTS + THEME (added at the end of style.css)
+   ===================================================================== */
+
+/* FX 0. TOKENS */
+:root {
+  --fx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --qa-ring: #0284c7;
+  --qa-accent: #6d28d9;
+}
+
+/* FX 1. SCROLL PROGRESS BAR */
+.fx-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  height: 3px;
+  background: var(--grad-brand);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* FX 2. HEADER SHADOW WHEN SCROLLED */
+.site-header {
+  transition: box-shadow 0.3s var(--fx-ease);
+}
+
+.site-header.is-scrolled {
+  box-shadow: 0 10px 30px -18px rgba(11, 27, 51, 0.35);
+}
+
+/* FX 3. ACTIVE NAV LINK */
+.site-nav__link.is-active {
+  color: var(--blue-bright);
+}
+
+.site-nav__link.is-active::after {
+  transform: scaleX(1);
+}
+
+/* FX 4. SCROLL REVEAL */
+.fx-pending {
+  opacity: 0;
+}
+
+.fx-in {
+  animation: fx-rise 0.9s var(--fx-ease) var(--fx-delay, 0ms) backwards;
+}
+
+@keyframes fx-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* FX 5. SHIMMERING "CHECK-INS" */
+.hero__check-ins {
+  background: linear-gradient(90deg, #0284c7 0%, #6d28d9 50%, #0284c7 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: fx-shimmer 6s linear infinite;
+}
+
+.hero__check-ins.fx-in {
+  animation:
+    fx-rise 0.9s var(--fx-ease) var(--fx-delay, 0ms) backwards,
+    fx-shimmer 6s linear infinite;
+}
+
+@keyframes fx-shimmer {
+  from {
+    background-position: 0% center;
+  }
+
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* FX 6. BENEFIT UNDERLINE DRAWS IN ON REVEAL */
+.benefit-card__line {
+  transform-origin: left center;
+  transition: transform 0.8s var(--fx-ease) 0.25s;
+}
+
+.fx-ready .benefit-card:not(.fx-in) .benefit-card__line {
+  transform: scaleX(0);
+  transition: none;
+}
+
+/* FX 7. CURSOR SPOTLIGHT ON CARDS */
+.fx-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+.fx-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(circle 220px at var(--fx-x, 50%) var(--fx-y, 50%),
+      rgba(56, 189, 248, 0.16),
+      transparent 70%);
+}
+
+.fx-glow:hover>.fx-spotlight {
+  opacity: 1;
+}
+
+/* FX 8. FEATURE ICON HOVER */
+.feature-card__icon {
+  transition: transform 0.45s var(--fx-ease);
+}
+
+.feature-card:hover .feature-card__icon {
+  transform: scale(1.08) rotate(-6deg);
+}
+
+/* FX 9. BUTTONS: CLICK RIPPLE + MAGNETIC PULL */
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.fx-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  opacity: 0.9;
+  pointer-events: none;
+  animation: fx-ripple 0.6s ease-out forwards;
+}
+
+.btn--secondary .fx-ripple {
+  background: rgba(3, 105, 161, 0.18);
+}
+
+@keyframes fx-ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.btn--primary {
+  transform: translate3d(var(--fx-mx, 0px), var(--fx-my, 0px), 0);
+  transition: transform 0.35s var(--fx-ease), box-shadow 0.3s ease;
+}
+
+.btn--primary:hover {
+  transform: translate3d(var(--fx-mx, 0px), calc(var(--fx-my, 0px) - 2px), 0);
+}
+
+.btn--primary:active {
+  transform: translate3d(var(--fx-mx, 0px), var(--fx-my, 0px), 0) scale(0.98);
+}
+
+/* THEME A. HOMEPAGE SECTIONS: let the aurora show through */
+.page--home .hero,
+.page--home .section {
+  background: transparent;
+}
+
+/* THEME B. AURORA BACKGROUND (theme.js adds .qa-aurora) */
+.qa-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.qa-aurora__layer {
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  opacity: 0.4;
+  filter: blur(90px);
+  animation: qa-drift 26s ease-in-out infinite alternate;
+}
+
+.qa-aurora__layer--teal {
+  top: -18vmax;
+  left: -14vmax;
+  background: radial-gradient(circle, #38bdf8 0%, transparent 65%);
+}
+
+.qa-aurora__layer--amber {
+  top: 12vmax;
+  right: -22vmax;
+  background: radial-gradient(circle, #a78bfa 0%, transparent 65%);
+  animation-delay: -8s;
+}
+
+.qa-aurora__layer--ecru {
+  bottom: -28vmax;
+  left: 22vw;
+  background: radial-gradient(circle, #bae6fd 0%, transparent 65%);
+  animation-delay: -15s;
+}
+
+.qa-aurora__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+@keyframes qa-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(4vw, 3vh, 0) scale(1.08);
+  }
+}
+
+/* THEME C. CUSTOM CURSOR (theme.js) */
+.qa-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.qa-cursor.is-visible {
+  opacity: 1;
+}
+
+.qa-cursor__dot,
+.qa-cursor__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.qa-cursor__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--qa-accent);
+}
+
+.qa-cursor__ring {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--qa-ring);
+  background: rgba(2, 132, 199, 0.06);
+  transition: transform 0.25s var(--fx-ease), background 0.25s ease, border-color 0.25s ease;
+}
+
+html.qa-cursor-active,
+html.qa-cursor-active * {
+  cursor: none;
+}
+
+html.qa-cursor-active.qa-cursor-native,
+html.qa-cursor-active.qa-cursor-native * {
+  cursor: auto;
+}
+
+html.qa-cursor-native .qa-cursor {
+  opacity: 0;
+}
+
+html.qa-cursor-hover .qa-cursor__ring {
+  transform: translate(-50%, -50%) scale(1.6);
+  background: rgba(109, 40, 217, 0.1);
+  border-color: var(--qa-accent);
+}
+
+html.qa-cursor-qr .qa-cursor__ring {
+  transform: translate(-50%, -50%) scale(2.2);
+  background: rgba(34, 197, 94, 0.12);
+  border-color: #15803d;
+}
+
+html.qa-cursor-down .qa-cursor__ring {
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+/* THEME D. CARD TILT (theme.js sets --qa-tilt-x / --qa-tilt-y on [data-tilt]) */
+.feature-card[data-tilt],
+.access-card[data-tilt] {
+  transform: perspective(900px) rotateX(var(--qa-tilt-x, 0deg)) rotateY(var(--qa-tilt-y, 0deg));
+  transition:
+    transform 0.25s ease-out,
+    box-shadow 0.35s var(--fx-ease),
+    border-color 0.35s var(--fx-ease);
+}
+
+.feature-card[data-tilt]:hover {
+  transform: perspective(900px) rotateX(var(--qa-tilt-x, 0deg)) rotateY(var(--qa-tilt-y, 0deg)) translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: #bae6fd;
+}
+
+.access-card[data-tilt]:hover {
+  transform: perspective(1000px) rotateX(var(--qa-tilt-x, 0deg)) rotateY(var(--qa-tilt-y, 0deg)) translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+
+  .fx-progress,
+  .fx-spotlight,
+  .fx-ripple {
+    display: none;
+  }
+
+  .hero__check-ins,
+  .hero__check-ins.fx-in,
+  .qa-aurora__layer {
+    animation: none;
+  }
+
+  .qa-cursor,
+  .qa-cursor__ring {
+    transition: none;
+  }
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES
+   ===================================================================== */
+
+/* ਮੇਨ ਵੇਰੀਏਬਲ ਜੋ ਡਾਰਕ ਮੋਡ 'ਚ ਬਦਲਣੇ ਹਨ */
+body.dark-mode {
+  --ink: #f8fafc;
+  /* ਚਿੱਟਾ/ਹਲਕਾ ਸਲੇਟੀ ਟੈਕਸਟ */
+  --ink-soft: #cbd5e1;
+  --ink-muted: #94a3b8;
+
+  --bg: #0b1120;
+  /* ਗੂੜ੍ਹਾ ਨੀਲਾ/ਕਾਲਾ ਬੈਕਗ੍ਰਾਊਂਡ */
+  --bg-soft: #111827;
+  --bg-tint: #1e293b;
+
+  --border: #334155;
+  --border-soft: #1e293b;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ਨਵਬਾਰ (Navbar) ਨੂੰ ਡਾਰਕ ਮੋਡ ਵਿੱਚ ਗੂੜ੍ਹਾ ਕਰਨਾ */
+body.dark-mode .site-header {
+  background: rgba(11, 17, 32, 0.85);
+}
+
+/* ਉਹ ਸਾਰੇ ਕਾਰਡ ਜਿਨ੍ਹਾਂ ਦਾ ਰੰਗ ਪਹਿਲਾਂ ਤੋਂ ਸਿੱਧਾ ਚਿੱਟਾ (#ffffff) ਦਿੱਤਾ ਸੀ */
+body.dark-mode .dashboard-preview,
+body.dark-mode .bento-card,
+body.dark-mode .summary-block,
+body.dark-mode .feature-card,
+body.dark-mode .step-card,
+body.dark-mode .access-card,
+body.dark-mode .benefit-card {
+  background: #111827;
+  border-color: var(--border);
+}
+
+/* ਡੈਸ਼ਬੋਰਡ ਦੇ ਡੈਮੋ QR ਵਾਲੇ ਹਿੱਸੇ ਦਾ ਰੰਗ ਠੀਕ ਕਰਨਾ */
+body.dark-mode .bento-card--qr {
+  background: linear-gradient(180deg, #064e3b 0%, #065f46 100%) !important;
+  border-color: #047857 !important;
+}
+
+body.dark-mode .qr-placeholder__box {
+  background-color: #111827;
+}
+
+body.dark-mode .qr-placeholder__caption {
+  color: #6ee7b7;
+}
+
+/* ਸੈਕੰਡਰੀ ਬਟਨ (Register ਵਗੈਰਾ) ਨੂੰ ਡਾਰਕ ਬਣਾਉਣਾ */
+body.dark-mode .btn--secondary {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .btn--secondary:hover {
+  background: #334155;
+}
+
+/* Activity List ਦੇ ਅੰਦਰਲੇ ਹਿੱਸੇ */
+body.dark-mode .activity-list__item {
+  border-top-color: #1e293b;
+}
+
+/* =====================================================================
+   DARK MODE OVERRIDES & TOGGLE STYLES
+   ===================================================================== */
+
+/* ਥੀਮ ਟੌਗਲ ਬਟਨ ਅਤੇ ਵਿਚਕਾਰਲੀ ਲਾਈਨ (|) ਦੀ ਸੈਟਿੰਗ */
+#theme-toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f1c40f;
+}
+
+.divider {
+  color: #444;
+  margin: 0 10px;
+}
+
+/* ਮੇਨ ਵੇਰੀਏਬਲ ਜੋ ਡਾਰਕ ਮੋਡ 'ਚ ਬਦਲਣੇ ਹਨ (ਬੈਕਗ੍ਰਾਊਂਡ ਅਤੇ ਟੈਕਸਟ) */
+body.dark-mode {
+  --ink: #f8fafc;
+  --ink-soft: #cbd5e1;
+  --ink-muted: #94a3b8;
+
+  --bg: #0b1120;
+  --bg-soft: #111827;
+  --bg-tint: #1e293b;
+
+  --border: #334155;
+  --border-soft: #1e293b;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ਨਵਬਾਰ ਨੂੰ ਡਾਰਕ ਮੋਡ ਵਿੱਚ ਗੂੜ੍ਹਾ ਕਰਨਾ */
+body.dark-mode .site-header {
+  background: rgba(11, 17, 32, 0.85);
+}
+
+/* ਸਾਰੇ ਕਾਰਡਾਂ ਦਾ ਬੈਕਗ੍ਰਾਊਂਡ ਡਾਰਕ ਕਰਨਾ */
+body.dark-mode .dashboard-preview,
+body.dark-mode .bento-card,
+body.dark-mode .summary-block,
+body.dark-mode .feature-card,
+body.dark-mode .step-card,
+body.dark-mode .access-card,
+body.dark-mode .benefit-card {
+  background: #111827;
+  border-color: var(--border);
+}
+
+/* ਡੈਮੋ QR ਵਾਲੇ ਕਾਰਡ ਨੂੰ ਗੂੜ੍ਹਾ ਹਰਾ ਕਰਨਾ */
+body.dark-mode .bento-card--qr {
+  background: linear-gradient(180deg, #064e3b 0%, #065f46 100%) !important;
+  border-color: #047857 !important;
+}
+
+body.dark-mode .qr-placeholder__box {
+  background-color: #111827;
+}
+
+body.dark-mode .qr-placeholder__caption {
+  color: #6ee7b7;
+}
+
+/* Register (ਸੈਕੰਡਰੀ) ਬਟਨ ਨੂੰ ਡਾਰਕ ਕਰਨਾ */
+body.dark-mode .btn--secondary {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+body.dark-mode .btn--secondary:hover {
+  background: #334155;
+}
+
+/* ਐਕਟੀਵਿਟੀ ਲਿਸਟ ਦੀਆਂ ਲਾਈਨਾਂ */
+body.dark-mode .activity-list__item {
+  border-top-color: #1e293b;
+}
+
+/* =====================================================================
+   FLOATING NAVBAR BLOCK (Pill Shape)
+   ===================================================================== */
+.site-header {
+  position: sticky;
+  top: 20px !important;
+  /* ਉੱਪਰੋਂ ਥੋੜ੍ਹੀ ਜਗ੍ਹਾ ਛੱਡਣ ਲਈ */
+  z-index: 1000;
+  width: 92%;
+  max-width: 1200px;
+  margin: 0 auto !important;
+  /* ਬਲਾਕ ਨੂੰ ਸੈਂਟਰ ਵਿੱਚ ਕਰਨ ਲਈ */
+  background: #090e17 !important;
+  /* ਬਲਾਕ ਦਾ ਗੂੜ੍ਹਾ ਰੰਗ */
+  border-radius: 100px !important;
+  /* ਸਾਈਡਾਂ ਤੋਂ ਗੋਲ ਕਰਨ ਲਈ */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-inline: 30px !important;
+  /* ਅੰਦਰਲੀ ਸਪੇਸ */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ਨਵਬਾਰ ਦੀ ਉਚਾਈ ਸੈੱਟ ਕਰਨ ਲਈ */
+.site-nav {
+  padding-block: 0.65rem !important;
+}
+
+/* ਕਿਉਂਕਿ ਬਲਾਕ ਡਾਰਕ ਹੈ, ਇਸ ਲਈ ਟੈਕਸਟ ਨੂੰ ਚਿੱਟਾ (white) ਕਰਨਾ ਜ਼ਰੂਰੀ ਹੈ */
+.site-header .brand__name,
+.site-header .site-nav__link {
+  color: #f8fafc !important;
+}
+
+/* ਲਿੰਕ 'ਤੇ ਮਾਊਸ ਲਿਜਾਣ 'ਤੇ ਰੰਗ ਬਦਲਣ ਲਈ */
+.site-header .site-nav__link:hover {
+  color: #38bdf8 !important;
+}
+
+/* ਬਟਨ ਨੂੰ ਬਲਾਕ ਦੇ ਹਿਸਾਬ ਨਾਲ ਫਿੱਟ ਕਰਨ ਲਈ */
+.site-nav__login {
+  padding: 0.5rem 1.25rem !important;
+  border-radius: 50px !important;
+}
+
+/* =====================================================================
+   PREMIUM FLOATING NAVBAR (Pill Shape) - Light & Dark Mode
+   ===================================================================== */
+
+/* 1. ਨਵਬਾਰ ਦਾ ਮੁੱਖ ਢਾਂਚਾ (ਹਮੇਸ਼ਾ ਤੈਰਦਾ ਅਤੇ ਗੋਲ ਰਹੇਗਾ) */
+.site-header {
+  position: sticky !important;
+  top: 1.5rem !important;
+  z-index: 1000 !important;
+  width: 95% !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+  border-radius: 100px !important;
+  /* ਬਿਲਕੁਲ ਗੋਲ ਕਿਨਾਰੇ */
+  padding: 0 1.5rem !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.site-nav {
+  padding-block: 0.75rem !important;
+}
+
+/* =========================================================
+   2. LIGHT MODE (ਜਦੋਂ ਆਮ ਮੋਡ ਹੋਵੇ) 
+   ========================================================= */
+.site-header {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+.site-header .brand__name {
+  color: #0f172a !important;
+  font-size: 1.25rem;
+}
+
+.site-header .site-nav__link {
+  color: #475569 !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.site-header .site-nav__link:hover {
+  color: #0284c7 !important;
+}
+
+.site-header .divider {
+  color: #cbd5e1 !important;
+  margin: 0 1.25rem;
+}
+
+.site-header #theme-toggle {
+  color: #f59e0b !important;
+  padding: 0;
+}
+
+/* ਸੰਤਰੀ ਸੂਰਜ */
+
+/* Light Mode 'GET STARTED' Button (ਕਾਲੇ ਰੰਗ ਦਾ) */
+.site-header .site-nav__login {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border-radius: 100px !important;
+  padding: 0.65rem 1.75rem !important;
+  border: none !important;
+}
+
+.site-header .site-nav__login:hover {
+  background: #0284c7 !important;
+}
+
+/* =========================================================
+   3. DARK MODE (ਜਦੋਂ ਡਾਰਕ ਮੋਡ ਚਾਲੂ ਹੋਵੇ - ਸਕ੍ਰੀਨਸ਼ਾਟ ਵਰਗਾ) 
+   ========================================================= */
+body.dark-mode .site-header {
+  background: #0b1120 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-mode .site-header .brand__name {
+  color: #ffffff !important;
+}
+
+body.dark-mode .site-header .site-nav__link {
+  color: #94a3b8 !important;
+}
+
+body.dark-mode .site-header .site-nav__link:hover {
+  color: #ffffff !important;
+}
+
+body.dark-mode .site-header .divider {
+  color: #334155 !important;
+}
+
+body.dark-mode .site-header #theme-toggle {
+  color: #facc15 !important;
+}
+
+/* ਪੀਲਾ ਸੂਰਜ/ਚੰਦ */
+
+/* Dark Mode 'GET STARTED' Button (ਚਿੱਟੇ ਰੰਗ ਦਾ) */
+body.dark-mode .site-header .site-nav__login {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.dark-mode .site-header .site-nav__login:hover {
+  background: #f8fafc !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* =====================================================================
+   HOVER EFFECTS FOR BLOCKS & TILES (Mouse Cursor Par)
+   ===================================================================== */
+
+/* Features Card, Steps Card, Access Card par hover effect */
+.feature-card,
+.step-card,
+.access-card,
+.benefit-card,
+.bento-card,
+.summary-block {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: transform, box-shadow;
+}
+
+/* Mouse lai javathi (hover) tiles thodi upar avshe */
+.feature-card:hover,
+.step-card:hover,
+.access-card:hover,
+.benefit-card:hover,
+.summary-block:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  /* halvo upar ane moto thashe */
+  box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.15) !important;
+  /* naram shadow */
+  z-index: 10;
+}
+
+/* Dashboard na bento cards (Attendance, QR code) mate hover effect */
+.bento-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.12) !important;
+}
+
+/* Dark mode ma hover shadow badlava mate */
+body.dark-mode .feature-card:hover,
+body.dark-mode .step-card:hover,
+body.dark-mode .access-card:hover,
+body.dark-mode .benefit-card:hover,
+body.dark-mode .summary-block:hover,
+body.dark-mode .bento-card:hover {
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6) !important;
+  border-color: #38bdf8 !important;
+  /* halko blue border */
+}
+
+/* Icons (QR, Security vgere) mate andar thi alag halan-chalan */
+.feature-card:hover .feature-card__icon {
+  transform: scale(1.15) rotate(-5deg) !important;
+}
+
+/* Dashboard na demo QR box ne halavo */
+.bento-card--qr:hover .qr-placeholder__box {
+  transform: scale(1.05) !important;
+  transition: transform 0.3s ease;
+}
+
+/* =====================================================================
+   SCROLL ANIMATIONS (Fade & Slide in from Left/Right)
+   ===================================================================== */
+
+/* ਖੱਬੇ ਪਾਸਿਓਂ ਆਉਣ ਵਾਲੇ ਬਲਾਕ */
+.slide-from-left {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* ਸੱਜੇ ਪਾਸਿਓਂ ਆਉਣ ਵਾਲੇ ਬਲਾਕ */
+.slide-from-right {
+  opacity: 0;
+  transform: translateX(100px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* ਥੱਲਿਓਂ ਉੱਪਰ ਆਉਣ ਵਾਲੇ ਬਲਾਕ (ਜਿਵੇਂ ਛੋਟੇ ਕਾਰਡ) */
+.slide-from-bottom {
+  opacity: 0;
+  transform: translateY(80px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+/* ਜਦੋਂ ਬਲਾਕ ਸਕ੍ਰੀਨ 'ਤੇ ਆਵੇਗਾ (JS ਰਾਹੀਂ ਇਹ ਕਲਾਸ ਐਡ ਹੋਵੇਗੀ) */
+.slide-from-left.show-on-scroll,
+.slide-from-right.show-on-scroll,
+.slide-from-bottom.show-on-scroll {
+  opacity: 1;
+  transform: translate(0);
 }

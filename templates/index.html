@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Stylesheet (the CSS file will be created in a later step) -->
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
@@ -27,21 +27,42 @@
 
       <!-- Brand / logo area -->
       <a class="brand" href="#home" aria-label="Attendly home">
-
-        <img class="brand__mark" src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" ,
+        <!-- Icon -->
+        <img class="brand__mark" src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png"
           alt="Attendly Logo">
-        <span class="brand__name">Attendly</span>
+        <!-- Logo Text with blue dot -->
+        <span class="brand__name">Attendly<span style="color: #38bdf8;">.</span></span>
       </a>
 
       <!-- Navigation links -->
-      <ul class="site-nav__list">
-        <li class="site-nav__item"><a class="site-nav__link" href="#home">Home</a></li>
+      <ul class="site-nav__list" style="align-items: center;">
         <li class="site-nav__item"><a class="site-nav__link" href="#features">Features</a></li>
-        <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How It Works</a></li>
+        <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How it works</a></li>
         <li class="site-nav__item"><a class="site-nav__link" href="#about">About</a></li>
-        <!-- PLACEHOLDER: replace with the real login page URL later -->
-        <li class="site-nav__item"><a class="site-nav__login btn btn--secondary"
-            href="{{ url_for('register') }}">Register</a>
+
+        <!-- Dark mode toggle -->
+        <li class="site-nav__item" style="display: flex; align-items: center; margin-left: 10px; margin-right: 15px;">
+          <span class="divider" style="opacity: 0.5; margin-right: 15px;">|</span>
+          <button id="theme-toggle" aria-label="Toggle Dark Mode"
+            style="background: transparent; border: none; cursor: pointer; color: #f1c40f; padding: 0; display: flex; align-items: center;">
+            <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+        </li>
+
+        <!-- GET STARTED Button -->
+        <li class="site-nav__item">
+          <a class="site-nav__login btn btn--secondary" href="#user-access">GET STARTED</a>
         </li>
       </ul>
 
@@ -54,8 +75,8 @@
     <!-- ==================== SECTION 2: HERO ==================== -->
     <section id="home" class="hero" aria-labelledby="hero-heading">
 
-      <!-- Hero: left content -->
-      <div class="hero__content">
+      <!-- Hero: left content (Slide from left) -->
+      <div class="hero__content slide-from-left">
         <p class="hero__eyebrow"><b>SIMPLE • SMART • SECURE</b></p>
 
         <h1 id="hero-heading" class="hero__title">
@@ -77,9 +98,9 @@
         </div>
       </div>
 
-      <!-- Hero: right content (dashboard preview, bento-style layout) -->
-
-      <section class="dashboard-preview dashboard-preview--illustrative" aria-labelledby="preview-heading">
+      <!-- Hero: right content (Slide from right) -->
+      <section class="dashboard-preview dashboard-preview--illustrative slide-from-right"
+        aria-labelledby="preview-heading">
 
         <header class="dashboard-preview__header">
           <h2 id="preview-heading" class="dashboard-preview__title">Attendly Dashboard </h2>
@@ -102,14 +123,11 @@
             <h2 class="rate-value">80<span>%</span></h2>
           </article>
 
-
           <div class="attendance-summary">
-
             <center>
               <div class="summary-block total-block">
                 <div class="summary-icon">👥</div>
                 <p>Total Students</p>
-
                 <h2>60</h2>
                 <span class="summary-label"></span>
               </div>
@@ -119,9 +137,7 @@
               <div class="summary-block present-block">
                 <div class="summary-icon">✓</div>
                 <p>Present Students</p>
-
                 <h2>48</h2>
-
                 <span class="summary-label"></span>
               </div>
             </center>
@@ -130,16 +146,11 @@
               <div class="summary-block absent-block">
                 <div class="summary-icon">✕</div>
                 <p>Absent Students</p>
-
                 <h2>12</h2>
-
                 <span class="summary-label"></span>
               </div>
             </center>
-
           </div>
-
-
 
           <!-- Fictional demo attendance entries -->
           <article class="bento-card bento-card--activity" aria-labelledby="activity-heading">
@@ -175,14 +186,10 @@
         </div>
       </section>
 
-
     </section>
-
-
 
     <!-- ==================== SECTION 3: FEATURES ==================== -->
     <section id="features" class="section features" aria-labelledby="features-heading">
-
       <header class="section__header">
         <h2 id="features-heading" class="section__title">
           Everything You Need for Smarter Attendance
@@ -193,294 +200,186 @@
       </header>
 
       <ul class="feature-grid">
-
-        <!-- Feature 1: QR-Based Attendance -->
         <li class="feature-grid__item">
-          <article class="feature-card">
+          <!-- Slide from bottom -->
+          <article class="feature-card slide-from-bottom" data-tilt>
             <span class="feature-card__icon feature-card__icon--qr" aria-hidden="true"></span>
-
             <h3 class="feature-card__title">QR-Based Attendance</h3>
-            <p class="feature-card__text">
-              Mark student attendance quickly and efficiently through QR code scanning.
-            </p>
+            <p class="feature-card__text">Mark student attendance quickly and efficiently through QR code scanning.</p>
           </article>
         </li>
-
-        <!-- Feature 2: Real-Time Tracking -->
         <li class="feature-grid__item">
-          <article class="feature-card">
+          <article class="feature-card slide-from-bottom" data-tilt>
             <span class="feature-card__icon feature-card__icon--tracking" aria-hidden="true"></span>
-
             <h3 class="feature-card__title">Real-Time Tracking</h3>
-            <p class="feature-card__text">
-              Monitor attendance records and view the latest updates through one dashboard.
+            <p class="feature-card__text">Monitor attendance records and view the latest updates through one dashboard.
             </p>
           </article>
         </li>
-
-        <!-- Feature 3: Smart Analytics -->
         <li class="feature-grid__item">
-          <article class="feature-card">
+          <article class="feature-card slide-from-bottom" data-tilt>
             <span class="feature-card__icon feature-card__icon--analytics" aria-hidden="true"></span>
-
             <h3 class="feature-card__title">Smart Analytics</h3>
-            <p class="feature-card__text">
-              Analyze attendance percentages and identify students with low attendance.
-            </p>
+            <p class="feature-card__text">Analyze attendance percentages and identify students with low attendance.</p>
           </article>
         </li>
-
-        <!-- Feature 4: Role-Based Access -->
         <li class="feature-grid__item">
-          <article class="feature-card">
+          <article class="feature-card slide-from-bottom" data-tilt>
             <span class="feature-card__icon feature-card__icon--security" aria-hidden="true"></span>
-
             <h3 class="feature-card__title">Role-Based Access</h3>
-            <p class="feature-card__text">
-              Provide dedicated access for teachers and students based on their roles.
-            </p>
+            <p class="feature-card__text">Provide dedicated access for teachers and students based on their roles.</p>
           </article>
         </li>
-
       </ul>
     </section>
 
     <!-- ==================== SECTION 4: HOW IT WORKS ==================== -->
     <section id="how-it-works" class="section how-it-works" aria-labelledby="how-it-works-heading">
-
       <header class="section__header">
         <h2 id="how-it-works-heading" class="section__title">
           How Attendly Works
         </h2>
         <p class="section__intro">
-          A simple three-step process to make classroom attendance
-          faster, easier, and more organized.
+          A simple three-step process to make classroom attendance faster, easier, and more organized.
         </p>
       </header>
 
       <ol class="steps-list">
-
-        <!-- Step 1 -->
-        <li class="steps-list__item step-card">
+        <!-- Slide from bottom -->
+        <li class="steps-list__item step-card slide-from-bottom">
           <span class="step-card__number" aria-hidden="true">1</span>
           <h3 class="step-card__title">Generate a QR Code</h3>
-          <p class="step-card__text">
-            The teacher selects the class and subject, then starts
-            an attendance session by generating a QR code.
-          </p>
+          <p class="step-card__text">The teacher selects the class and subject, then starts an attendance session by
+            generating a QR code.</p>
         </li>
-
-        <!-- Step 2 -->
-        <li class="steps-list__item step-card">
+        <li class="steps-list__item step-card slide-from-bottom">
           <span class="step-card__number" aria-hidden="true">2</span>
           <h3 class="step-card__title">Scan to Check In</h3>
-          <p class="step-card__text">
-            Students scan the session QR code using a compatible
-            device to submit their attendance.
-          </p>
+          <p class="step-card__text">Students scan the session QR code using a compatible device to submit their
+            attendance.</p>
         </li>
-
-        <!-- Step 3 -->
-        <li class="steps-list__item step-card">
+        <li class="steps-list__item step-card slide-from-bottom">
           <span class="step-card__number" aria-hidden="true">3</span>
           <h3 class="step-card__title">Record and Review</h3>
-          <p class="step-card__text">
-            Attendance records can be reviewed by the teacher,
-            including student status and attendance summaries.
-          </p>
+          <p class="step-card__text">Attendance records can be reviewed by the teacher, including student status and
+            attendance summaries.</p>
         </li>
-
       </ol>
     </section>
 
-
-
     <!-- ==================== SECTION 5: TEACHER AND STUDENT ACCESS ==================== -->
     <section id="user-access" class="section user-access" aria-labelledby="user-access-heading">
-
       <header class="section__header">
         <h2 id="user-access-heading" class="section__title">
           Access Your Attendly Portal
         </h2>
-
         <p class="section__intro">
-          Dedicated access for teachers and students to make attendance
-          management simple, organized, and convenient.
+          Dedicated access for teachers and students to make attendance management simple, organized, and convenient.
         </p>
       </header>
 
       <div class="access-grid">
-
-        <!-- Teacher Portal -->
-        <article class="access-card access-card--teacher">
-
+        <!-- Slide from left -->
+        <article class="access-card access-card--teacher slide-from-left" data-tilt>
           <center>
             <h3 class="access-card__title">Teacher Portal</h3>
           </center>
-
-          <p>
-            Manage classroom attendance efficiently with tools designed
-            for educators.
-          </p>
-
+          <p>Manage classroom attendance efficiently with tools designed for educators.</p>
           <ul class="access-card__list">
             <li>Manage classes and subjects.</li>
             <li>Generate QR codes for attendance sessions.</li>
             <li>Monitor student attendance records.</li>
             <li>Review attendance reports and summaries.</li>
           </ul>
-
-          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('faculty_login') }}"
-              aria-label="Access the teacher login portal">
-              Teacher Login
-            </a></center>
-
+          <center>
+            <a class="access-card__link btn btn--primary" href="{{ url_for('faculty_login') }}"
+              aria-label="Access the teacher login portal">Teacher Login</a>
+          </center>
         </article>
 
-        <!-- Student Portal -->
-        <article class="access-card access-card--student">
-
+        <!-- Slide from right -->
+        <article class="access-card access-card--student slide-from-right" data-tilt>
           <center>
             <h3 class="access-card__title">Student Portal</h3>
           </center>
-
-          <p>
-            Keep track of your attendance and stay informed about
-            your classroom participation.
-          </p>
-
+          <p>Keep track of your attendance and stay informed about your classroom participation.</p>
           <ul class="access-card__list">
             <li>Scan QR codes to mark attendance.</li>
             <li>View personal attendance history.</li>
             <li>Check overall attendance percentage.</li>
             <li>Identify when attendance is running low.</li>
           </ul>
-
-          <center> <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
-              aria-label="Access the student login portal">
-              Student Login
-            </a></center>
-
+          <center>
+            <a class="access-card__link btn btn--primary" href="{{ url_for('login') }}"
+              aria-label="Access the student login portal">Student Login</a>
+          </center>
         </article>
-
       </div>
-
     </section>
-
-
 
     <!-- ==================== SECTION 6: BENEFITS ==================== -->
     <section id="benefits" class="section benefits" aria-labelledby="benefits-heading">
-
       <header class="section__header">
         <h2 id="benefits-heading" class="section__title">
           Why Choose Attendly?
         </h2>
-
         <p class="section__intro">
-          A smarter approach to attendance that saves time, improves
-          organization, and makes attendance records easier to manage.
+          A smarter approach to attendance that saves time, improves organization, and makes attendance records easier
+          to manage.
         </p>
       </header>
 
       <ul class="benefits-list">
-
-        <!-- Benefit 1 -->
-        <li class="benefits-list__item benefit-card">
-          <h3 class="benefit-card__title">
-            Faster Attendance
-            <span class="benefit-card__line" aria-hidden="true"></span>
+        <!-- Slide from bottom -->
+        <li class="benefits-list__item benefit-card slide-from-bottom">
+          <h3 class="benefit-card__title">Faster Attendance <span class="benefit-card__line" aria-hidden="true"></span>
           </h3>
-
-          <p class="benefit-card__text">
-            Reduce time spent on manual roll calls with quick QR code scanning.
-          </p>
+          <p class="benefit-card__text">Reduce time spent on manual roll calls with quick QR code scanning.</p>
         </li>
-
-        <!-- Benefit 2 -->
-        <li class="benefits-list__item benefit-card">
-          <h3 class="benefit-card__title">
-            Organized Records
-            <span class="benefit-card__line" aria-hidden="true"></span>
+        <li class="benefits-list__item benefit-card slide-from-bottom">
+          <h3 class="benefit-card__title">Organized Records <span class="benefit-card__line" aria-hidden="true"></span>
           </h3>
-
-          <p class="benefit-card__text">
-            Keep attendance information organized in one centralized system.
-          </p>
+          <p class="benefit-card__text">Keep attendance information organized in one centralized system.</p>
         </li>
-
-        <!-- Benefit 3 -->
-        <li class="benefits-list__item benefit-card">
-          <h3 class="benefit-card__title">
-            Easy Attendance Tracking
-            <span class="benefit-card__line" aria-hidden="true"></span>
-          </h3>
-
-          <p class="benefit-card__text">
-            Make it easier for teachers and students to review attendance records.
-          </p>
+        <li class="benefits-list__item benefit-card slide-from-bottom">
+          <h3 class="benefit-card__title">Easy Attendance Tracking <span class="benefit-card__line"
+              aria-hidden="true"></span></h3>
+          <p class="benefit-card__text">Make it easier for teachers and students to review attendance records.</p>
         </li>
-
-        <!-- Benefit 4 -->
-        <li class="benefits-list__item benefit-card">
-          <h3 class="benefit-card__title">
-            Clear Attendance Insights
-            <span class="benefit-card__line" aria-hidden="true"></span>
-          </h3>
-
-          <p class="benefit-card__text">
-            Identify attendance patterns and spot low attendance through clear records.
-          </p>
+        <li class="benefits-list__item benefit-card slide-from-bottom">
+          <h3 class="benefit-card__title">Clear Attendance Insights <span class="benefit-card__line"
+              aria-hidden="true"></span></h3>
+          <p class="benefit-card__text">Identify attendance patterns and spot low attendance through clear records.</p>
         </li>
-
       </ul>
-
     </section>
-
-
-
 
     <!-- SECTION 7: ABOUT ATTENDLY -->
     <section id="about" class="section about" aria-labelledby="about-heading">
-
       <h2 id="about-heading" class="section__title">
         About Attendly
       </h2>
-
       <p class="about__text">
-        Attendly is a smart QR-based attendance management system that
-        simplifies classroom check-ins, reduces manual effort, and makes
-        attendance recording faster and more organized.
+        Attendly is a smart QR-based attendance management system that simplifies classroom check-ins, reduces manual
+        effort, and makes attendance recording faster and more organized.
       </p>
-
       <p class="about__text">
-        Designed for teachers and students, Attendly brings attendance
-        tracking and record management together in one convenient system,
-        making everyday classroom attendance easier to manage.
+        Designed for teachers and students, Attendly brings attendance tracking and record management together in one
+        convenient system, making everyday classroom attendance easier to manage.
       </p>
-
     </section>
 
   </main>
 
-
   <!-- ==================== SECTION 8: FOOTER ==================== -->
   <footer class="site-footer">
-
     <div class="site-footer__about flex flex-col">
       <p class="site-footer__brand">Attendly</p>
-
-
-      <p>Smarter attendance management through QR technology,
-        designed for a more efficient and organized classroom.</p>
-
+      <p>Smarter attendance management through QR technology, designed for a more efficient and organized classroom.</p>
     </div>
 
     <nav class="site-footer__nav" aria-labelledby="footer-links-heading">
-      <h2 id="footer-links-heading" class="site-footer__heading">
-        Quick Links
-      </h2>
-
+      <h2 id="footer-links-heading" class="site-footer__heading">Quick Links</h2>
       <ul class="site-footer__list">
         <li><a class="site-footer__link" href="#home">Home</a></li>
         <li><a class="site-footer__link" href="#features">Features</a></li>
@@ -490,12 +389,73 @@
       </ul>
     </nav>
 
-    <p class="site-footer__copyright">
-      &copy; 2026 Attendly. All rights reserved.
-    </p>
-
+    <p class="site-footer__copyright">&copy; 2026 Attendly. All rights reserved.</p>
   </footer>
 
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    /* ----------------------------------------------------
+       1. THEME TOGGLE (Dark / Light Mode)
+       ---------------------------------------------------- */
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const bodyElement = document.body;
+    const themeIcon = document.getElementById('theme-icon');
+
+    if (localStorage.getItem('theme') === 'dark') {
+      bodyElement.classList.add('dark-mode');
+      setMoonIcon();
+    }
+
+    themeToggleBtn.addEventListener('click', () => {
+      bodyElement.classList.toggle('dark-mode');
+      const isDarkMode = bodyElement.classList.contains('dark-mode');
+
+      if (isDarkMode) {
+        localStorage.setItem('theme', 'dark');
+        setMoonIcon();
+      } else {
+        localStorage.setItem('theme', 'light');
+        setSunIcon();
+      }
+    });
+
+    function setSunIcon() {
+      themeIcon.innerHTML = `
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    `;
+    }
+
+    function setMoonIcon() {
+      themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+    }
+
+    /* ----------------------------------------------------
+       2. SCROLL ANIMATIONS (Intersection Observer)
+       ---------------------------------------------------- */
+    document.addEventListener("DOMContentLoaded", function () {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show-on-scroll');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.15
+      });
+
+      const hiddenElements = document.querySelectorAll('.slide-from-left, .slide-from-right, .slide-from-bottom');
+      hiddenElements.forEach((el) => observer.observe(el));
+    });
+  </script>
 
 </body>
 
