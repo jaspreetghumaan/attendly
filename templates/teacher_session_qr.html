@@ -26,6 +26,9 @@
                 <img src="{{ url_for('session_qr_image', session_id=s.id) }}" alt="Attendance QR code" class="qr-img">
                 <p class="qr-note">Valid until {{ s.expires_at }}</p>
                 <p class="qr-url">{{ scan_url }}</p>
+                                <form method="POST" action="{{ url_for('close_session', session_id=s.id) }}">
+                    <button type="submit" class="form-btn">Close session now</button>
+                </form>
             </div>
         </section>
         {% else %}

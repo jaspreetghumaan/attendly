@@ -433,7 +433,7 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
-            attendance_stats = conn.execute(
+        attendance_stats = conn.execute(
             """
             SELECT
                 COUNT(*) AS total_classes,
@@ -1059,7 +1059,38 @@ def mark_attendance(token):
     finally:
         conn.close()
 
+# =========================================================
+# TEACHER: CLOSE AN ATTENDANCE SESSION
+# =========================================================
 
+@app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
+def close_session(session_id):
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    conn = get_db_connection()
+
+    try:
+        owned = conn.execute(
+            "SELECT id FROM attendance_sessions WHERE id = ? AND teacher_id = ?",
+            (session_id, session["user_id"]),
+        ).fetchone()
+
+        if not owned:
+            abort(404)
+
+        conn.execute(
+            "UPDATE attendance_sessions SET status = 'closed' WHERE id = ?",
+            (session_id,),
+        )
+        conn.commit()
+
+    finally:
+        conn.close()
+
+    flash("Session closed. The QR code will no longer work.")
+    return redirect(url_for("teacher_sessions"))
 if __name__ == "__main__":
     ssl_ctx = "adhoc" if config.USE_HTTPS else None
     app.run(host=config.HOST, debug=config.DEBUG, ssl_context=ssl_ctx)
