@@ -436,16 +436,50 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
+        # Only finished sessions (closed or expired) are counted, so a
+        # session that is still running does not lower the percentage.
+        now_iso = datetime.now().isoformat(timespec="seconds")
+
         attendance_stats = conn.execute(
-        """
+        f"""
         SELECT
             COUNT(*) AS total_classes,
-            SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
-        FROM attendance_records
-        WHERE student_id = ?
+            SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        WHERE r.student_id = :student_id AND {FINISHED_SESSION}
         """,
-        (student["student_id"],)
+        {"student_id": student["student_id"], "now": now_iso}
         ).fetchone()
+
+        subject_rows = conn.execute(
+        f"""
+        SELECT sub.subject_name, sub.subject_code,
+               COUNT(*) AS total,
+               SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS attended
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        JOIN subjects sub ON sub.id = s.subject_id
+        WHERE r.student_id = :student_id AND {FINISHED_SESSION}
+        GROUP BY sub.id
+        ORDER BY sub.subject_name
+        """,
+        {"student_id": student["student_id"], "now": now_iso}
+        ).fetchall()
+
+        subject_cards = []
+        for row in subject_rows:
+            attended = row["attended"] or 0
+            pct = attendance_percent(attended, row["total"])
+            subject_cards.append({
+                "name": row["subject_name"],
+                "code": row["subject_code"],
+                "total": row["total"],
+                "attended": attended,
+                "absent": row["total"] - attended,
+                "percent": pct,
+                "level": attendance_level(pct, row["total"]),
+            })
 
         attendance_history = conn.execute(
         """
@@ -473,7 +507,9 @@ def student_dashboard():
         total_classes=total_classes,
         classes_attended=classes_attended,
         attendance_percentage=attendance_percentage,
-        attendance_history=attendance_history
+        attendance_history=attendance_history,
+        subject_cards=subject_cards,
+        min_attendance=MIN_ATTENDANCE
         )
 
     finally:
@@ -988,6 +1024,203 @@ def session_qr_image(session_id):
     img.save(buf, format="PNG")
     buf.seek(0)
     return send_file(buf, mimetype="image/png")
+
+
+@app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
+def close_session(session_id):
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    conn = get_db_connection()
+    try:
+        cursor = conn.execute(
+            """
+            UPDATE attendance_sessions
+            SET status = 'closed'
+            WHERE id = ? AND teacher_id = ?
+            """,
+            (session_id, session["user_id"]),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    if cursor.rowcount == 0:
+        abort(404)
+
+    flash("Session closed. Students who did not scan stay marked Absent.")
+    return redirect(url_for("teacher_sessions"))
+
+
+
+# =========================================================
+# TEACHER: ATTENDANCE REPORTS
+# Class -> list of students -> subject-wise cards for one student.
+# Only finished sessions (closed or expired) are counted, so a
+# session that is still running does not lower anyone's percentage.
+# =========================================================
+
+MIN_ATTENDANCE = 75  # college rule: below this = shortage
+
+
+def attendance_percent(attended, total):
+    return round(attended * 100 / total, 1) if total else 0
+
+
+def attendance_level(percent, total):
+    """Return a CSS colour level for a percentage."""
+    if not total:
+        return "none"
+    if percent >= MIN_ATTENDANCE:
+        return "good"
+    if percent >= 60:
+        return "warn"
+    return "low"
+
+
+# A session counts only after it has finished.
+FINISHED_SESSION = "(s.status = 'closed' OR s.expires_at <= :now)"
+
+
+@app.route("/teacher/reports")
+def teacher_reports():
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    conn = get_db_connection()
+
+    try:
+        classes = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE created_by = ?
+            ORDER BY class_name, section
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        selected = None
+        student_rows = []
+        chosen_student = None
+        subject_cards = []
+        overall = None
+        class_sessions = 0
+
+        class_id = request.args.get("class_id", type=int)
+        student_id = request.args.get("student_id", type=int)
+
+        if class_id:
+            selected = conn.execute(
+                "SELECT id, class_name, section FROM classes WHERE id = ? AND created_by = ?",
+                (class_id, teacher_id),
+            ).fetchone()
+
+        if selected:
+            class_sessions = conn.execute(
+                f"""
+                SELECT COUNT(*) FROM attendance_sessions s
+                WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                  AND {FINISHED_SESSION}
+                """,
+                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+            ).fetchone()[0]
+
+            rows = conn.execute(
+                f"""
+                SELECT st.id, st.roll_number, u.name,
+                       COUNT(x.status) AS total,
+                       COALESCE(SUM(CASE WHEN x.status = 'Present' THEN 1 ELSE 0 END), 0) AS attended
+                FROM student_enrollments se
+                JOIN students st ON st.id = se.student_id
+                JOIN users u ON u.id = st.user_id
+                LEFT JOIN (
+                    SELECT ar.student_id, ar.status
+                    FROM attendance_records ar
+                    JOIN attendance_sessions s ON s.id = ar.session_id
+                    WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                      AND {FINISHED_SESSION}
+                ) x ON x.student_id = st.id
+                WHERE se.class_id = :class_id
+                GROUP BY st.id
+                ORDER BY st.roll_number
+                """,
+                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+            ).fetchall()
+
+            for r in rows:
+                pct = attendance_percent(r["attended"], r["total"])
+                student_rows.append({
+                    "id": r["id"],
+                    "roll_number": r["roll_number"],
+                    "name": r["name"],
+                    "total": r["total"],
+                    "attended": r["attended"],
+                    "absent": r["total"] - r["attended"],
+                    "percent": pct,
+                    "level": attendance_level(pct, r["total"]),
+                })
+
+            if student_id:
+                chosen_student = next(
+                    (r for r in student_rows if r["id"] == student_id), None
+                )
+
+            if chosen_student:
+                cards = conn.execute(
+                    f"""
+                    SELECT sub.subject_name, sub.subject_code,
+                           COUNT(*) AS total,
+                           SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS attended
+                    FROM attendance_records ar
+                    JOIN attendance_sessions s ON s.id = ar.session_id
+                    JOIN subjects sub ON sub.id = s.subject_id
+                    WHERE ar.student_id = :student_id
+                      AND s.class_id = :class_id AND s.teacher_id = :teacher_id
+                      AND {FINISHED_SESSION}
+                    GROUP BY sub.id
+                    ORDER BY sub.subject_name
+                    """,
+                    {
+                        "student_id": chosen_student["id"],
+                        "class_id": selected["id"],
+                        "teacher_id": teacher_id,
+                        "now": now_iso,
+                    },
+                ).fetchall()
+
+                for c in cards:
+                    attended = c["attended"] or 0
+                    pct = attendance_percent(attended, c["total"])
+                    subject_cards.append({
+                        "name": c["subject_name"],
+                        "code": c["subject_code"],
+                        "total": c["total"],
+                        "attended": attended,
+                        "absent": c["total"] - attended,
+                        "percent": pct,
+                        "level": attendance_level(pct, c["total"]),
+                    })
+
+                overall = chosen_student
+
+    finally:
+        conn.close()
+
+    return render_template(
+        "teacher_reports.html",
+        classes=classes,
+        selected=selected,
+        student_rows=student_rows,
+        class_sessions=class_sessions,
+        overall=overall,
+        subject_cards=subject_cards,
+        min_attendance=MIN_ATTENDANCE,
+    )
 
 
 # =========================================================

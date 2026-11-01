@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">ATTENDANCE REPORTS</span>
+                <h1>Subject-wise attendance</h1>
+                <p>Choose a class, then open a student to see total classes, absences and percentage for every subject.
+                </p>
+            </div>
+        </section>
+
+        <!-- Step 1: choose class -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Select Class</h2>
+            </div>
+
+            {% if classes %}
+            <form method="GET" class="form-card">
+                <select name="class_id" required>
+                    <option value="">-- Select class --</option>
+                    {% for c in classes %}
+                    <option value="{{ c.id }}" {% if selected and selected.id==c.id %} selected{% endif %}>{{
+                        c.class_name }} - {{ c.section }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="form-btn">Show students</button>
+            </form>
+            {% else %}
+            <div class="table-card empty-state">
+                <h3>No classes yet</h3>
+                <p>Create a class and start a QR session first.
+                    <a href="{{ url_for('teacher_classes') }}" class="back-link">Add a class</a>
+                </p>
+            </div>
+            {% endif %}
+        </section>
+
+        {% if selected %}
+
+        <!-- Step 2: students of the class -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>{{ selected.class_name }} - {{ selected.section }}</h2>
+                <p>{{ class_sessions }} completed session(s). Minimum required attendance is {{ min_attendance }}%.</p>
+            </div>
+
+            <div class="table-card">
+                {% if student_rows %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Total Classes</th>
+                                <th>Attended</th>
+                                <th>Absent</th>
+                                <th>Attendance %</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in student_rows %}
+                            <tr class="{{ 'row-active' if overall and overall.id == r.id else '' }}">
+                                <td><span class="roll-badge">{{ r.roll_number }}</span></td>
+                                <td class="name-col">{{ r.name }}</td>
+                                <td>{{ r.total }}</td>
+                                <td>{{ r.attended }}</td>
+                                <td>{{ r.absent }}</td>
+                                <td>
+                                    {% if r.total %}
+                                    <span class="pill pill-{{ r.level }}">{{ r.percent }}%</span>
+                                    {% else %}
+                                    <span class="pill pill-none">No data</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id) }}#student-report"
+                                        class="back-link">Subject-wise →</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">👥</span>
+                    <h3>No students enrolled</h3>
+                    <p>Enroll students in this class to see their reports.
+                        <a href="{{ url_for('teacher_enrollments', class_id=selected.id) }}" class="back-link">Enroll
+                            students</a>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Step 3: subject-wise blocks for one student -->
+        {% if overall %}
+        <section class="dashboard-section" id="student-report">
+            <div class="section-heading">
+                <h2>{{ overall.name }} <span class="roll-badge">{{ overall.roll_number }}</span></h2>
+                <p>
+                    Overall: {{ overall.attended }} attended out of {{ overall.total }} classes
+                    {% if overall.total %}({{ overall.percent }}%){% endif %}
+                </p>
+            </div>
+
+            {% if subject_cards %}
+            <div class="subject-grid">
+                {% for c in subject_cards %}
+                <article class="subject-card level-{{ c.level }}">
+                    <div class="subject-head">
+                        <div>
+                            <h3>{{ c.name }}</h3>
+                            <span class="subject-code">{{ c.code }}</span>
+                        </div>
+                        <span class="pill pill-{{ c.level }}">{{ c.percent }}%</span>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar" data-width="{{ c.percent }}"></div>
+                    </div>
+
+                    <div class="subject-stats">
+                        <div><strong>{{ c.total }}</strong><span>Total classes</span></div>
+                        <div><strong>{{ c.attended }}</strong><span>Present</span></div>
+                        <div><strong>{{ c.absent }}</strong><span>Absent</span></div>
+                    </div>
+
+                    {% if c.percent < min_attendance %} <p class="subject-warning">Below {{ min_attendance }}% —
+                        attendance shortage</p>
+                        {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="table-card empty-state">
+                <h3>No completed sessions yet</h3>
+                <p>Subject-wise blocks appear after at least one session has closed.</p>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        {% endif %}
+
+        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
+
+    </main>
+
+    <script>
+        /* Progress bar widths come from data-width (keeps Jinja out of style="") */
+        document.querySelectorAll('.progress-bar[data-width]').forEach(function (bar) {
+            bar.style.width = bar.dataset.width + '%';
+        });
+    </script>
+
+</body>
+
+</html>
