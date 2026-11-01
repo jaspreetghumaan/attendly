@@ -1,0 +1,180 @@
+<!--Teacher Dashboard Html-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="brand">
+            <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
+                class="brand-icon">
+            <div class="brand-text">
+                <h2>Attendly</h2>
+                <p>FACULTY PORTAL</p>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <span>Logout</span>
+                    <span class="logout-arrow">↗</span>
+                </button>
+            </form>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+
+        <!-- Welcome Hero Section -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">TEACHER DASHBOARD</span>
+                <h1>Welcome back, {{ teacher.name }}! 👋</h1>
+                <p>Manage your classes, track student registrations, and monitor attendance seamlessly.</p>
+                <div class="teacher-email-pill">✉ Email: {{ teacher.email }}</div>
+            </div>
+            <div class="welcome-glow"></div>
+        </section>
+
+        <!-- Attendance Overview Statistics -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Attendance Overview</h2>
+                <p>Quick summary of registered students and total attendance records.</p>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon-wrap">👥</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Registered Students</span>
+                        <h3 class="stat-value">{{ total_students }}</h3>
+                        <span class="stat-note">Active student accounts</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon-wrap success-ic">✓</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Attendance Marked</span>
+                        <h3 class="stat-value">{{ total_attendance }}</h3>
+                        <span class="stat-note">Cumulative present logs</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Registered Students Table Section -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Registered Students Directory</h2>
+                <p>Comprehensive list of all enrolled students in your system.</p>
+            </div>
+
+            <div class="table-card">
+                {% if students %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Course</th>
+                                <th>Year</th>
+                                <th>Semester</th>
+                                <th>Residence</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td><span class="roll-badge">{{ student.roll_number }}</span></td>
+                                <td class="name-col">{{ student.name }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.department or '-' }}</td>
+                                <td>{{ student.course }}</td>
+                                <td>{{ student.year or '-' }}</td>
+                                <td>{{ student.semester or '-' }}</td>
+                                <td>{{ student.residence_type or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <span class="empty-icon">📂</span>
+                    <h3>No registered students found</h3>
+                    <p>Student accounts will appear here once they register.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Attendance Management Section -->
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Attendance Management Tools</h2>
+                <p>Advanced controls for conducting classes and monitoring metrics.</p>
+            </div>
+
+            <div class="management-grid">
+                <article class="management-card">
+                    <div class="mgmt-icon">📚</div>
+                    <div class="mgmt-content">
+                        <h3>Class Sessions</h3>
+                        <p>Create and manage your classes and subjects. Attendance sessions will be added here next.</p>
+                        <a href="{{ url_for('teacher_classes') }}" class="status-tag active-link">Manage Classes &amp; Subjects</a>
+                    </div>
+                </article>
+
+                <article class="management-card">
+                    <div class="mgmt-icon">📱</div>
+                    <div class="mgmt-content">
+                        <h3>QR Code Attendance</h3>
+                        <p>Generate secure, time-limited dynamic QR codes for live attendance.</p>
+                        <span class="status-tag pending">Coming Soon</span>
+                    </div>
+                </article>
+
+                <article class="management-card">
+                    <div class="mgmt-icon">📊</div>
+                    <div class="mgmt-content">
+                        <h3>Attendance Reports</h3>
+                        <p>Review detailed student logs, analytics, and performance percentages.</p>
+                        <span class="status-tag pending">Coming Soon</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p></p>
+        </footer>
+
+    </main>
+
+</body>
+
+</html>

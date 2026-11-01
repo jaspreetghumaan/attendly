@@ -1,0 +1,375 @@
+<!--Student Dashboard Html-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+
+<body>
+
+    <main class="dashboard-container">
+
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="brand">
+                <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
+                    class="brand-icon">
+                <div class="brand-text">
+                    <h2>Attendly</h2>
+                    <p>SMART • SIMPLE • SECURE</p>
+                </div>
+            </div>
+
+            <div class="nav-links">
+                <!-- Profile dropdown -->
+                <div class="profile-menu">
+                    <button type="button" class="profile-btn" id="profileBtn" aria-label="Open profile"
+                        aria-haspopup="true" aria-expanded="false" aria-controls="profilePanel"></button>
+
+                    <div class="profile-panel" id="profilePanel" hidden>
+                        <div class="profile-panel-head">
+                            <h2>Student Profile</h2>
+                            <p>Your registered academic details.</p>
+                        </div>
+
+                        <div class="profile-bento-grid">
+                            <div class="profile-box">
+                                <span class="p-label">Full Name</span>
+                                <span class="p-val">{{ student.name }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Email Address</span>
+                                <span class="p-val">{{ student.email }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Roll Number</span>
+                                <span class="p-val">{{ student.roll_number or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Department</span>
+                                <span class="p-val">{{ student.department or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Course</span>
+                                <span class="p-val">{{ student.course or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Specialization</span>
+                                <span class="p-val">{{ student.specialization or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Academic Year</span>
+                                <span class="p-val">{{ student.year or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Semester</span>
+                                <span class="p-val">{{ student.semester or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Section</span>
+                                <span class="p-val">{{ student.section or 'Not provided' }}</span>
+                            </div>
+                            <div class="profile-box">
+                                <span class="p-label">Residence</span>
+                                <span class="p-val">{{ student.residence_type or 'Not provided' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
+                    <button type="submit" class="logout-button">
+                        <span>Logout</span>
+                        <span class="logout-arrow">↗</span>
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Welcome Hero Section -->
+        <section class="welcome-section">
+            <div class="welcome-content">
+                <span class="welcome-badge">STUDENT PORTAL</span>
+                <h1>Welcome back, {{ student.name }}! 👋</h1>
+                <p>Your academic attendance and profile overview, all managed in one secure place.</p>
+            </div>
+            <div class="welcome-glow"></div>
+        </section>
+
+        <!-- Attendance Statistics -->
+        <section class="mb-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Attendance Overview</h2>
+                    <p>Track your current academic engagement.</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon-wrap">📚</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Classes</span>
+                        <h3 class="stat-value">{{ total_classes }}</h3>
+                        <span class="stat-note">Scheduled sessions</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon-wrap success-ic">✓</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Classes Attended</span>
+                        <h3 class="stat-value">{{ classes_attended }}</h3>
+                        <span class="stat-note">Present records</span>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon-wrap warning-ic">📊</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Attendance Rate</span>
+                        <h3 class="stat-value">{{ attendance_percentage }}%</h3>
+                        <span class="stat-note">Overall standing</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Attendance History -->
+        <section class="mb-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Attendance History</h2>
+                    <p>Recent session logs.</p>
+                </div>
+            </div>
+
+            <div class="history-card">
+                {% if attendance_history %}
+                <div class="history-list">
+                    {% for record in attendance_history %}
+                    <div class="history-item">
+                        <div class="history-date">
+                            <span class="h-sub">Date</span>
+                            <span class="h-main">{{ record.attendance_date }}</span>
+                        </div>
+                        <div class="history-status">
+                            <span class="status-pill {{ record.status | lower }}">
+                                {{ record.status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📂</div>
+                    <h3>No attendance records yet</h3>
+                    <p>Your history will appear here once sessions are logged.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- QR Scanner Section (live camera) -->
+        <section class="scanner-card">
+            <div class="scanner-text">
+                <h2>Mark Attendance via QR</h2>
+                <p>Tap Scan Code and point your camera at your teacher's QR code.</p>
+                <p id="qrStatus" class="qr-status" aria-live="polite"></p>
+            </div>
+
+            <button type="button" id="scanBtn" class="scanner-btn scanner-btn-live">
+                <span>▦ Scan QR Code</span>
+            </button>
+        </section>
+
+        <!-- Live camera overlay -->
+        <div id="scanModal" class="scan-modal" hidden>
+            <div class="scan-box">
+                <video id="qrVideo" playsinline muted></video>
+                <p class="scan-hint">Hold the QR code inside the frame</p>
+                <button type="button" id="scanClose" class="scanner-btn">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Hidden canvas used to read video frames -->
+        <canvas id="qrCanvas" hidden></canvas>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <p></p>
+        </footer>
+
+    </main>
+
+    <script>
+        const btn = document.getElementById('profileBtn');
+        const panel = document.getElementById('profilePanel');
+        const setOpen = o => { panel.hidden = !o; btn.setAttribute('aria-expanded', o); };
+
+        btn.addEventListener('click', e => { e.stopPropagation(); setOpen(panel.hidden); });
+        document.addEventListener('click', e => { if (!panel.contains(e.target)) setOpen(false); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+    </script>
+
+        <!-- Local QR decoder (works offline, no CDN) -->
+    <script src="{{ url_for('static', filename='js/jsQR.min.js') }}"></script>
+
+    <script>
+        (function () {
+            const scanBtn = document.getElementById('scanBtn');
+            const scanModal = document.getElementById('scanModal');
+            const scanClose = document.getElementById('scanClose');
+            const video = document.getElementById('qrVideo');
+            const canvas = document.getElementById('qrCanvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const statusEl = document.getElementById('qrStatus');
+
+            // Chrome on Android has a built-in QR reader. Use it first when available.
+            let detector = null;
+            if ('BarcodeDetector' in window) {
+                try {
+                    detector = new BarcodeDetector({ formats: ['qr_code'] });
+                } catch (e) {
+                    detector = null;
+                }
+            }
+
+            let stream = null;
+            let busy = false;
+            let startedAt = 0;
+
+            function setStatus(text) {
+                statusEl.textContent = text;
+            }
+
+            function stopCamera() {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+                stream = null;
+                video.srcObject = null;
+                scanModal.hidden = true;
+            }
+
+            // Returns true if we are leaving the page to mark attendance
+            function handleCode(data) {
+                let path = '';
+                try {
+                    path = new URL(data).pathname;
+                } catch (e) {
+                    path = '';
+                }
+
+                if (!path.startsWith('/attend/')) {
+                    setStatus('That is not an Attendly QR. Keep scanning...');
+                    return false;
+                }
+
+                stopCamera();
+                setStatus('QR found, marking attendance...');
+                window.location.href = path;
+                return true;
+            }
+
+            async function readFrame() {
+                // 1) Built-in reader (fast, Chrome on Android)
+                if (detector) {
+                    try {
+                        const codes = await detector.detect(video);
+                        if (codes.length) return codes[0].rawValue;
+                    } catch (e) {
+                        detector = null;
+                    }
+                }
+
+                // 2) jsQR fallback (works in every browser)
+                if (typeof jsQR !== 'undefined' && video.videoWidth) {
+                    const scale = Math.min(1, 960 / video.videoWidth);
+                    canvas.width = Math.round(video.videoWidth * scale);
+                    canvas.height = Math.round(video.videoHeight * scale);
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(frame.data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+                    if (code) return code.data;
+                }
+
+                return null;
+            }
+
+            async function tick() {
+                if (!stream) return;
+
+                if (!busy && video.readyState >= 2) {
+                    const data = await readFrame();
+                    if (data) {
+                        busy = true;
+                        if (handleCode(data)) return;
+                        // Wrong QR: pause briefly, then keep scanning
+                        setTimeout(() => { busy = false; }, 1500);
+                    }
+                }
+
+                if (Date.now() - startedAt > 15000 && !busy) {
+                    setStatus('Still searching... Hold the phone 15-25 cm away, fill the frame with the QR, and turn the laptop screen brightness up.');
+                }
+
+                requestAnimationFrame(tick);
+            }
+
+            async function startCamera() {
+                if (typeof jsQR === 'undefined' && !detector) {
+                    setStatus('QR reader file is missing: static/js/jsQR.min.js');
+                    return;
+                }
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    setStatus('Camera is blocked on this page. Open the https:// link of the app.');
+                    return;
+                }
+
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: { ideal: 'environment' } },
+                        audio: false
+                    });
+                    video.srcObject = stream;
+                    await video.play();
+                    scanModal.hidden = false;
+                    busy = false;
+                    startedAt = Date.now();
+                    setStatus('Scanning... point the camera at the QR.');
+                    tick();
+                } catch (err) {
+                    stopCamera();
+                    setStatus('Camera permission denied or not available. Allow camera access and try again.');
+                }
+            }
+
+            scanBtn.addEventListener('click', startCamera);
+
+            scanClose.addEventListener('click', function () {
+                stopCamera();
+                setStatus('');
+            });
+
+            window.addEventListener('pagehide', stopCamera);
+        })();
+    </script>
+
+</body>
+
+</html>

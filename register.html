@@ -1,0 +1,681 @@
+<!--Student Login-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Registration | Attendly</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Flatpickr (Professional Modern Datepicker) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
+</head>
+
+<body>
+
+    <main class="register-container">
+        <!-- LEFT PANEL: Teacher login style glassmorphism info panel -->
+        <aside class="register-left-panel">
+            <div class="left-top">
+                <a href="{{ url_for('home') }}" class="brand-logo">
+                    <span class="logo-box"></span>
+                    <span class="logo-text">Attendly</span>
+                </a>
+
+                <div class="left-hero">
+                    <span class="portal-badge">STUDENT PORTAL</span>
+                    <h1>Your Attendance <br>Your Control </h1>
+                    <p>Manage daily attendance, generate instant dynamic QR codes, and keep your academic sessions
+                        completely streamlined.</p>
+                </div>
+            </div>
+
+            <div class="left-bottom">
+                <div class="feature-pill">
+                    <span class="pill-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </span>
+                    <span>Smart Attendance Management, Made Simple.</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT PANEL HEADER -->
+        <header class="register-header">
+            <h2>Create Your Account</h2>
+            <p>Register to access your student attendance dashboard.</p>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('register') }}" method="POST" class="register-form">
+
+            <!-- PERSONAL DETAILS -->
+            <section class="form-section">
+                <h3>
+                    <span class="step-num">I.</span>
+                    <span>Personal Details</span>
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" autocomplete="name"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <div class="date-input-wrapper">
+                            <input type="text" id="dob" name="dob" placeholder="Select your date of birth"
+                                readonly="readonly">
+                            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <div class="select-wrapper">
+                            <select id="gender" name="gender">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Contact Number *</label>
+                        <input type="tel" id="phone" name="phone" placeholder="10-digit mobile number"
+                            pattern="[0-9]{10}" maxlength="10" inputmode="numeric" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alternate_phone">Alternate Contact Number</label>
+                        <input type="tel" id="alternate_phone" name="alternate_phone" placeholder="Optional"
+                            pattern="[0-9]{10}" maxlength="10" inputmode="numeric">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACADEMIC DETAILS -->
+            <section class="form-section">
+                <h3>
+                    <span class="step-num">II.</span>
+                    <span>Academic Details</span>
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="roll_number">Roll Number *</label>
+                        <input type="text" id="roll_number" name="roll_number" placeholder="Enter your roll number"
+                            required>
+                    </div>
+
+                    <!-- Department Dropdown -->
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <div class="select-wrapper">
+                            <select id="department" name="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Applied Science">Applied Science</option>
+                                <option value="Allied Science">Allied Science</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Law">Law</option>
+                                <option value="Business Administration">Business Administration</option>
+                                <option value="Hotel Management">Hotel Management</option>
+                                <option value="ME/CIVIL/ECE">ME/CIVIL/ECE</option>
+                                <option value="Department of Computer Application">Department of Computer Application
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Course Dropdown -->
+                    <div class="form-group">
+                        <label for="course">Course *</label>
+                        <div class="select-wrapper">
+                            <select id="course" name="course" required disabled>
+                                <option value="">First select a department</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Current Year Dropdown -->
+                    <div class="form-group">
+                        <label for="year">Current Year</label>
+                        <div class="select-wrapper">
+                            <select id="year" name="year">
+                                <option value="">Select year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Semester Dropdown -->
+                    <div class="form-group">
+                        <label for="semester">Current Semester</label>
+                        <div class="select-wrapper">
+                            <select id="semester" name="semester" disabled>
+                                <option value="">First select a year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="admission_year">Admission Year</label>
+                        <input type="number" id="admission_year" name="admission_year" min="2000" max="2100"
+                            placeholder="e.g. 2025">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="section">Section</label>
+                        <input type="text" id="section" name="section" placeholder="e.g. A">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="college">College / Institute</label>
+                        <input type="text" id="college" name="college" placeholder="Enter institute name">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ADDRESS DETAILS -->
+            <section class="form-section">
+                <h3>
+                    <span class="step-num">III.</span>
+                    <span>Address & Guardian Details</span>
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="residence_type">Residence Type *</label>
+                        <div class="select-wrapper">
+                            <select id="residence_type" name="residence_type" required>
+                                <option value="">Select Residence Type</option>
+                                <option value="Hosteller">Hosteller</option>
+                                <option value="Day Scholar">Day Scholar</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" rows="3" placeholder="Enter your address"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" placeholder="Enter city">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" placeholder="Enter state">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pin_code">PIN Code</label>
+                        <input type="text" id="pin_code" name="pin_code" pattern="[0-9]{6}" maxlength="6"
+                            inputmode="numeric" placeholder="6-digit PIN code">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guardian_name">Parent / Guardian Name</label>
+                        <input type="text" id="guardian_name" name="guardian_name" placeholder="Enter guardian name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guardian_phone">Parent / Guardian Contact</label>
+                        <input type="tel" id="guardian_phone" name="guardian_phone" pattern="[0-9]{10}" maxlength="10"
+                            inputmode="numeric" placeholder="10-digit mobile number">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACCOUNT SECURITY -->
+            <section class="form-section">
+                <h3>
+                    <span class="step-num">IV.</span>
+                    <span>Account Security</span>
+                </h3>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" placeholder="Enter password" required>
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="Show password">
+                                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" minlength="8"
+                                autocomplete="new-password" placeholder="Re-enter your password" required>
+                            <button type="button" class="toggle-password" id="toggleConfirmPassword"
+                                aria-label="Show confirm password">
+                                <svg class="eye-icon eye-show" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-icon eye-hide" style="display: none;" xmlns="http://www.w3.org/2000/svg"
+                                    width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                                    </path>
+                                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SUBMIT -->
+            <div class="form-actions">
+                <button type="submit" class="register-button">
+                    <span>Create Student Account</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+
+                <p>
+                    Already have an account?
+                    <a href="{{ url_for('login') }}">Sign in</a>
+                </p>
+
+                <a class="home-link" href="{{ url_for('home') }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+
+        </form>
+
+    </main>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="{{ url_for('static', filename='js/register.js') }}"></script>
+    <script>
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr("#dob", {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d M, Y",
+                maxDate: "today",
+                minDate: "1970-01-01",
+                disableMobile: true,
+                animate: true,
+                onReady: function (selectedDates, dateStr, instance) {
+                    const currentYear = new Date().getFullYear();
+                    const startYear = 1970;
+                    const yearSelect = document.createElement("select");
+                    yearSelect.className = "fp-year-select";
+                    yearSelect.setAttribute("aria-label", "Select Year");
+
+                    for (let y = currentYear; y >= startYear; y--) {
+                        const opt = document.createElement("option");
+                        opt.value = y;
+                        opt.textContent = y;
+                        if (y === instance.currentYear) {
+                            opt.selected = true;
+                        }
+                        yearSelect.appendChild(opt);
+                    }
+
+                    yearSelect.addEventListener("change", function (e) {
+                        instance.changeYear(parseInt(e.target.value, 10));
+                    });
+
+                    const currentMonthContainer = instance.calendarContainer.querySelector(".flatpickr-current-month");
+                    if (currentMonthContainer) {
+                        currentMonthContainer.appendChild(yearSelect);
+                    }
+                    instance._yearSelect = yearSelect;
+                },
+                onYearChange: function (selectedDates, dateStr, instance) {
+                    if (instance._yearSelect) {
+                        instance._yearSelect.value = instance.currentYear;
+                    }
+                },
+                onMonthChange: function (selectedDates, dateStr, instance) {
+                    if (instance._yearSelect) {
+                        instance._yearSelect.value = instance.currentYear;
+                    }
+                }
+            });
+        }
+    </script>
+    <script>
+        function setupPasswordToggle(buttonId, inputId) {
+            const toggleBtn = document.getElementById(buttonId);
+            const passwordInput = document.getElementById(inputId);
+
+            if (!toggleBtn || !passwordInput) return;
+
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+
+                const eyeShow = toggleBtn.querySelector('.eye-show');
+                const eyeHide = toggleBtn.querySelector('.eye-hide');
+
+                if (eyeShow && eyeHide) {
+                    eyeShow.style.display = isPassword ? 'none' : 'block';
+                    eyeHide.style.display = isPassword ? 'block' : 'none';
+                }
+            });
+        }
+
+        setupPasswordToggle('togglePassword', 'password');
+        setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+    </script>
+    <!-- Modern Dynamic Dropdown Script (Gender, Dept, Course, Year, Semester) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ਸਾਰੇ Dropdown ਐਲੀਮੈਂਟਸ
+            const genderSelect = document.getElementById("gender");
+            const deptSelect = document.getElementById("department");
+            const courseSelect = document.getElementById("course");
+            const yearSelect = document.getElementById("year");
+            const semSelect = document.getElementById("semester");
+            const residenceSelect = document.getElementById("residence_type");
+
+            if (!genderSelect || !deptSelect || !courseSelect || !yearSelect || !semSelect || !residenceSelect) return;
+
+            // ਵਿਭਾਗ ਦੇ ਮੁਤਾਬਕ ਕੋਰਸਾਂ ਦੀ ਲਿਸਟ
+            const deptCourseMap = {
+                "Applied Science": [
+                    "B.Tech Artificial Intelligence (AI)",
+                    "B.Tech Computer Science Engineering (CSE)",
+                    "B.Tech Computer Science and Design (CSD)",
+                    "B.Tech Civil Engineering",
+                    "B.Tech Mechanical Engineering",
+                    "Diploma in Computer Science (CS)",
+                    "Diploma in Electronics and Communication Engineering (ECE)"
+                ],
+                "Allied Science": [
+                    "RMT",
+                    "OTT",
+                    "BPT"
+                ],
+                "Pharmacy": [
+                    "B.Pharma",
+                    "D.Pharma",
+                    "Pharm.D"
+                ],
+                "Computer Science": [
+                    "B.Tech Artificial Intelligence (AI)",
+                    "B.Tech Computer Science Engineering (CSE)",
+                    "B.Tech Computer Science and Design (CSD)",
+                    "Diploma in Computer Science (CS)"
+                ],
+                "Law": [
+                    "LLB"
+                ],
+                "Business Administration": [
+                    "BBA",
+                    "MBA"
+                ],
+                "Hotel Management": [
+                    "BHM (Bachelor of Hotel Management)",
+                    "B.Sc. Hospitality and Hotel Administration",
+                    "Diploma in Hotel Management",
+                    "Diploma in Food Production",
+                    "Diploma in Front Office Operations"
+                ],
+                "ME/CIVIL/ECE": [
+                    "B.Tech Mechanical Engineering",
+                    "B.Tech Civil Engineering",
+                    "Diploma in Electronics and Communication Engineering (ECE)"
+                ],
+                "Department of Computer Application": [
+                    "BCA",
+                    "MCA"
+                ]
+            };
+
+            // ਸਾਲ ਦੇ ਮੁਤਾਬਕ ਸਮੈਸਟਰਾਂ ਦੀ ਲਿਸਟ
+            const yearSemMap = {
+                "1": [1, 2],
+                "2": [3, 4],
+                "3": [5, 6],
+                "4": [7, 8],
+                "5": [9, 10]
+            };
+
+            // Custom Modern Dropdown ਬਣਾਉਣ ਦਾ ਫੰਕਸ਼ਨ
+            function setupModernDropdown(selectEl) {
+                selectEl.style.display = "none";
+
+                const container = document.createElement("div");
+                container.className = "custom-select-container";
+
+                const trigger = document.createElement("div");
+                trigger.className = "custom-select-trigger";
+                if (selectEl.disabled) trigger.classList.add("disabled");
+
+                const triggerText = document.createElement("span");
+                triggerText.textContent = selectEl.options[selectEl.selectedIndex]?.text || "Select";
+
+                const arrow = document.createElement("div");
+                arrow.className = "custom-select-arrow";
+
+                trigger.appendChild(triggerText);
+                trigger.appendChild(arrow);
+                container.appendChild(trigger);
+
+                const optionsList = document.createElement("ul");
+                optionsList.className = "custom-select-options";
+                container.appendChild(optionsList);
+
+                selectEl.parentNode.insertBefore(container, selectEl.nextSibling);
+
+                function rebuildOptions() {
+                    optionsList.innerHTML = "";
+                    Array.from(selectEl.options).forEach((opt) => {
+                        if (!opt.value) return;
+                        const li = document.createElement("li");
+                        li.className = "custom-option";
+                        li.textContent = opt.textContent;
+                        li.dataset.value = opt.value;
+                        if (opt.selected) li.classList.add("selected");
+
+                        li.addEventListener("click", function (e) {
+                            e.stopPropagation();
+                            selectEl.value = this.dataset.value;
+                            triggerText.textContent = this.textContent;
+
+                            optionsList.querySelectorAll(".custom-option").forEach(el => el.classList.remove("selected"));
+                            this.classList.add("selected");
+                            container.classList.remove("open");
+
+                            // ਡਾਇਨੈਮਿਕ ਬਦਲਾਅ ਲਈ Change Event ਚਲਾਓ
+                            selectEl.dispatchEvent(new Event("change"));
+                        });
+                        optionsList.appendChild(li);
+                    });
+                }
+
+                rebuildOptions();
+
+                trigger.addEventListener("click", function (e) {
+                    e.stopPropagation();
+                    if (selectEl.disabled) return;
+                    document.querySelectorAll(".custom-select-container").forEach(c => {
+                        if (c !== container) c.classList.remove("open");
+                    });
+                    container.classList.toggle("open");
+                });
+
+                return { container, trigger, triggerText, rebuildOptions };
+            }
+
+            // ਸਾਰੇ Dropdowns ਨੂੰ ਥੀਮ ਵਾਲੇ ਨਵੇਂ ਮੀਨੂ ਵਿੱਚ ਬਦਲੋ
+            const genderDropdown = setupModernDropdown(genderSelect);
+            const deptDropdown = setupModernDropdown(deptSelect);
+            const courseDropdown = setupModernDropdown(courseSelect);
+            const yearDropdown = setupModernDropdown(yearSelect);
+            const semDropdown = setupModernDropdown(semSelect);
+            const residenceDropdown = setupModernDropdown(residenceSelect);
+
+            // 1. ਡਿਪਾਰਟਮੈਂਟ ਬਦਲਣ 'ਤੇ ਕੋਰਸ ਅਪਡੇਟ ਹੋਣਗੇ
+            deptSelect.addEventListener("change", function () {
+                const selectedDept = this.value;
+                courseSelect.innerHTML = "";
+
+                if (!selectedDept || !deptCourseMap[selectedDept]) {
+                    courseSelect.disabled = true;
+                    courseDropdown.trigger.classList.add("disabled");
+                    courseDropdown.triggerText.textContent = "First select a department";
+
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "First select a department";
+                    courseSelect.appendChild(opt);
+                } else {
+                    courseSelect.disabled = false;
+                    courseDropdown.trigger.classList.remove("disabled");
+                    courseDropdown.triggerText.textContent = "Select Course";
+
+                    const defaultOpt = document.createElement("option");
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Select Course";
+                    courseSelect.appendChild(defaultOpt);
+
+                    deptCourseMap[selectedDept].forEach(function (courseName) {
+                        const opt = document.createElement("option");
+                        opt.value = courseName;
+                        opt.textContent = courseName;
+                        courseSelect.appendChild(opt);
+                    });
+                }
+
+                courseDropdown.rebuildOptions();
+            });
+
+            // 2. ਸਾਲ (Year) ਬਦਲਣ 'ਤੇ ਸਮੈਸਟਰ (Semester) ਅਪਡੇਟ ਹੋਣਗੇ
+            yearSelect.addEventListener("change", function () {
+                const selectedYear = this.value;
+                semSelect.innerHTML = "";
+
+                if (!selectedYear || !yearSemMap[selectedYear]) {
+                    semSelect.disabled = true;
+                    semDropdown.trigger.classList.add("disabled");
+                    semDropdown.triggerText.textContent = "First select a year";
+
+                    const opt = document.createElement("option");
+                    opt.value = "";
+                    opt.textContent = "First select a year";
+                    semSelect.appendChild(opt);
+                } else {
+                    semSelect.disabled = false;
+                    semDropdown.trigger.classList.remove("disabled");
+                    semDropdown.triggerText.textContent = "Select semester";
+
+                    const defaultOpt = document.createElement("option");
+                    defaultOpt.value = "";
+                    defaultOpt.textContent = "Select semester";
+                    semSelect.appendChild(defaultOpt);
+
+                    yearSemMap[selectedYear].forEach(function (sem) {
+                        const opt = document.createElement("option");
+                        opt.value = sem;
+                        opt.textContent = `Semester ${sem}`;
+                        semSelect.appendChild(opt);
+                    });
+                }
+
+                semDropdown.rebuildOptions();
+            });
+
+            // ਕਿਤੇ ਵੀ ਬਾਹਰ ਕਲਿੱਕ ਕਰਨ 'ਤੇ ਮੀਨੂ ਆਪਣੇ-ਆਪ ਬੰਦ ਹੋ ਜਾਵੇਗਾ
+            document.addEventListener("click", function () {
+                document.querySelectorAll(".custom-select-container").forEach(c => c.classList.remove("open"));
+            });
+        });
+    </script>
+
+</body>
+
+</html>
