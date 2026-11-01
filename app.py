@@ -433,8 +433,8 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
+        # Each row = one session the student was enrolled in
         attendance_stats = conn.execute(
-<<<<<<< HEAD
             """
             SELECT
                 COUNT(*) AS total_classes,
@@ -443,45 +443,35 @@ def student_dashboard():
             WHERE student_id = ?
             """,
             (student["student_id"],)
-=======
-        """
-        SELECT
-            COUNT(*) AS total_classes,
-            SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
-        FROM attendance_records
-        WHERE student_id = ?
-        """,
-        (student["student_id"],)
->>>>>>> 4d640a102a9fe9408d717c6b1bc1e4712d499817
         ).fetchone()
 
         attendance_history = conn.execute(
-        """
-        SELECT s.session_date AS attendance_date, r.status
-        FROM attendance_records r
-        JOIN attendance_sessions s ON s.id = r.session_id
-        WHERE r.student_id = ?
-        ORDER BY s.id DESC
-        """,
-        (student["student_id"],)
+            """
+            SELECT s.session_date AS attendance_date, r.status
+            FROM attendance_records r
+            JOIN attendance_sessions s ON s.id = r.session_id
+            WHERE r.student_id = ?
+            ORDER BY s.id DESC
+            """,
+            (student["student_id"],)
         ).fetchall()
 
         total_classes = attendance_stats["total_classes"] or 0
         classes_attended = attendance_stats["classes_attended"] or 0
 
         attendance_percentage = (
-        round((classes_attended / total_classes) * 100, 1)
-        if total_classes > 0
-        else 0
+            round((classes_attended / total_classes) * 100, 1)
+            if total_classes > 0
+            else 0
         )
 
         return render_template(
-        "student_dashboard.html",
-        student=student,
-        total_classes=total_classes,
-        classes_attended=classes_attended,
-        attendance_percentage=attendance_percentage,
-        attendance_history=attendance_history
+            "student_dashboard.html",
+            student=student,
+            total_classes=total_classes,
+            classes_attended=classes_attended,
+            attendance_percentage=attendance_percentage,
+            attendance_history=attendance_history
         )
 
     finally:
@@ -973,6 +963,40 @@ def session_qr_image(session_id):
 
 
 # =========================================================
+# TEACHER: CLOSE AN ATTENDANCE SESSION
+# =========================================================
+
+@app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
+def close_session(session_id):
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    conn = get_db_connection()
+
+    try:
+        owned = conn.execute(
+            "SELECT id FROM attendance_sessions WHERE id = ? AND teacher_id = ?",
+            (session_id, session["user_id"]),
+        ).fetchone()
+
+        if not owned:
+            abort(404)
+
+        conn.execute(
+            "UPDATE attendance_sessions SET status = 'closed' WHERE id = ?",
+            (session_id,),
+        )
+        conn.commit()
+
+    finally:
+        conn.close()
+
+    flash("Session closed. The QR code will no longer work.")
+    return redirect(url_for("teacher_sessions"))
+
+
+# =========================================================
 # STUDENT: SCAN QR AND MARK ATTENDANCE
 # =========================================================
 
@@ -1070,38 +1094,7 @@ def mark_attendance(token):
     finally:
         conn.close()
 
-# =========================================================
-# TEACHER: CLOSE AN ATTENDANCE SESSION
-# =========================================================
 
-@app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
-def close_session(session_id):
-
-    if not is_teacher_logged_in():
-        return redirect(url_for("faculty_login"))
-
-    conn = get_db_connection()
-
-    try:
-        owned = conn.execute(
-            "SELECT id FROM attendance_sessions WHERE id = ? AND teacher_id = ?",
-            (session_id, session["user_id"]),
-        ).fetchone()
-
-        if not owned:
-            abort(404)
-
-        conn.execute(
-            "UPDATE attendance_sessions SET status = 'closed' WHERE id = ?",
-            (session_id,),
-        )
-        conn.commit()
-
-    finally:
-        conn.close()
-
-    flash("Session closed. The QR code will no longer work.")
-    return redirect(url_for("teacher_sessions"))
 if __name__ == "__main__":
     ssl_ctx = "adhoc" if config.USE_HTTPS else None
     app.run(host=config.HOST, debug=config.DEBUG, ssl_context=ssl_ctx)
