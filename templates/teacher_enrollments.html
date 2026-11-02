@@ -78,6 +78,7 @@
             <div class="table-card">
                 {% if students %}
                 <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="class_id" value="{{ selected.id }}">
                     <div class="table-container">
                         <table>

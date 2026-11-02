@@ -82,7 +82,7 @@
         {% endwith %}
 
         <form action="{{ url_for('register') }}" method="POST" class="register-form">
-
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <!-- PERSONAL DETAILS -->
             <section class="form-section">
                 <h3>

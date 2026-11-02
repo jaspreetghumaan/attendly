@@ -17,14 +17,14 @@ from flask import (
     url_for,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_wtf.csrf import CSRFProtect
 import config
 from database import get_db_connection
 
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
-
+csrf = CSRFProtect(app)
 
 # =========================================================
 # HELPERS

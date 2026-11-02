@@ -37,6 +37,7 @@
                 <p class="qr-note">Valid until {{ s.expires_at }}</p>
                 <p class="qr-url">{{ scan_url }}</p>
                                 <form method="POST" action="{{ url_for('close_session', session_id=s.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="form-btn">Close session now</button>
                 </form>
             </div>

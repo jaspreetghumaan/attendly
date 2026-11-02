@@ -47,6 +47,7 @@
 
             {% if classes and subjects %}
             <form method="POST" class="form-card">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="class_id" required>
                     <option value="">-- Select class --</option>
                     {% for c in classes %}
