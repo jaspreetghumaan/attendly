@@ -1923,7 +1923,7 @@ html.dark-mode .bento-card--qr {
 }
 
 html.dark-mode .qr-placeholder__box {
-  background-color: #111827;
+  background-color: #ffffff; /* same white QR tile as light mode */
 }
 
 html.dark-mode .qr-placeholder__caption {
@@ -2009,7 +2009,7 @@ html.dark-mode .bento-card--qr {
 }
 
 html.dark-mode .qr-placeholder__box {
-  background-color: #111827;
+  background-color: #ffffff; /* same white QR tile as light mode */
 }
 
 html.dark-mode .qr-placeholder__caption {
