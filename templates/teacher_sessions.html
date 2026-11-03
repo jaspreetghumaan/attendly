@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Reports | Attendly</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
-    <script>
-        /* Dark mode: apply the saved choice before the page paints (no white flash) */
-        (function () {
-            try {
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
-                }
-            } catch (e) { }
-        })();
-    </script>
+    <title>Attendance Sessions | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_sessions.css') }}">
+  <script>
+    /* Dark mode: apply the saved choice before the page paints (no white flash) */
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>
@@ -24,83 +24,88 @@
 
         <section class="welcome-section">
             <div class="welcome-content">
-                <span class="welcome-badge">ATTENDANCE REPORTS</span>
-                <h1>Subject-wise attendance</h1>
-                <p>Choose a class, then open a student to see total classes, absences and percentage for every subject.
-                </p>
+                <span class="welcome-badge">ATTENDANCE SESSIONS</span>
+                <h1>Start an attendance session</h1>
+                <p>Pick your class and subject. Every enrolled student will be marked Absent until they scan the QR.</p>
             </div>
         </section>
 
-        <!-- Step 1: choose class -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="table-card">
+            {% for message in messages %}
+            <p class="flash-line">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <section class="dashboard-section">
             <div class="section-heading">
-                <h2>Select Class</h2>
+                <h2>New Session</h2>
             </div>
 
-            {% if classes %}
-            <form method="GET" class="form-card">
+            {% if classes and subjects %}
+            <form method="POST" class="form-card">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="class_id" required>
                     <option value="">-- Select class --</option>
                     {% for c in classes %}
-                    <option value="{{ c.id }}" {% if selected and selected.id==c.id %} selected{% endif %}>{{
-                        c.class_name }} - {{ c.section }}</option>
+                    <option value="{{ c.id }}">{{ c.class_name }} - {{ c.section }}</option>
                     {% endfor %}
                 </select>
-                <button type="submit" class="form-btn">Show students</button>
+
+                <select name="subject_id" required>
+                    <option value="">-- Select subject --</option>
+                    {% for s in subjects %}
+                    <option value="{{ s.id }}">{{ s.subject_name }} ({{ s.subject_code }})</option>
+                    {% endfor %}
+                </select>
+
+                <input type="number" name="duration" min="1" max="60" value="10" placeholder="Minutes">
+
+                <button type="submit" class="form-btn">Start session</button>
             </form>
             {% else %}
             <div class="table-card empty-state">
-                <h3>No classes yet</h3>
-                <p>Create a class and start a QR session first.
-                    <a href="{{ url_for('teacher_classes') }}" class="back-link">Add a class</a>
+                <h3>Setup needed</h3>
+                <p>You need at least one class and one subject first.
+                    <a href="{{ url_for('teacher_classes') }}" class="back-link">Add them here</a>
                 </p>
             </div>
             {% endif %}
         </section>
 
-        {% if selected %}
-
-        <!-- Step 2: students of the class -->
         <section class="dashboard-section">
             <div class="section-heading">
-                <h2>{{ selected.class_name }} - {{ selected.section }}</h2>
-                <p>{{ class_sessions }} completed session(s). Minimum required attendance is {{ min_attendance }}%.</p>
+                <h2>Recent Sessions</h2>
             </div>
 
             <div class="table-card">
-                {% if student_rows %}
+                {% if sessions %}
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Roll Number</th>
-                                <th>Name</th>
-                                <th>Total Classes</th>
-                                <th>Attended</th>
-                                <th>Absent</th>
-                                <th>Attendance %</th>
-                                <th>Details</th>
+                                <th>Date</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Started</th>
+                                <th>Expires</th>
+                                <th>Status</th>
+                                <th>QR</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for r in student_rows %}
-                            <tr class="{{ 'row-active' if overall and overall.id == r.id else '' }}">
-                                <td><span class="roll-badge">{{ r.roll_number }}</span></td>
-                                <td class="name-col">{{ r.name }}</td>
-                                <td>{{ r.total }}</td>
-                                <td>{{ r.attended }}</td>
-                                <td>{{ r.absent }}</td>
-                                <td>
-                                    {% if r.total %}
-                                    <span class="pill pill-{{ r.level }}">{{ r.percent }}%</span>
-                                    {% else %}
-                                    <span class="pill pill-none">No data</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id) }}#student-report"
-                                        class="back-link">Subject-wise →</a>
-                                </td>
+                            {% for s in sessions %}
+                            <tr>
+                                <td>{{ s.session_date }}</td>
+                                <td class="name-col">{{ s.class_name }} - {{ s.section }}</td>
+                                <td>{{ s.subject_name }}</td>
+                                <td>{{ s.start_time }}</td>
+                                <td>{{ s.expires_at }}</td>
+                                <td>{{ s.status }}</td>
+                              <td><a href="{{ url_for('session_qr_page', session_id=s.id) }}" class="back-link">Show QR</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -108,66 +113,12 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <span class="empty-icon">👥</span>
-                    <h3>No students enrolled</h3>
-                    <p>Enroll students in this class to see their reports.
-                        <a href="{{ url_for('teacher_enrollments', class_id=selected.id) }}" class="back-link">Enroll
-                            students</a>
-                    </p>
+                    <h3>No sessions yet</h3>
+                    <p>Started sessions will appear here.</p>
                 </div>
                 {% endif %}
             </div>
         </section>
-
-        <!-- Step 3: subject-wise blocks for one student -->
-        {% if overall %}
-        <section class="dashboard-section" id="student-report">
-            <div class="section-heading">
-                <h2>{{ overall.name }} <span class="roll-badge">{{ overall.roll_number }}</span></h2>
-                <p>
-                    Overall: {{ overall.attended }} attended out of {{ overall.total }} classes
-                    {% if overall.total %}({{ overall.percent }}%){% endif %}
-                </p>
-            </div>
-
-            {% if subject_cards %}
-            <div class="subject-grid">
-                {% for c in subject_cards %}
-                <article class="subject-card level-{{ c.level }}">
-                    <div class="subject-head">
-                        <div>
-                            <h3>{{ c.name }}</h3>
-                            <span class="subject-code">{{ c.code }}</span>
-                        </div>
-                        <span class="pill pill-{{ c.level }}">{{ c.percent }}%</span>
-                    </div>
-
-                    <div class="progress">
-                        <div class="progress-bar" data-width="{{ c.percent }}"></div>
-                    </div>
-
-                    <div class="subject-stats">
-                        <div><strong>{{ c.total }}</strong><span>Total classes</span></div>
-                        <div><strong>{{ c.attended }}</strong><span>Present</span></div>
-                        <div><strong>{{ c.absent }}</strong><span>Absent</span></div>
-                    </div>
-
-                    {% if c.percent < min_attendance %} <p class="subject-warning">Below {{ min_attendance }}% —
-                        attendance shortage</p>
-                        {% endif %}
-                </article>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="table-card empty-state">
-                <h3>No completed sessions yet</h3>
-                <p>Subject-wise blocks appear after at least one session has closed.</p>
-            </div>
-            {% endif %}
-        </section>
-        {% endif %}
-
-        {% endif %}
 
         <!-- Back button: bottom-left of the page -->
         <div class="page-back">
@@ -179,13 +130,7 @@
 
     </main>
 
-    <script>
-        /* Progress bar widths come from data-width (keeps Jinja out of style="") */
-        document.querySelectorAll('.progress-bar[data-width]').forEach(function (bar) {
-            bar.style.width = bar.dataset.width + '%';
-        });
-    </script>
-
+    <script src="{{ url_for('static', filename='js/custom_select.js') }}"></script>
 </body>
 
 </html>
