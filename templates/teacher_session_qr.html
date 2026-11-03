@@ -5,17 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Session QR | Attendly</title>
+    {% if is_open %}
+    <meta http-equiv="refresh" content="8">{% endif %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
-  <script>
-    /* Dark mode: apply the saved choice before the page paints (no white flash) */
-    (function () {
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } catch (e) {}
-    })();
-  </script>
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body>
@@ -36,8 +38,12 @@
                 <img src="{{ url_for('session_qr_image', session_id=s.id) }}" alt="Attendance QR code" class="qr-img">
                 <p class="qr-note">Valid until {{ s.expires_at }}</p>
                 <p class="qr-url">{{ scan_url }}</p>
+<<<<<<< HEAD
                                 <form method="POST" action="{{ url_for('close_session', session_id=s.id) }}">
                                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+=======
+                <form method="POST" action="{{ url_for('close_session', session_id=s.id) }}">
+>>>>>>> f5bd470b1eff9071c1f99ac6f631ca313f826209
                     <button type="submit" class="form-btn">Close session now</button>
                 </form>
             </div>
@@ -50,6 +56,49 @@
             </div>
         </section>
         {% endif %}
+
+        <section class="dashboard-section">
+            <div class="section-heading">
+                <h2>Live Attendance — {{ present_count }} / {{ total_students }} present</h2>
+                {% if is_open %}<p>This list refreshes automatically every few seconds.</p>{% endif %}
+            </div>
+
+            <div class="table-card">
+                {% if attendance_rows %}
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Roll Number</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Marked at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in attendance_rows %}
+                            <tr>
+                                <td><span class="roll-badge">{{ r.roll_number }}</span></td>
+                                <td class="name-col">{{ r.name }}</td>
+                                <td>
+                                    <span
+                                        class="pill {{ 'pill-present' if r.status == 'Present' else 'pill-absent' }}">{{
+                                        r.status }}</span>
+                                </td>
+                                <td>{{ r.marked_at[11:] if r.marked_at else '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <h3>No students in this class</h3>
+                    <p>Enroll students first, then start a session.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
 
         <a href="{{ url_for('teacher_sessions') }}" class="back-link">← Back to sessions</a>
 

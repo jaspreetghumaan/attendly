@@ -7,16 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/student_dashboard.css') }}">
-  <script>
-    /* Dark mode: apply the saved choice before the page paints (no white flash) */
-    (function () {
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } catch (e) {}
-    })();
-  </script>
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body>
@@ -150,6 +150,55 @@
             </div>
         </section>
 
+        <!-- Subject-wise Attendance -->
+        <section class="mb-section">
+            <div class="section-heading">
+                <div>
+                    <h2>Subject-wise Attendance</h2>
+                    <p>Total classes, absences and percentage for each subject. Minimum required: {{ min_attendance }}%.
+                    </p>
+                </div>
+            </div>
+
+            {% if subject_cards %}
+            <div class="subject-grid">
+                {% for c in subject_cards %}
+                <article class="subject-card level-{{ c.level }}">
+                    <div class="subject-head">
+                        <div>
+                            <h3>{{ c.name }}</h3>
+                            <span class="subject-code">{{ c.code }}</span>
+                        </div>
+                        <span class="subject-pct">{{ c.percent }}%</span>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar" data-width="{{ c.percent }}"></div>
+                    </div>
+
+                    <div class="subject-stats">
+                        <div><strong>{{ c.total }}</strong><span>Total classes</span></div>
+                        <div><strong>{{ c.attended }}</strong><span>Present</span></div>
+                        <div><strong>{{ c.absent }}</strong><span>Absent</span></div>
+                    </div>
+
+                    {% if c.percent < min_attendance %} <p class="subject-warning">Below {{ min_attendance }}%:
+                        attendance shortage</p>
+                        {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="history-card">
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h3>No subject data yet</h3>
+                    <p>Subject-wise blocks appear after your first completed class session.</p>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+
         <!-- Attendance History -->
         <section class="mb-section">
             <div class="section-heading">
@@ -228,7 +277,7 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
     </script>
 
-        <!-- Local QR decoder (works offline, no CDN) -->
+    <!-- Local QR decoder (works offline, no CDN) -->
     <script src="{{ url_for('static', filename='js/jsQR.min.js') }}"></script>
 
     <script>
@@ -369,6 +418,13 @@
 
             window.addEventListener('pagehide', stopCamera);
         })();
+    </script>
+
+    <script>
+        /* Progress bar widths come from data-width (keeps Jinja out of style="") */
+        document.querySelectorAll('.progress-bar[data-width]').forEach(function (bar) {
+            bar.style.width = bar.dataset.width + '%';
+        });
     </script>
 
 </body>

@@ -656,3 +656,10 @@ html.dark-mode .login-branding {
 }
 }
 /* ===== DARK MODE (auto) END ===== */
+
+/* ===== PASSWORD RESET + FORGOT LINK ===== */
+.forgot-link { text-align: center; margin-top: .9rem; font-size: .9rem; }
+.forgot-link a { color: #0369a1; font-weight: 700; text-decoration: underline; }
+html.dark-mode .forgot-link a { color: #7dd3fc; }
+
+html.dark-mode .forgot-link a { color: #7dd3fc; }

@@ -19,3 +19,13 @@ PUBLIC_BASE_URL = os.environ.get("ATTENDLY_PUBLIC_URL", "").rstrip("/")
 HOST = os.environ.get("ATTENDLY_HOST", "127.0.0.1")
 # ATTENDLY_HTTPS=1 par server HTTPS par chalega (phone camera ke liye zaroori)
 USE_HTTPS = os.environ.get("ATTENDLY_HTTPS") == "1"
+
+# Password reset emails. Set these as environment variables.
+# If ATTENDLY_SMTP_HOST is empty, the reset link is printed in the terminal instead.
+SMTP_HOST = os.environ.get("ATTENDLY_SMTP_HOST", "")
+SMTP_PORT = int(os.environ.get("ATTENDLY_SMTP_PORT", "587"))
+SMTP_USER = os.environ.get("ATTENDLY_SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("ATTENDLY_SMTP_PASSWORD", "")
+SMTP_FROM = os.environ.get("ATTENDLY_SMTP_FROM", SMTP_USER)
+# How long a reset link stays valid
+RESET_TOKEN_MINUTES = 30

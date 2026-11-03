@@ -7,16 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
-  <script>
-    /* Dark mode: apply the saved choice before the page paints (no white flash) */
-    (function () {
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } catch (e) {}
-    })();
-  </script>
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body>
@@ -144,8 +144,9 @@
                     <div class="mgmt-icon">📚</div>
                     <div class="mgmt-content">
                         <h3>Class Sessions</h3>
-                        <p>Create and manage your classes and subjects. Attendance sessions will be added here next.</p>
-                        <a href="{{ url_for('teacher_classes') }}" class="status-tag active-link">Manage Classes &amp; Subjects</a>
+                        <p>Create your classes and subjects, then enroll students in each class.</p>
+                        <a href="{{ url_for('teacher_classes') }}" class="status-tag active-link">Manage Classes &amp;
+                            Subjects</a>
                     </div>
                 </article>
 
@@ -153,8 +154,9 @@
                     <div class="mgmt-icon">📱</div>
                     <div class="mgmt-content">
                         <h3>QR Code Attendance</h3>
-                        <p>Generate secure, time-limited dynamic QR codes for live attendance.</p>
-                        <span class="status-tag pending">Coming Soon</span>
+                        <p>Generate secure, time-limited QR codes. Students scan to mark themselves present.</p>
+                        <a href="{{ url_for('teacher_sessions') }}" class="status-tag active-link">Start QR
+                            Attendance</a>
                     </div>
                 </article>
 
@@ -162,8 +164,8 @@
                     <div class="mgmt-icon">📊</div>
                     <div class="mgmt-content">
                         <h3>Attendance Reports</h3>
-                        <p>Review detailed student logs, analytics, and performance percentages.</p>
-                        <span class="status-tag pending">Coming Soon</span>
+                        <p>Subject-wise total classes, absences and attendance percentage for every student.</p>
+                        <a href="{{ url_for('teacher_reports') }}" class="status-tag active-link">View Reports</a>
                     </div>
                 </article>
             </div>

@@ -1,8 +1,11 @@
 # Main application file for the QR Attendance System
+import hashlib
 import io
 import secrets
+import smtplib
 import sqlite3
 from datetime import datetime, timedelta
+from email.message import EmailMessage
 
 import qrcode
 from flask import (
@@ -433,45 +436,80 @@ def student_dashboard():
             flash("Student profile not found.")
             return redirect(url_for("login"))
 
-        # Each row = one session the student was enrolled in
+        # Only finished sessions (closed or expired) are counted, so a
+        # session that is still running does not lower the percentage.
+        now_iso = datetime.now().isoformat(timespec="seconds")
+
         attendance_stats = conn.execute(
-            """
-            SELECT
-                COUNT(*) AS total_classes,
-                SUM(CASE WHEN status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
-            FROM attendance_records
-            WHERE student_id = ?
-            """,
-            (student["student_id"],)
+        f"""
+        SELECT
+            COUNT(*) AS total_classes,
+            SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        WHERE r.student_id = :student_id AND {FINISHED_SESSION}
+        """,
+        {"student_id": student["student_id"], "now": now_iso}
         ).fetchone()
 
+        subject_rows = conn.execute(
+        f"""
+        SELECT sub.subject_name, sub.subject_code,
+               COUNT(*) AS total,
+               SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS attended
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        JOIN subjects sub ON sub.id = s.subject_id
+        WHERE r.student_id = :student_id AND {FINISHED_SESSION}
+        GROUP BY sub.id
+        ORDER BY sub.subject_name
+        """,
+        {"student_id": student["student_id"], "now": now_iso}
+        ).fetchall()
+
+        subject_cards = []
+        for row in subject_rows:
+            attended = row["attended"] or 0
+            pct = attendance_percent(attended, row["total"])
+            subject_cards.append({
+                "name": row["subject_name"],
+                "code": row["subject_code"],
+                "total": row["total"],
+                "attended": attended,
+                "absent": row["total"] - attended,
+                "percent": pct,
+                "level": attendance_level(pct, row["total"]),
+            })
+
         attendance_history = conn.execute(
-            """
-            SELECT s.session_date AS attendance_date, r.status
-            FROM attendance_records r
-            JOIN attendance_sessions s ON s.id = r.session_id
-            WHERE r.student_id = ?
-            ORDER BY s.id DESC
-            """,
-            (student["student_id"],)
+        """
+        SELECT s.session_date AS attendance_date, r.status
+        FROM attendance_records r
+        JOIN attendance_sessions s ON s.id = r.session_id
+        WHERE r.student_id = ?
+        ORDER BY s.id DESC
+        """,
+        (student["student_id"],)
         ).fetchall()
 
         total_classes = attendance_stats["total_classes"] or 0
         classes_attended = attendance_stats["classes_attended"] or 0
 
         attendance_percentage = (
-            round((classes_attended / total_classes) * 100, 1)
-            if total_classes > 0
-            else 0
+        round((classes_attended / total_classes) * 100, 1)
+        if total_classes > 0
+        else 0
         )
 
         return render_template(
-            "student_dashboard.html",
-            student=student,
-            total_classes=total_classes,
-            classes_attended=classes_attended,
-            attendance_percentage=attendance_percentage,
-            attendance_history=attendance_history
+        "student_dashboard.html",
+        student=student,
+        total_classes=total_classes,
+        classes_attended=classes_attended,
+        attendance_percentage=attendance_percentage,
+        attendance_history=attendance_history,
+        subject_cards=subject_cards,
+        min_attendance=MIN_ATTENDANCE
         )
 
     finally:
@@ -906,7 +944,7 @@ def get_owned_session(session_id):
     try:
         return conn.execute(
             """
-            SELECT s.id, s.qr_token, s.expires_at, s.status, s.session_date,
+            SELECT s.id, s.class_id, s.qr_token, s.expires_at, s.status, s.session_date,
                    c.class_name, c.section, sub.subject_name
             FROM attendance_sessions s
             JOIN classes c ON c.id = s.class_id
@@ -934,6 +972,29 @@ def session_qr_page(session_id):
     if not s:
         abort(404)
 
+    conn = get_db_connection()
+    try:
+        attendance_rows = conn.execute(
+            """
+            SELECT st.roll_number,
+                   u.name,
+                   COALESCE(ar.status, 'Absent') AS status,
+                   ar.marked_at
+            FROM student_enrollments se
+            JOIN students st ON st.id = se.student_id
+            JOIN users u ON u.id = st.user_id
+            LEFT JOIN attendance_records ar
+                   ON ar.student_id = st.id AND ar.session_id = ?
+            WHERE se.class_id = ?
+            ORDER BY u.name
+            """,
+            (s["id"], s["class_id"]),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    present_count = sum(1 for r in attendance_rows if r["status"] == "Present")
+
     now_iso = datetime.now().isoformat(timespec="seconds")
     is_open = s["status"] == "open" and s["expires_at"] > now_iso
 
@@ -942,6 +1003,9 @@ def session_qr_page(session_id):
         s=s,
         is_open=is_open,
         scan_url=build_scan_url(s["qr_token"]),
+        attendance_rows=attendance_rows,
+        present_count=present_count,
+        total_students=len(attendance_rows),
     )
 
 
@@ -962,10 +1026,6 @@ def session_qr_image(session_id):
     return send_file(buf, mimetype="image/png")
 
 
-# =========================================================
-# TEACHER: CLOSE AN ATTENDANCE SESSION
-# =========================================================
-
 @app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
 def close_session(session_id):
 
@@ -973,27 +1033,194 @@ def close_session(session_id):
         return redirect(url_for("faculty_login"))
 
     conn = get_db_connection()
-
     try:
-        owned = conn.execute(
-            "SELECT id FROM attendance_sessions WHERE id = ? AND teacher_id = ?",
+        cursor = conn.execute(
+            """
+            UPDATE attendance_sessions
+            SET status = 'closed'
+            WHERE id = ? AND teacher_id = ?
+            """,
             (session_id, session["user_id"]),
-        ).fetchone()
-
-        if not owned:
-            abort(404)
-
-        conn.execute(
-            "UPDATE attendance_sessions SET status = 'closed' WHERE id = ?",
-            (session_id,),
         )
         conn.commit()
+    finally:
+        conn.close()
+
+    if cursor.rowcount == 0:
+        abort(404)
+
+    flash("Session closed. Students who did not scan stay marked Absent.")
+    return redirect(url_for("teacher_sessions"))
+
+
+
+# =========================================================
+# TEACHER: ATTENDANCE REPORTS
+# Class -> list of students -> subject-wise cards for one student.
+# Only finished sessions (closed or expired) are counted, so a
+# session that is still running does not lower anyone's percentage.
+# =========================================================
+
+MIN_ATTENDANCE = 75  # college rule: below this = shortage
+
+
+def attendance_percent(attended, total):
+    return round(attended * 100 / total, 1) if total else 0
+
+
+def attendance_level(percent, total):
+    """Return a CSS colour level for a percentage."""
+    if not total:
+        return "none"
+    if percent >= MIN_ATTENDANCE:
+        return "good"
+    if percent >= 60:
+        return "warn"
+    return "low"
+
+
+# A session counts only after it has finished.
+FINISHED_SESSION = "(s.status = 'closed' OR s.expires_at <= :now)"
+
+
+@app.route("/teacher/reports")
+def teacher_reports():
+
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    conn = get_db_connection()
+
+    try:
+        classes = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE created_by = ?
+            ORDER BY class_name, section
+            """,
+            (teacher_id,),
+        ).fetchall()
+
+        selected = None
+        student_rows = []
+        chosen_student = None
+        subject_cards = []
+        overall = None
+        class_sessions = 0
+
+        class_id = request.args.get("class_id", type=int)
+        student_id = request.args.get("student_id", type=int)
+
+        if class_id:
+            selected = conn.execute(
+                "SELECT id, class_name, section FROM classes WHERE id = ? AND created_by = ?",
+                (class_id, teacher_id),
+            ).fetchone()
+
+        if selected:
+            class_sessions = conn.execute(
+                f"""
+                SELECT COUNT(*) FROM attendance_sessions s
+                WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                  AND {FINISHED_SESSION}
+                """,
+                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+            ).fetchone()[0]
+
+            rows = conn.execute(
+                f"""
+                SELECT st.id, st.roll_number, u.name,
+                       COUNT(x.status) AS total,
+                       COALESCE(SUM(CASE WHEN x.status = 'Present' THEN 1 ELSE 0 END), 0) AS attended
+                FROM student_enrollments se
+                JOIN students st ON st.id = se.student_id
+                JOIN users u ON u.id = st.user_id
+                LEFT JOIN (
+                    SELECT ar.student_id, ar.status
+                    FROM attendance_records ar
+                    JOIN attendance_sessions s ON s.id = ar.session_id
+                    WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                      AND {FINISHED_SESSION}
+                ) x ON x.student_id = st.id
+                WHERE se.class_id = :class_id
+                GROUP BY st.id
+                ORDER BY st.roll_number
+                """,
+                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+            ).fetchall()
+
+            for r in rows:
+                pct = attendance_percent(r["attended"], r["total"])
+                student_rows.append({
+                    "id": r["id"],
+                    "roll_number": r["roll_number"],
+                    "name": r["name"],
+                    "total": r["total"],
+                    "attended": r["attended"],
+                    "absent": r["total"] - r["attended"],
+                    "percent": pct,
+                    "level": attendance_level(pct, r["total"]),
+                })
+
+            if student_id:
+                chosen_student = next(
+                    (r for r in student_rows if r["id"] == student_id), None
+                )
+
+            if chosen_student:
+                cards = conn.execute(
+                    f"""
+                    SELECT sub.subject_name, sub.subject_code,
+                           COUNT(*) AS total,
+                           SUM(CASE WHEN ar.status = 'Present' THEN 1 ELSE 0 END) AS attended
+                    FROM attendance_records ar
+                    JOIN attendance_sessions s ON s.id = ar.session_id
+                    JOIN subjects sub ON sub.id = s.subject_id
+                    WHERE ar.student_id = :student_id
+                      AND s.class_id = :class_id AND s.teacher_id = :teacher_id
+                      AND {FINISHED_SESSION}
+                    GROUP BY sub.id
+                    ORDER BY sub.subject_name
+                    """,
+                    {
+                        "student_id": chosen_student["id"],
+                        "class_id": selected["id"],
+                        "teacher_id": teacher_id,
+                        "now": now_iso,
+                    },
+                ).fetchall()
+
+                for c in cards:
+                    attended = c["attended"] or 0
+                    pct = attendance_percent(attended, c["total"])
+                    subject_cards.append({
+                        "name": c["subject_name"],
+                        "code": c["subject_code"],
+                        "total": c["total"],
+                        "attended": attended,
+                        "absent": c["total"] - attended,
+                        "percent": pct,
+                        "level": attendance_level(pct, c["total"]),
+                    })
+
+                overall = chosen_student
 
     finally:
         conn.close()
 
-    flash("Session closed. The QR code will no longer work.")
-    return redirect(url_for("teacher_sessions"))
+    return render_template(
+        "teacher_reports.html",
+        classes=classes,
+        selected=selected,
+        student_rows=student_rows,
+        class_sessions=class_sessions,
+        overall=overall,
+        subject_cards=subject_cards,
+        min_attendance=MIN_ATTENDANCE,
+    )
 
 
 # =========================================================
@@ -1091,6 +1318,140 @@ def mark_attendance(token):
             message="Attendance marked as Present."
         )
 
+    finally:
+        conn.close()
+
+
+# ============================================================
+# PASSWORD RESET (students and teachers)
+# ============================================================
+
+def _ensure_reset_table():
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token_hash TEXT NOT NULL UNIQUE,
+                expires_at TEXT NOT NULL,
+                used INTEGER NOT NULL DEFAULT 0
+            )
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _hash_token(token):
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def send_reset_email(to_email, link):
+    """Email the reset link. Without SMTP settings, print it in the terminal."""
+    if not config.SMTP_HOST:
+        print("\n[PASSWORD RESET] Link for " + to_email + ":\n" + link + "\n", flush=True)
+        return
+    msg = EmailMessage()
+    msg["Subject"] = "Attendly: reset your password"
+    msg["From"] = config.SMTP_FROM
+    msg["To"] = to_email
+    msg.set_content(
+        "Use this link to reset your password. It is valid for "
+        + str(config.RESET_TOKEN_MINUTES) + " minutes:\n\n" + link +
+        "\n\nIf you did not ask for this, you can ignore this email."
+    )
+    with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT, timeout=15) as server:
+        server.starttls()
+        if config.SMTP_USER:
+            server.login(config.SMTP_USER, config.SMTP_PASSWORD)
+        server.send_message(msg)
+
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    role = request.values.get("role", "student")
+    if role not in ("student", "teacher"):
+        role = "student"
+    back = url_for("faculty_login") if role == "teacher" else url_for("login")
+    sent = False
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        _ensure_reset_table()
+        conn = get_db_connection()
+        try:
+            user = conn.execute(
+                "SELECT id, email FROM users WHERE email = ?", (email,)
+            ).fetchone()
+            if user:
+                token = secrets.token_urlsafe(32)
+                expires = (datetime.now() + timedelta(minutes=config.RESET_TOKEN_MINUTES)).isoformat(timespec="seconds")
+                conn.execute(
+                    "UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0",
+                    (user["id"],),
+                )
+                conn.execute(
+                    "INSERT INTO password_resets (user_id, token_hash, expires_at, used) VALUES (?, ?, ?, 0)",
+                    (user["id"], _hash_token(token), expires),
+                )
+                conn.commit()
+                link = url_for("reset_password", token=token, _external=True)
+                try:
+                    send_reset_email(user["email"], link)
+                except Exception as exc:
+                    print("[PASSWORD RESET] Email failed:", exc, flush=True)
+        finally:
+            conn.close()
+        # Same answer whether or not the email exists, so people cannot guess accounts
+        sent = True
+
+    return render_template("password_reset.html", mode="request", role=role, back=back, sent=sent)
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    _ensure_reset_table()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            """
+            SELECT pr.id, pr.user_id, pr.expires_at, pr.used, u.role
+            FROM password_resets pr
+            JOIN users u ON u.id = pr.user_id
+            WHERE pr.token_hash = ?
+            """,
+            (_hash_token(token),),
+        ).fetchone()
+
+        now_iso = datetime.now().isoformat(timespec="seconds")
+        if row is None or row["used"] != 0 or row["expires_at"] <= now_iso:
+            return render_template("password_reset.html", mode="invalid", role="student",
+                                   back=url_for("login"))
+
+        back = url_for("faculty_login") if row["role"] == "teacher" else url_for("login")
+
+        if request.method == "POST":
+            password = request.form.get("password", "")
+            confirm = request.form.get("confirm_password", "")
+            if len(password) < 8:
+                flash("Password must be at least 8 characters long.")
+            elif password != confirm:
+                flash("Passwords do not match.")
+            else:
+                conn.execute(
+                    "UPDATE users SET password = ? WHERE id = ?",
+                    (generate_password_hash(password), row["user_id"]),
+                )
+                conn.execute("UPDATE password_resets SET used = 1 WHERE id = ?", (row["id"],))
+                conn.commit()
+                flash("Your password has been reset. Please log in with your new password.")
+                return redirect(back)
+
+        return render_template("password_reset.html", mode="reset", role=row["role"],
+                               back=back, token=token)
     finally:
         conn.close()
 
