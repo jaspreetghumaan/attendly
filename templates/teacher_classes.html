@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classes & Subjects | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
-  <script>
-    /* Dark mode: apply the saved choice before the page paints (no white flash) */
-    (function () {
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } catch (e) {}
-    })();
-  </script>
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 
 <body>
@@ -46,6 +46,7 @@
                 <h2>Add a Class</h2>
             </div>
             <form method="POST" class="form-card">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="form_type" value="class">
                 <input type="text" name="class_name" placeholder="Class name, e.g. B.Tech CSE 3rd Year" required>
                 <input type="text" name="section" placeholder="Section, e.g. A" required>
@@ -59,6 +60,7 @@
                 <h2>Add a Subject</h2>
             </div>
             <form method="POST" class="form-card">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="form_type" value="subject">
                 <input type="text" name="subject_name" placeholder="Subject name, e.g. Data Structures" required>
                 <input type="text" name="subject_code" placeholder="Subject code, e.g. CS301" required>
@@ -133,8 +135,9 @@
                 {% endif %}
             </div>
         </section>
+
         <a href="{{ url_for('teacher_sessions') }}" class="back-link">Start an attendance session →</a>
-<a href="{{ url_for('teacher_enrollments') }}" class="back-link">Enroll students in a class →</a>
+        <a href="{{ url_for('teacher_enrollments') }}" class="back-link">Enroll students in a class →</a>
         <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
 
     </main>
