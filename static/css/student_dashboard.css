@@ -1336,3 +1336,89 @@ html.dark-mode .logout-btn:hover {
   background: #38bdf8;
   color: #0b1120;
 }
+
+
+/* ===== Scan QR button: right side of the welcome block ===== */
+.welcome-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+}
+
+.welcome-action {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  text-align: right;
+}
+
+.welcome-scan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 1rem 1.7rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--grad-brand);
+  border: 0;
+  border-radius: 9999px;
+  box-shadow: 0 8px 22px rgba(2, 132, 199, .35);
+  opacity: 1;
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+
+.welcome-scan-btn:hover {
+  background: var(--grad-brand);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(2, 132, 199, .45);
+}
+
+.welcome-scan-btn .scan-ico {
+  display: inline-flex;
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.welcome-scan-btn .scan-ico svg {
+  width: 100%;
+  height: 100%;
+}
+
+.welcome-action .qr-status {
+  margin-top: 0;
+  max-width: 16rem;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .welcome-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .welcome-action {
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .welcome-scan-btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .welcome-action .qr-status {
+    max-width: none;
+  }
+}
+
+@media print {
+  .welcome-action {
+    display: none;
+  }
+}

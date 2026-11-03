@@ -1,0 +1,608 @@
+/* Attendly | static/css/teacher_session_qr.css (self-contained)
+   Shared by ALL teacher pages: colours, dark mode, layout, welcome banner, headings, tables, empty state, back button. */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* 1. DESIGN TOKENS (same palette as the website's style.css) */
+:root {
+  color-scheme: light;
+  --blue: #0369a1;
+  --blue-bright: #0284c7;
+  --blue-soft: #38bdf8;
+  --violet: #6d28d9;
+  --grad-brand: linear-gradient(135deg, var(--blue-bright) 0%, var(--violet) 100%);
+  --primary: var(--blue-bright);
+  --primary-dark: var(--blue);
+  --primary-bg: rgba(2, 132, 199, .10);
+
+  --ink: #0b1b33;
+  --text: var(--ink);
+  --muted: #475569;
+  --soft: #64748b;
+  --bg-soft: #f8fafc;
+  --bg-tint: #f0f9ff;
+  --card: #fff;
+  --card-hover: #f8fafc;
+  --solid: #fff;
+  --border: #e2e8f0;
+  --edge: var(--border);
+  --line: #eef2f7;
+  --shadow: 0 1px 3px rgba(11, 27, 51, .05);
+  --shadow-md: 0 10px 25px -5px rgba(11, 27, 51, .08), 0 8px 10px -6px rgba(11, 27, 51, .04);
+
+  --success: #15803d;
+  --success-bg: #dcfce7;
+  --warn: #b45309;
+  --warn-bg: #fef3c7;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --neutral: #64748b;
+  --neutral-bg: #f1f5f9;
+
+  --r-lg: 1.5rem;
+  --r-md: 1.25rem;
+  --r-sm: .75rem;
+  --container: 74rem;
+  --gutter: clamp(1.25rem, 4vw, 2rem);
+  --page-pad: max(var(--gutter), calc((100% - var(--container)) / 2));
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: 200ms cubic-bezier(.16, 1, .3, 1);
+  --m-user: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+  --m-users: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3C/svg%3E");
+  --m-mail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Cpath d='m3 7 9 6 9-6'/%3E%3C/svg%3E");
+  --m-id: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='2'/%3E%3Ccircle cx='9' cy='11' r='2'/%3E%3Cpath d='M6 16c.6-1.6 5.4-1.6 6 0M15 10h3M15 14h3'/%3E%3C/svg%3E");
+  --m-building: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4'/%3E%3C/svg%3E");
+  --m-cap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 9 10-5 10 5-10 5zM6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v6'/%3E%3C/svg%3E");
+  --m-target: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1'/%3E%3C/svg%3E");
+  --m-cal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='2'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E");
+  --m-layers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m12 3 9 5-9 5-9-5zM3 13l9 5 9-5'/%3E%3C/svg%3E");
+  --m-grid: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='4' width='7' height='7' rx='1'/%3E%3Crect x='13' y='4' width='7' height='7' rx='1'/%3E%3Crect x='4' y='13' width='7' height='7' rx='1'/%3E%3Crect x='13' y='13' width='7' height='7' rx='1'/%3E%3C/svg%3E");
+  --m-home: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11 12 3l9 8M5 10v10h14V10M10 20v-6h4v6'/%3E%3C/svg%3E");
+  --m-book: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 5a2 2 0 0 1 2-2h6v17H6a2 2 0 0 0-2 2zM20 5a2 2 0 0 0-2-2h-6v17h6a2 2 0 0 1 2 2z'/%3E%3C/svg%3E");
+  --m-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E");
+  --m-chart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 20V10M12 20V4M19 20v-7'/%3E%3C/svg%3E");
+  --m-folder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E");
+  --m-qr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 8h3v3H8zM13 13h3v3h-3zM13 8h3'/%3E%3C/svg%3E");
+}
+
+/* 2. BASE */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--muted);
+  -webkit-font-smoothing: antialiased;
+  background: radial-gradient(38rem 26rem at 92% -6%, rgba(109, 40, 217, .08), transparent 70%), radial-gradient(34rem 24rem at -4% 4%, rgba(2, 132, 199, .09), transparent 70%), var(--bg-soft);
+  background-attachment: fixed;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue-bright);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+h1,
+h2,
+h3,
+.stat-value {
+  font-family: var(--font-display);
+  color: var(--ink);
+}
+
+::selection {
+  background: rgba(2, 132, 199, .22);
+}
+
+.dashboard-container {
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 24px var(--gutter) 48px;
+}
+
+/* masked icon helper */
+.stat-icon-wrap::before,
+.mgmt-icon::before,
+.empty-icon::before,
+.profile-box::before,
+.scanner-card::before {
+  content: "";
+  display: block;
+  background: currentColor;
+  -webkit-mask: var(--ic) center / contain no-repeat;
+  mask: var(--ic) center / contain no-repeat;
+}
+
+/* Page layout */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: calc(var(--container) + 2 * var(--gutter));
+  margin: 0 auto;
+  gap: 28px;
+  align-items: start;
+  padding: 24px var(--gutter) 48px;
+}
+
+.dashboard-container>* {
+  animation: rise .6s cubic-bezier(.16, 1, .3, 1) both;
+}
+
+.dashboard-container> :nth-child(2) { animation-delay: .06s; }
+.dashboard-container> :nth-child(3) { animation-delay: .12s; }
+.dashboard-container> :nth-child(n+4) { animation-delay: .18s; }
+
+.dashboard-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.welcome-section {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.5rem, 4vw, 3rem);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.welcome-section::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--grad-brand);
+  z-index: 2;
+}
+
+.welcome-content {
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-badge {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: .3rem .85rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--blue);
+  background: var(--bg-tint);
+  border-radius: 9999px;
+}
+
+.welcome-section h1 {
+  margin-bottom: .6rem;
+  font-size: clamp(1.75rem, 3.6vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -.035em;
+}
+
+.welcome-section p {
+  max-width: 38rem;
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+.teacher-email-pill {
+  display: inline-flex;
+  margin-top: 1.1rem;
+  padding: .45rem .95rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--bg-tint);
+  border: 1px solid #bae6fd;
+  border-radius: 9999px;
+  overflow-wrap: anywhere;
+}
+
+.welcome-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.welcome-glow::before,
+.welcome-glow::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+}
+
+.welcome-glow::before {
+  top: -9rem;
+  right: -6rem;
+  width: 32rem;
+  height: 32rem;
+  background: radial-gradient(circle, rgba(109, 40, 217, .12), rgba(2, 132, 199, .08) 55%, transparent 72%);
+}
+
+.welcome-glow::after {
+  bottom: -12rem;
+  left: 38%;
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(circle, rgba(56, 189, 248, .14), transparent 70%);
+}
+
+/* 5. SECTION HEADINGS */
+.section-heading {
+  margin-bottom: 14px;
+}
+
+.section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+
+.section-heading h2::before {
+  content: "";
+  width: .45rem;
+  height: 1.1rem;
+  border-radius: 99px;
+  background: linear-gradient(180deg, var(--primary), var(--violet));
+}
+
+.section-heading p {
+  margin-top: 2px;
+  padding-left: 1rem;
+  font-size: 13px;
+  color: var(--soft);
+}
+
+.empty-state {
+  padding: 36px 14px;
+  text-align: center;
+  border: 1.5px dashed rgba(2, 132, 199, .4);
+  border-radius: var(--r-md);
+}
+
+.empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 10px;
+  font-size: 0;
+  color: var(--primary-dark);
+  background: var(--primary-bg);
+  border-radius: 18px;
+  --ic: var(--m-folder);
+}
+
+.empty-icon::before {
+  width: 28px;
+  height: 28px;
+}
+
+.empty-state h3 {
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+
+.empty-state p {
+  font-size: 12.5px;
+  color: var(--soft);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* Tables */
+/* Students directory / report tables */
+.table-card {
+  padding: 18px;
+  background: var(--card);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+}
+
+.table-card.empty-state {
+  border-style: solid;
+}
+
+.table-container {
+  max-height: 32rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  scrollbar-width: thin;
+}
+
+table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+  text-align: left;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--soft);
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+tbody td {
+  padding: 13px 16px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  transition: background-color var(--ease);
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover td {
+  background: var(--bg-tint);
+}
+
+tr.row-active td {
+  background: var(--primary-bg);
+}
+
+.name-col {
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.roll-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--blue);
+  background: var(--bg-tint);
+  border: 1px solid #bae6fd;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* Back-to-dashboard button */
+/* Back-to-dashboard button: sits at the bottom-left of the page content.
+   Uses theme colour variables, so light and dark mode follow automatically. */
+.page-back {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 4px;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1.25rem;
+  font-size: .875rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  box-shadow: var(--shadow);
+  transition: border-color var(--ease), color var(--ease), transform var(--ease), box-shadow var(--ease);
+}
+
+.back-btn:hover {
+  color: var(--blue-bright);
+  border-color: var(--blue-bright);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.back-btn-arrow {
+  transition: transform var(--ease);
+}
+
+.back-btn:hover .back-btn-arrow {
+  transform: translateX(-3px);
+}
+
+@media print {
+  .page-back {
+    display: none;
+  }
+}
+
+/* Dark mode */
+html.dark-mode {
+  color-scheme: dark;
+  --blue: #76cdfc;
+  --blue-bright: #5fc8fd;
+  --blue-soft: #3abef8;
+  --violet: #8e59e2;
+  --ink: #bfd3f1;
+  --muted: #a8b3c4;
+  --soft: #94a0b2;
+  --bg-soft: #13191f;
+  --bg-tint: #0b202d;
+  --border: #3b4757;
+  --success: #8fedb2;
+  --success-bg: #164325;
+  --warn: #f8a96c;
+  --warn-bg: #5b4e18;
+  --danger: #e96d6d;
+  --danger-bg: #3d1111;
+  --neutral: #94a0b2;
+  --neutral-bg: #182027;
+}
+html.dark-mode {
+  --card: #111827;
+  --card-hover: #1a2332;
+  --solid: #111827;
+  --line: #1e293b;
+}
+
+html.dark-mode body {
+  background: radial-gradient(38rem 26rem at 92% -6%, rgba(130, 92, 188, 0.08), transparent 70%), radial-gradient(34rem 24rem at -4% 4%, rgba(2, 132, 199, .09), transparent 70%), var(--bg-soft);
+}
+
+html.dark-mode .welcome-section {
+  background: #0e1116;
+}
+
+html.dark-mode .roll-badge {
+  color: var(--blue);
+  background: var(--bg-tint);
+  border-color: #266687;
+}
+
+html.dark-mode .table-card {
+  background: #0e1116;
+}
+
+html.dark-mode .back-btn {
+  background: #0e1116;
+}
+
+@media print {
+  html.dark-mode body {
+    background: #0e1116;
+  }
+
+  .table-container {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+/* Attendly | static/css/teacher_session_qr.css
+   Session QR page: QR card + present/absent pills. (Also load teacher_base.css) */
+
+/* QR page */
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.qr-img {
+  width: min(360px, 100%);
+  padding: 12px;
+  background: #fff;
+  /* keep the QR white in dark mode so it stays scannable */
+  border-radius: var(--r-sm);
+}
+
+.qr-note {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.qr-url {
+  font-size: 12px;
+  color: var(--soft);
+  word-break: break-all;
+}
+
+/* Status pills in tables */
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pill-present,
+.pill-good {
+  color: var(--success);
+  background: var(--success-bg);
+}
+
+.pill-absent,
+.pill-low {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.pill-warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+}
+
+.pill-none {
+  color: var(--neutral);
+  background: var(--neutral-bg);
+}
+
+/* Button used on this page */
+.form-btn {
+  padding: 12px 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  color: #fff;
+  background: var(--grad-brand);
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, .3);
+  transition: transform var(--ease), box-shadow var(--ease);
+}
+
+.form-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, .4);
+}

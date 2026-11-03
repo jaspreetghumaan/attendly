@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classes & Subjects | Attendly</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_classes.css') }}">
     <script>
         /* Dark mode: apply the saved choice before the page paints (no white flash) */
         (function () {
@@ -136,9 +136,13 @@
             </div>
         </section>
 
-        <a href="{{ url_for('teacher_sessions') }}" class="back-link">Start an attendance session →</a>
-        <a href="{{ url_for('teacher_enrollments') }}" class="back-link">Enroll students in a class →</a>
-        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
+        <!-- Back button: bottom-left of the page -->
+        <div class="page-back">
+            <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
+                <span class="back-btn-arrow">←</span>
+                <span>Back to dashboard</span>
+            </a>
+        </div>
 
     </main>
 

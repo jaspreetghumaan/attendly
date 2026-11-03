@@ -169,7 +169,13 @@
 
         {% endif %}
 
-        <a href="{{ url_for('teacher_dashboard') }}" class="back-link">← Back to dashboard</a>
+        <!-- Back button: bottom-left of the page -->
+        <div class="page-back">
+            <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
+                <span class="back-btn-arrow">←</span>
+                <span>Back to dashboard</span>
+            </a>
+        </div>
 
     </main>
 
