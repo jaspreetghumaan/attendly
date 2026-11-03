@@ -1458,4 +1458,4 @@ def reset_password(token):
 
 if __name__ == "__main__":
     ssl_ctx = "adhoc" if config.USE_HTTPS else None
-    app.run(host=config.HOST, debug=config.DEBUG, ssl_context=ssl_ctx)
+    app.run(host=config.HOST, debug=True, ssl_context=ssl_ctx)
