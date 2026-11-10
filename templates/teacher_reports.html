@@ -21,6 +21,7 @@
 <body>
 
     <main class="dashboard-container">
+    <button type="button" class="print-btn" onclick="window.print()">Print / Save as PDF</button>
 
         <section class="welcome-section">
             <div class="welcome-content">
@@ -59,6 +60,7 @@
         </section>
 
         {% if selected %}
+                <p class="report-actions"><a class="print-btn" href="{{ url_for('export_reports_csv', class_id=selected.id) }}">Download CSV</a></p>
 
         <!-- Step 2: students of the class -->
         <section class="dashboard-section">
@@ -185,6 +187,8 @@
             bar.style.width = bar.dataset.width + '%';
         });
     </script>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 
 </body>
 

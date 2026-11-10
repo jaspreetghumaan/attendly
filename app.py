@@ -1,4 +1,5 @@
 # Main application file for the QR Attendance System
+import csv
 import hashlib
 import io
 import secrets
@@ -18,6 +19,7 @@ from flask import (
     send_file,
     session,
     url_for,
+    Response,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
@@ -581,8 +583,19 @@ def teacher_dashboard():
             """
         ).fetchall()
 
+        own_classes = conn.execute(
+            "SELECT id, class_name, section FROM classes WHERE created_by = ? ORDER BY class_name",
+            (session["user_id"],),
+        ).fetchall()
+        own_subjects = conn.execute(
+            "SELECT id, subject_name, subject_code FROM subjects WHERE created_by = ? ORDER BY subject_name",
+            (session["user_id"],),
+        ).fetchall()
+
         return render_template(
             "teacher_dashboard.html",
+        own_classes=own_classes,
+        own_subjects=own_subjects,
             teacher=teacher,
             total_students=total_students,
             total_attendance=total_attendance,
@@ -1454,6 +1467,77 @@ def reset_password(token):
                                back=back, token=token)
     finally:
         conn.close()
+
+
+def _csv_cell(value):
+    """Stop spreadsheet formula injection: text starting with = + - @ is made harmless."""
+    text = "" if value is None else str(value)
+    return "'" + text if text[:1] in ("=", "+", "-", "@") else text
+
+
+@app.route("/teacher/reports/export.csv")
+def export_reports_csv():
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    class_id = request.args.get("class_id", type=int)
+
+    conn = get_db_connection()
+    try:
+        selected = conn.execute(
+            "SELECT id, class_name, section FROM classes WHERE id = ? AND created_by = ?",
+            (class_id, teacher_id),
+        ).fetchone()
+        if not selected:
+            abort(404)
+        rows = conn.execute(
+            f"""
+            SELECT st.roll_number, u.name,
+                   COUNT(x.status) AS total,
+                   COALESCE(SUM(CASE WHEN x.status = 'Present' THEN 1 ELSE 0 END), 0) AS attended
+            FROM student_enrollments se
+            JOIN students st ON st.id = se.student_id
+            JOIN users u ON u.id = st.user_id
+            LEFT JOIN (
+                SELECT ar.student_id, ar.status
+                FROM attendance_records ar
+                JOIN attendance_sessions s ON s.id = ar.session_id
+                WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                  AND {FINISHED_SESSION}
+            ) x ON x.student_id = st.id
+            WHERE se.class_id = :class_id
+            GROUP BY st.id
+            ORDER BY st.roll_number
+            """,
+            {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+        ).fetchall()
+    finally:
+        conn.close()
+
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(["Roll Number", "Name", "Total Classes", "Present", "Absent", "Attendance %"])
+    for r in rows:
+        total = r["total"] or 0
+        attended = r["attended"] or 0
+        writer.writerow([
+            _csv_cell(r["roll_number"]),
+            _csv_cell(r["name"]),
+            total,
+            attended,
+            total - attended,
+            attendance_percent(attended, total),
+        ])
+
+    safe_name = "".join(ch if ch.isalnum() or ch in "-_" else "_"
+                        for ch in f"{selected['class_name']}_{selected['section']}")
+    return Response(
+        out.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="attendance_{safe_name}.csv"'},
+    )
 
 
 if __name__ == "__main__":

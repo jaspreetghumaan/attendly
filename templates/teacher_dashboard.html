@@ -24,8 +24,7 @@
     <!-- Header -->
     <header class="dashboard-header">
         <div class="brand">
-            <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt="Attendly Logo"
-                class="brand-icon">
+            <img src="{{ url_for('static', filename='images/icon.png') }}" alt="Attendly Logo" class="brand-icon">
             <div class="brand-text">
                 <h2>Attendly</h2>
                 <p>FACULTY PORTAL</p>
@@ -154,9 +153,13 @@
                     <div class="mgmt-icon">📱</div>
                     <div class="mgmt-content">
                         <h3>QR Code Attendance</h3>
-                        <p>Generate secure, time-limited QR codes. Students scan to mark themselves present.</p>
-                        <a href="{{ url_for('teacher_sessions') }}" class="status-tag active-link">Start QR
-                            Attendance</a>
+                        <p>Pick a class and subject to open a live QR session. Students scan to mark themselves present.
+                        </p>
+
+
+                        <a href="{{ url_for('teacher_enrollments') }}" class="status-tag active-link">Add a class and
+                            subject first</a>
+
                     </div>
                 </article>
 
@@ -177,6 +180,8 @@
         </footer>
 
     </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 
 </body>
 

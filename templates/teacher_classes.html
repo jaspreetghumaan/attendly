@@ -13,7 +13,7 @@
                 if (localStorage.getItem('theme') === 'dark') {
                     document.documentElement.classList.add('dark-mode');
                 }
-            } catch (e) {}
+            } catch (e) { }
         })();
     </script>
 </head>
@@ -25,7 +25,7 @@
         <section class="welcome-section">
             <div class="welcome-content">
                 <span class="welcome-badge">CLASSES & SUBJECTS</span>
-                <h1>Set up your classes</h1>
+                <h1>Set up your Classes</h1>
                 <p>Create the classes and subjects you teach. Students and attendance sessions will use these.</p>
             </div>
         </section>
@@ -145,6 +145,8 @@
         </div>
 
     </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 
 </body>
 

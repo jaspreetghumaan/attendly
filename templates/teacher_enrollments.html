@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enroll Students | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_enrollments.css') }}">
-  <script>
-    /* Dark mode: apply the saved choice before the page paints (no white flash) */
-    (function () {
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        }
-      } catch (e) {}
-    })();
-  </script>
+    <script>
+        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body>
@@ -43,7 +43,7 @@
         <!-- Step 1: choose a class -->
         <section class="dashboard-section">
             <div class="section-heading">
-                <h2>1. Choose a class</h2>
+                <h2>Choose a class</h2>
             </div>
 
             {% if classes %}
@@ -51,7 +51,7 @@
                 <select name="class_id" required>
                     <option value="">-- Select a class --</option>
                     {% for c in classes %}
-                    <option value="{{ c.id }}" {% if selected and selected.id == c.id %}selected{% endif %}>
+                    <option value="{{ c.id }}" {% if selected and selected.id==c.id %}selected{% endif %}>
                         {{ c.class_name }} - {{ c.section }}
                     </option>
                     {% endfor %}
@@ -71,7 +71,7 @@
         <!-- Step 2: pick students to add -->
         <section class="dashboard-section">
             <div class="section-heading">
-                <h2>2. Add students to {{ selected.class_name }} - {{ selected.section }}</h2>
+                <h2>Add students to {{ selected.class_name }} - {{ selected.section }}</h2>
                 <p>Students already in this class are not shown.</p>
             </div>
 
@@ -93,7 +93,8 @@
                             <tbody>
                                 {% for s in students %}
                                 <tr>
-                                    <td><input type="checkbox" name="student_ids" value="{{ s.id }}" class="enroll-check"></td>
+                                    <td><input type="checkbox" name="student_ids" value="{{ s.id }}"
+                                            class="enroll-check"></td>
                                     <td><span class="roll-badge">{{ s.roll_number }}</span></td>
                                     <td class="name-col">{{ s.name }}</td>
                                     <td>{{ s.course }}</td>
@@ -163,6 +164,8 @@
         </div>
 
     </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 
 </body>
 

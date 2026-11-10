@@ -2286,3 +2286,10 @@ html.dark-mode .bento-card:hover {
   opacity: 1;
   transform: translate(0);
 }
+
+/* ===== MOBILE: navigation wraps instead of running off the screen ===== */
+@media (max-width: 760px) {
+  .site-nav { flex-wrap: wrap; justify-content: space-between; }
+  .site-nav__list { flex-wrap: wrap; justify-content: flex-end; gap: .35rem .75rem; }
+  .site-nav__link { font-size: .9rem; }
+}

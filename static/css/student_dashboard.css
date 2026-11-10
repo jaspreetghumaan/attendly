@@ -1422,3 +1422,26 @@ html.dark-mode .logout-btn:hover {
     display: none;
   }
 }
+
+/* ===== PRINT / SAVE AS PDF ===== */
+.print-btn { display: inline-flex; align-items: center; gap: .4rem; margin: 0 0 1rem; padding: .55rem 1rem; border: 1px solid #cbd5e1; border-radius: 10px; background: #ffffff; color: #0f172a; font: inherit; font-weight: 700; cursor: pointer; }
+.print-btn:hover { border-color: #0284c7; color: #0284c7; }
+.print-btn:focus-visible { outline: 3px solid #38bdf8; outline-offset: 2px; }
+html.dark-mode .print-btn { background: #111827; color: #e2e8f0; border-color: #334155; }
+@media print {
+  html.dark-mode, html.dark-mode body { background: #ffffff !important; color: #000000 !important; color-scheme: light; }
+  .print-btn, .back-link, .custom-select-container, .qr-quick-form, .theme-toggle, nav, .site-header, .logout-button, .logout-btn { display: none !important; }
+  .table-card, .subject-card, .card, .summary-card { box-shadow: none !important; border: 1px solid #999999 !important; break-inside: avoid; }
+  a { color: #000000 !important; text-decoration: none !important; }
+}
+
+/* ===== MOBILE: wide tables scroll sideways inside their card ===== */
+@media (max-width: 720px) {
+  table { display: block; overflow-x: auto; max-width: 100%; white-space: nowrap; }
+  .dashboard-container { padding-left: 12px; padding-right: 12px; }
+}
+
+/* ===== MOBILE: no sideways page drift from decorative glows ===== */
+@media (max-width: 720px) {
+  html, body { overflow-x: clip; }
+}
