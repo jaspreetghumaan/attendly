@@ -1,188 +1,360 @@
-<!--Teacher Dashboard Html-->
+<!-- Teacher Dashboard | mobile-first redesign
+     Styles: static/css/teacher_dashboard.css  (new design is scoped to body.th-page)
+     Jinja data used: teacher.name, teacher.email, total_students, total_attendance, students -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1b33">
     <title>Teacher Dashboard | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
     <script>
-        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        /* Runs before first paint: saved dark mode (no white flash) + "js" flag for progressive enhancement */
         (function () {
-            try {
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
-                }
-            } catch (e) { }
+            var d = document.documentElement;
+            d.classList.add('js', 'th-html');
+            try { if (localStorage.getItem('theme') === 'dark') d.classList.add('dark-mode'); } catch (e) { }
         })();
     </script>
 </head>
 
-<body>
+<body class="th-page">
 
-    <!-- Header -->
-    <header class="dashboard-header">
-        <div class="brand">
-            <img src="{{ url_for('static', filename='images/icon.png') }}" alt="Attendly Logo" class="brand-icon">
-            <div class="brand-text">
-                <h2>Attendly</h2>
-                <p>FACULTY PORTAL</p>
+    <!-- Icon sprite (one copy, reused with <use>) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></symbol>
+            <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></symbol>
+            <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /><circle cx="9" cy="7" r="4" /></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12.5 2.8 2.8L16.5 9.5" /></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12" /></symbol>
+            <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></symbol>
+            <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+            <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5zM6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5M22 9v6" /></symbol>
+            <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></symbol>
+            <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.500 8.500 0 0 1 9.800 3.500 8.500 8.500 0 1 0 20.500 14.200z" /></symbol>
+            <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M2 12h2M20 12h2M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400" /></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+            <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+        </defs>
+    </svg>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Top bar ============ -->
+    <header class="th-top" id="top">
+        <div class="th-top__in">
+            <a class="th-brand" href="{{ url_for('teacher_dashboard') }}" aria-label="Attendly home">
+                <span class="th-logo">
+                    <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt=""
+                        width="36" height="36">
+                </span>
+                <span class="th-brand__text">
+                    <strong>Attendly</strong>
+                    <small>Faculty portal</small>
+                </span>
+            </a>
+
+            <!-- Desktop navigation (phones use the bottom tab bar) -->
+            <nav class="th-nav" aria-label="Main">
+                <a href="{{ url_for('teacher_dashboard') }}" aria-current="page">Dashboard</a>
+                <a href="{{ url_for('teacher_classes') }}">Classes</a>
+                <a href="{{ url_for('teacher_sessions') }}">QR Sessions</a>
+                <a href="{{ url_for('teacher_reports') }}">Reports</a>
+            </nav>
+
+            <div class="th-actions">
+                <button class="th-icon-btn" id="themeToggle" type="button" aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+                    <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+                </button>
+                <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
+                        <svg class="ic" aria-hidden="true"><use href="#i-logout" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
         </div>
-        <nav class="nav-links">
-            <form action="{{ url_for('logout') }}" method="POST" class="logout-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="logout-btn">
-                    <span>Logout</span>
-                    <span class="logout-arrow">↗</span>
-                </button>
-            </form>
-        </nav>
     </header>
 
-    <main class="dashboard-container">
+    <main class="th-main" id="main">
 
-        <!-- Welcome Hero Section -->
-        <section class="welcome-section">
-            <div class="welcome-content">
-                <span class="welcome-badge">TEACHER DASHBOARD</span>
-                <h1>Welcome back, {{ teacher.name }}! 👋</h1>
-                <p>Manage your classes, track student registrations, and monitor attendance seamlessly.</p>
-                <div class="teacher-email-pill">✉ Email: {{ teacher.email }}</div>
-            </div>
-            <div class="welcome-glow"></div>
-        </section>
-
-        <!-- Attendance Overview Statistics -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Attendance Overview</h2>
-                <p>Quick summary of registered students and total attendance records.</p>
-            </div>
-
-            <div class="stats-grid">
-                <article class="stat-card">
-                    <div class="stat-icon-wrap">👥</div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Registered Students</span>
-                        <h3 class="stat-value">{{ total_students }}</h3>
-                        <span class="stat-note">Active student accounts</span>
-                    </div>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-icon-wrap success-ic">✓</div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Attendance Marked</span>
-                        <h3 class="stat-value">{{ total_attendance }}</h3>
-                        <span class="stat-note">Cumulative present logs</span>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <!-- Registered Students Table Section -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Registered Students Directory</h2>
-                <p>Comprehensive list of all enrolled students in your system.</p>
-            </div>
-
-            <div class="table-card">
-                {% if students %}
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Roll Number</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Department</th>
-                                <th>Course</th>
-                                <th>Year</th>
-                                <th>Semester</th>
-                                <th>Residence</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr>
-                                <td><span class="roll-badge">{{ student.roll_number }}</span></td>
-                                <td class="name-col">{{ student.name }}</td>
-                                <td>{{ student.email }}</td>
-                                <td>{{ student.department or '-' }}</td>
-                                <td>{{ student.course }}</td>
-                                <td>{{ student.year or '-' }}</td>
-                                <td>{{ student.semester or '-' }}</td>
-                                <td>{{ student.residence_type or '-' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        <!-- ============ Hero: greeting + the two numbers that matter ============ -->
+        <section class="th-hero" aria-labelledby="hello">
+            <div class="th-hero__top">
+                <div class="th-avatar" aria-hidden="true">{{ (teacher.name or 'T')[:1] | upper }}</div>
+                <div class="th-hero__who">
+                    <p class="th-eyebrow" id="greeting">Welcome back</p>
+                    <h1 id="hello">{{ teacher.name }}</h1>
                 </div>
-                {% else %}
-                <div class="empty-state">
-                    <span class="empty-icon">📂</span>
-                    <h3>No registered students found</h3>
-                    <p>Student accounts will appear here once they register.</p>
-                </div>
-                {% endif %}
-            </div>
-        </section>
-
-        <!-- Attendance Management Section -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Attendance Management Tools</h2>
-                <p>Advanced controls for conducting classes and monitoring metrics.</p>
+                <time class="th-date" id="today" aria-hidden="true"></time>
             </div>
 
-            <div class="management-grid">
-                <article class="management-card">
-                    <div class="mgmt-icon">📚</div>
-                    <div class="mgmt-content">
-                        <h3>Class Sessions</h3>
-                        <p>Create your classes and subjects, then enroll students in each class.</p>
-                        <a href="{{ url_for('teacher_classes') }}" class="status-tag active-link">Manage Classes &amp;
-                            Subjects</a>
-                    </div>
+            <p class="th-mail"><svg class="ic" aria-hidden="true"><use href="#i-mail" /></svg><span>{{ teacher.email
+                    }}</span></p>
+
+            <div class="th-kpis">
+                <article class="th-kpi">
+                    <span class="th-kpi__ic"><svg class="ic" aria-hidden="true"><use href="#i-users" /></svg></span>
+                    <strong class="th-kpi__num" data-count="{{ total_students }}">{{ total_students }}</strong>
+                    <span class="th-kpi__label">Registered students</span>
                 </article>
-
-                <article class="management-card">
-                    <div class="mgmt-icon">📱</div>
-                    <div class="mgmt-content">
-                        <h3>QR Code Attendance</h3>
-                        <p>Pick a class and subject to open a live QR session. Students scan to mark themselves present.
-                        </p>
-
-
-                        <a href="{{ url_for('teacher_enrollments') }}" class="status-tag active-link">Add a class and
-                            subject first</a>
-
-                    </div>
-                </article>
-
-                <article class="management-card">
-                    <div class="mgmt-icon">📊</div>
-                    <div class="mgmt-content">
-                        <h3>Attendance Reports</h3>
-                        <p>Subject-wise total classes, absences and attendance percentage for every student.</p>
-                        <a href="{{ url_for('teacher_reports') }}" class="status-tag active-link">View Reports</a>
-                    </div>
+                <article class="th-kpi th-kpi--ok">
+                    <span class="th-kpi__ic"><svg class="ic" aria-hidden="true"><use href="#i-check" /></svg></span>
+                    <strong class="th-kpi__num" data-count="{{ total_attendance }}">{{ total_attendance }}</strong>
+                    <span class="th-kpi__label">Attendance marked</span>
                 </article>
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="dashboard-footer">
-            <p></p>
-        </footer>
+        <!-- ============ Quick actions ============ -->
+        <section class="th-section" aria-labelledby="h-actions">
+            <div class="th-head">
+                <h2 id="h-actions">Quick actions</h2>
+            </div>
 
+            <div class="th-actions-grid">
+                <a class="th-feature" href="{{ url_for('teacher_sessions') }}">
+                    <span class="th-feature__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+                    <span class="th-feature__txt">
+                        <strong>Start QR attendance</strong>
+                        <small>Generate a secure, time-limited code. Students scan to mark themselves present.</small>
+                    </span>
+                    <span class="th-feature__go" aria-hidden="true"><svg class="ic"><use href="#i-arrow" /></svg></span>
+                </a>
+
+                <a class="th-tile" href="{{ url_for('teacher_classes') }}">
+                    <span class="th-tile__ic th-tile__ic--blue"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+                    <strong>Classes &amp; subjects</strong>
+                    <small>Create classes, enroll students</small>
+                </a>
+
+                <a class="th-tile" href="{{ url_for('teacher_reports') }}">
+                    <span class="th-tile__ic th-tile__ic--violet"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+                    <strong>Attendance reports</strong>
+                    <small>Subject-wise % for every student</small>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============ Student directory ============ -->
+        <section class="th-section" aria-labelledby="h-students">
+            <div class="th-head">
+                <h2 id="h-students">Students</h2>
+                <span class="th-count" id="countPill">{{ students|length }}</span>
+            </div>
+
+            {% if students %}
+            <div class="th-filters" id="filters">
+                <label class="th-search" for="q">
+                    <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                    <input id="q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off"
+                        autocapitalize="none" spellcheck="false" placeholder="Search name, roll no. or email">
+                    <button class="th-search__clear" id="qClear" type="button" aria-label="Clear search" hidden>
+                        <svg class="ic" aria-hidden="true"><use href="#i-x" /></svg>
+                    </button>
+                </label>
+                <div class="th-chips" id="chips" role="group" aria-label="Filter by department"></div>
+            </div>
+
+            <p class="th-status" id="status" aria-live="polite"></p>
+
+            <ul class="th-students" id="list">
+                {% for student in students %}
+                <li class="th-student" data-tone="{{ loop.index0 % 6 }}" data-dept="{{ student.department or '' }}"
+                    data-q="{{ (student.name ~ ' ' ~ student.roll_number ~ ' ' ~ student.email ~ ' ' ~ (student.department or '') ~ ' ' ~ (student.course or '')) | lower }}">
+                    <div class="th-student__av" aria-hidden="true">{{ (student.name or '?')[:1] | upper }}</div>
+                    <div class="th-student__main">
+                        <p class="th-student__name">{{ student.name }}</p>
+                        <p class="th-student__course">{{ student.course }}{% if student.department %} · {{
+                            student.department }}{% endif %}</p>
+                        <p class="th-student__mail"><svg class="ic" aria-hidden="true"><use href="#i-mail" /></svg><span>{{
+                                student.email }}</span></p>
+                        <div class="th-tags">
+                            <span class="th-tag th-tag--roll">{{ student.roll_number }}</span>
+                            {% if student.year or student.semester %}
+                            <span class="th-tag">{% if student.year %}Year {{ student.year }}{% endif %}{% if
+                                student.year and student.semester %} · {% endif %}{% if student.semester %}Sem {{
+                                student.semester }}{% endif %}</span>
+                            {% endif %}
+                            {% if student.residence_type %}<span class="th-tag">{{ student.residence_type }}</span>{%
+                            endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="th-empty" id="noResults" hidden>
+                <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                <h3>No students match</h3>
+                <p>Try a different name, roll number or department.</p>
+                <button type="button" class="th-btn" id="resetFilters">Clear filters</button>
+            </div>
+
+            <button type="button" class="th-more" id="more" hidden>Show more</button>
+
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-folder" /></svg>
+                <h3>No registered students yet</h3>
+                <p>Student accounts will appear here as soon as they register.</p>
+            </div>
+            {% endif %}
+        </section>
     </main>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+    <!-- ============ Bottom tab bar (phones & small tablets) ============ -->
+    <nav class="th-tabbar" aria-label="Main">
+        <a href="{{ url_for('teacher_dashboard') }}" aria-current="page">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-home" /></svg></span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('teacher_classes') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+            <span>Classes</span>
+        </a>
+        <a href="{{ url_for('teacher_sessions') }}" class="is-primary">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+            <span>QR</span>
+        </a>
+        <a href="{{ url_for('teacher_reports') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+            <span>Reports</span>
+        </a>
+    </nav>
 
+    <script>
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+            function $(id) { return document.getElementById(id); }
+
+            /* ---------- 1. Greeting + date ---------- */
+            var h = new Date().getHours();
+            var greet = h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+            $('greeting').textContent = greet;
+            try {
+                $('today').textContent = new Date().toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+            } catch (e) { }
+
+            /* ---------- 2. Theme toggle (same "theme" key as the rest of the site) ---------- */
+            var tbtn = $('themeToggle');
+            function syncTheme() {
+                var dark = root.classList.contains('dark-mode');
+                tbtn.setAttribute('aria-pressed', String(dark));
+                tbtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+                var m = document.querySelector('meta[name="theme-color"]');
+                if (m) m.setAttribute('content', dark ? '#070b14' : '#0b1b33');
+            }
+            tbtn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { }
+                syncTheme();
+            });
+            syncTheme();
+
+            /* ---------- 3. Top bar gets a hairline once you scroll ---------- */
+            var top = $('top'), ticking = false;
+            function onScroll() {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(function () {
+                    top.classList.toggle('is-stuck', window.scrollY > 6); ticking = false;
+                });
+            }
+            window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+            /* ---------- 4. Count-up for the two numbers ---------- */
+            if (!reduce) {
+                document.querySelectorAll('[data-count]').forEach(function (el) {
+                    var to = parseInt(el.getAttribute('data-count'), 10);
+                    if (!isFinite(to) || to < 1) return;
+                    var t0 = null, dur = 800;
+                    function step(t) {
+                        if (t0 === null) t0 = t;
+                        var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+                        el.textContent = Math.round(to * e).toLocaleString();
+                        if (p < 1) requestAnimationFrame(step); else el.textContent = to.toLocaleString();
+                    }
+                    el.textContent = '0'; requestAnimationFrame(step);
+                });
+            }
+
+            /* ---------- 5. Student directory: search + department chips + "show more" ---------- */
+            var list = $('list'); if (!list) return;
+            var items = Array.prototype.slice.call(list.children);
+            var q = $('q'), qClear = $('qClear'), chips = $('chips'), more = $('more');
+            var status = $('status'), none = $('noResults'), pill = $('countPill');
+            var PAGE = 12, shown = PAGE, dept = '', term = '';
+
+            /* build chips from the data (only worth showing with 2+ departments) */
+            var counts = {};
+            items.forEach(function (li) { var d = li.getAttribute('data-dept'); if (d) counts[d] = (counts[d] || 0) + 1; });
+            var depts = Object.keys(counts).sort();
+            if (depts.length > 1) {
+                var html = '<button type="button" class="th-chip is-on" data-d="">All <b>' + items.length + '</b></button>';
+                depts.forEach(function (d) {
+                    html += '<button type="button" class="th-chip" data-d="' + d.replace(/"/g, '&quot;') + '">' +
+                        d.replace(/</g, '&lt;') + ' <b>' + counts[d] + '</b></button>';
+                });
+                chips.innerHTML = html;
+                chips.addEventListener('click', function (e) {
+                    var b = e.target.closest('.th-chip'); if (!b) return;
+                    dept = b.getAttribute('data-d'); shown = PAGE;
+                    chips.querySelectorAll('.th-chip').forEach(function (c) { c.classList.toggle('is-on', c === b); });
+                    render();
+                });
+            } else { chips.hidden = true; }
+
+            var timer;
+            q.addEventListener('input', function () {
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    term = q.value.trim().toLowerCase(); shown = PAGE; qClear.hidden = !q.value; render();
+                }, 120);
+                qClear.hidden = !q.value;
+            });
+            qClear.addEventListener('click', function () { q.value = ''; term = ''; qClear.hidden = true; shown = PAGE; render(); q.focus(); });
+            more.addEventListener('click', function () { shown += PAGE; render(true); });
+            $('resetFilters').addEventListener('click', function () {
+                q.value = ''; term = ''; dept = ''; shown = PAGE; qClear.hidden = true;
+                chips.querySelectorAll('.th-chip').forEach(function (c, i) { c.classList.toggle('is-on', i === 0); });
+                render();
+            });
+
+            function render(keepScroll) {
+                var words = term ? term.split(/\s+/) : [];
+                var match = items.filter(function (li) {
+                    if (dept && li.getAttribute('data-dept') !== dept) return false;
+                    var hay = li.getAttribute('data-q');
+                    return words.every(function (w) { return hay.indexOf(w) !== -1; });
+                });
+                var first = true;
+                items.forEach(function (li) { li.hidden = true; });
+                match.forEach(function (li, i) { li.hidden = i >= shown; });
+                var visible = Math.min(match.length, shown), left = match.length - visible;
+                none.hidden = match.length !== 0;
+                list.hidden = match.length === 0;
+                more.hidden = left <= 0;
+                more.textContent = 'Show ' + Math.min(left, PAGE) + ' more  ·  ' + left + ' left';
+                status.textContent = match.length === items.length && !term && !dept
+                    ? 'Showing ' + visible + ' of ' + items.length + ' students'
+                    : match.length + ' match' + (match.length === 1 ? '' : 'es') + ' · showing ' + visible;
+                status.hidden = match.length === 0;
+                pill.textContent = (term || dept) ? match.length + ' / ' + items.length : items.length;
+            }
+            render();
+        })();
+    </script>
 </body>
 
 </html>

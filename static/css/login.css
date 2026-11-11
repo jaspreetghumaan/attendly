@@ -157,7 +157,7 @@ body::after {
   display: inline-block;
   width: 2.35rem;
   height: 2.35rem;
-  background-image: url("../images/icon.png");
+  background-image: url("https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -352,9 +352,13 @@ body::after {
 /* Akh aale icon lyi navan code add karo */
 .toggle-password {
   position: absolute;
-  right: 1rem;
-  top: 2.15rem;
-  /* Label di height de hisaab naal set kitta a */
+  top: auto;
+  bottom: 0;
+  /* sits exactly over the input, whatever the label height */
+  width: 3rem;
+  height: 3rem;
+  right: 0;
+  justify-content: center;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -680,4 +684,254 @@ html.dark-mode .reset-title {
 
 html.dark-mode .reset-text {
   color: #94a3b8;
+}
+
+/* =====================================================================
+   MOBILE & TOUCH OPTIMISATION  (keep at the END of the file)
+   ===================================================================== */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button {
+  touch-action: manipulation;
+}
+
+.toggle-password:focus-visible,
+.login-button:focus-visible,
+.back-home:focus-visible,
+.form-group input:focus-visible {
+  outline: 3px solid rgba(114, 87, 232, 0.45);
+  outline-offset: 2px;
+}
+
+/* Tablet / phone: single column, form first in importance */
+@media (max-width: 900px) {
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-attachment: scroll;
+    /* iOS ignores "fixed" and it makes scrolling choppy */
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  body::before,
+  body::after {
+    width: 18rem;
+    height: 18rem;
+    filter: blur(50px);
+  }
+
+  .login-container {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 0.94);
+  }
+
+  html.dark-mode .login-container {
+    background: rgba(14, 17, 22, 0.95);
+  }
+}
+
+/* Phones (portrait) and short landscape screens: compact header so the
+   form is visible without scrolling */
+@media (max-width: 600px),
+(max-height: 500px) {
+  body {
+    align-items: flex-start;
+  }
+
+  .login-container {
+    border-radius: 22px;
+  }
+
+  .login-branding {
+    padding: 1.1rem 1.35rem 1rem;
+  }
+
+  .brand-name {
+    min-height: 2.75rem;
+    font-size: 1.3rem;
+  }
+
+  .brand-name::before {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 10px;
+  }
+
+  .branding-content {
+    margin-block: 0;
+    padding-block: 0.85rem 0;
+  }
+
+  .branding-content .eyebrow,
+  .branding-description,
+  .branding-footer {
+    display: none;
+  }
+
+  .branding-content h1 {
+    margin-bottom: 0;
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .branding-content h1 br {
+    display: none;
+  }
+
+  .login-form-section {
+    padding: 1.4rem 1.25rem 1.5rem;
+  }
+
+  .form-heading {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-heading h2 {
+    font-size: 1.65rem;
+  }
+
+  .login-form {
+    gap: 1rem;
+  }
+}
+
+/* Phones: comfortable, zoom-free controls */
+@media (max-width: 600px) {
+
+  /* 16px+ stops iOS Safari zooming the page when an input is focused */
+  .form-group input {
+    height: 3.25rem;
+    font-size: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.875rem;
+  }
+
+  .toggle-password {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .form-group input#password {
+    padding-right: 3.25rem;
+  }
+
+  .login-button {
+    height: 3.25rem;
+    font-size: 1rem;
+  }
+
+  .forgot-link {
+    margin-top: 0.5rem;
+  }
+
+  /* make every text link a proper 44px tap target */
+  .forgot-link a,
+  .register-prompt a,
+  .faculty-prompt a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.35rem;
+  }
+
+  .register-prompt,
+  .faculty-prompt {
+    font-size: 0.92rem;
+    margin-bottom: 0;
+    line-height: 1.2;
+  }
+
+  .back-home {
+    min-height: 2.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .form-divider {
+    margin: 0.75rem 0 0.35rem;
+  }
+}
+
+/* Very small phones (320px) */
+@media (max-width: 360px) {
+  .login-branding {
+    padding-inline: 1.1rem;
+  }
+
+  .login-form-section {
+    padding-inline: 1rem;
+  }
+
+  .form-heading h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Touch screens: no sticky hover lift */
+@media (hover: none) {
+
+  .login-button:hover,
+  .back-home:hover {
+    transform: none;
+  }
+
+  .login-button:hover span {
+    transform: none;
+  }
+
+  .login-button:active {
+    transform: scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-container {
+    animation: none;
+  }
+}
+
+/* Password reset pages (forgot / set new password) on phones */
+@media (max-width: 600px) {
+  .reset-wrap {
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: start;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .reset-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 22px;
+  }
+
+  .reset-title {
+    font-size: 1.5rem;
+  }
+
+  .reset-card .back-home {
+    align-self: flex-start;
+    min-height: 2.75rem;
+    margin: 0 0 .25rem;
+  }
+
+  .reset-card .login-form {
+    gap: 1rem;
+  }
+}
+
+/* Any touch screen (phones AND tablets): 16px fields so iOS never zooms in */
+@media (pointer: coarse) {
+  .form-group input {
+    font-size: 16px;
+  }
 }

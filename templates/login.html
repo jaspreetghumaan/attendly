@@ -4,7 +4,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#7257e8">
 
     <title>Student Login | Attendly</title>
 
@@ -96,7 +97,8 @@
                         <label for="email"> Email Address</label>
 
                         <input type="email" id="email" name="email" placeholder="Enter your email address"
-                            autocomplete="email" required>
+                            autocomplete="email" inputmode="email" enterkeyhint="next" autocapitalize="none"
+                            spellcheck="false" required>
                     </div>
 
 
@@ -104,10 +106,12 @@
                         <label for="password">Password</label>
 
                         <input type="password" id="password" name="password" placeholder="Enter your password"
-                            autocomplete="current-password" required>
+                            autocomplete="current-password" enterkeyhint="go" autocapitalize="none"
+                            spellcheck="false" required>
 
                         <!-- Akh aali option (Eye Icon) -->
-                        <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password">
+                        <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password"
+                            aria-pressed="false">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
                                 stroke="currentColor" width="20" height="20">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -185,8 +189,10 @@
                 // Icon toggle karo (Je pehlan password c taan hun show wali akh lagau)
                 this.innerHTML = isPassword ? eyeIcon : eyeSlashIcon;
 
-                // Color update karo
+                // Color + accessibility state
                 this.style.color = isPassword ? 'var(--primary)' : 'var(--text-muted)';
+                this.setAttribute('aria-pressed', String(isPassword));
+                this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
             });
         }
     </script>

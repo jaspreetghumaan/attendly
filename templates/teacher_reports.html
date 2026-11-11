@@ -3,193 +3,343 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1b33">
     <title>Attendance Reports | Attendly</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_reports.css') }}">
     <script>
-        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
         (function () {
-            try {
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
-                }
-            } catch (e) { }
+            var d = document.documentElement;
+            d.classList.add("js", "th-html");
+            try { if (localStorage.getItem('theme') === 'dark') d.classList.add('dark-mode'); } catch (e) { }
         })();
     </script>
 </head>
 
-<body>
+<body class="th-page">
 
-    <main class="dashboard-container">
-    <button type="button" class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></symbol>
+            <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></symbol>
+            <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12.5 2.8 2.8L16.5 9.5" /></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+            <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" /></symbol>
+            <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+            <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+            <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+            <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2z" /></symbol>
+            <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+            <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+            <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" /></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+            <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4.5M12 17.5h.01" /></symbol>
+            <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
+        </defs>
+    </svg>
 
-        <section class="welcome-section">
-            <div class="welcome-content">
-                <span class="welcome-badge">ATTENDANCE REPORTS</span>
-                <h1>Subject-wise attendance</h1>
-                <p>Choose a class, then open a student to see total classes, absences and percentage for every subject.
-                </p>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Top bar ============ -->
+    <header class="th-top" id="top">
+        <div class="th-top__in">
+            <a class="th-brand" href="{{ url_for('teacher_dashboard') }}" aria-label="Attendly dashboard">
+                <span class="th-logo">
+                    <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt=""
+                        width="36" height="36">
+                </span>
+                <span class="th-brand__text">
+                    <strong>Attendly</strong>
+                    <small>Faculty portal</small>
+                </span>
+            </a>
+
+            <nav class="th-nav" aria-label="Main">
+                <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('teacher_classes') }}">Classes</a>
+                <a href="{{ url_for('teacher_sessions') }}">QR Sessions</a>
+                <a href="{{ url_for('teacher_reports') }}" aria-current="page">Reports</a>
+            </nav>
+
+            <div class="th-actions">
+                <button class="th-icon-btn" id="themeToggle" type="button" aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+                    <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+                </button>
+                <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
+                        <svg class="ic" aria-hidden="true"><use href="#i-logout" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
+        </div>
+    </header>
+
+<main class="th-main" id="main">
+
+        <section class="ss-intro">
+            <p class="ss-eyebrow">Attendance reports</p>
+            <h1>Subject-wise attendance</h1>
+            <p class="ss-lead">Choose a class, then open a student to see total classes, absences and percentage for every subject.</p>
         </section>
 
-        <!-- Step 1: choose class -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Select Class</h2>
-            </div>
-
+        <!-- ============ Class picker ============ -->
+        <section aria-labelledby="h-class">
+            <div class="th-head"><h2 id="h-class">Class</h2></div>
             {% if classes %}
-            <form method="GET" class="form-card">
-                <select name="class_id" required>
-                    <option value="">-- Select class --</option>
-                    {% for c in classes %}
-                    <option value="{{ c.id }}" {% if selected and selected.id==c.id %} selected{% endif %}>{{
-                        c.class_name }} - {{ c.section }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="form-btn">Show students</button>
+            <form method="GET" class="rp-pick">
+                <div class="ss-select">
+                    <select id="class_id" name="class_id" required aria-label="Select class">
+                        <option value="">Select a class</option>
+                        {% for c in classes %}
+                        <option value="{{ c.id }}" {% if selected and selected.id==c.id %}selected{% endif %}>{{ c.class_name }} - {{ c.section }}</option>
+                        {% endfor %}
+                    </select>
+                    <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
+                </div>
+                <button type="submit" class="th-btn">Show students</button>
             </form>
             {% else %}
-            <div class="table-card empty-state">
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-book" /></svg>
                 <h3>No classes yet</h3>
-                <p>Create a class and start a QR session first.
-                    <a href="{{ url_for('teacher_classes') }}" class="back-link">Add a class</a>
-                </p>
+                <p>Create a class and start a QR session first.</p>
+                <a href="{{ url_for('teacher_classes') }}" class="th-btn">Add a class</a>
             </div>
             {% endif %}
         </section>
 
         {% if selected %}
-                <p class="report-actions"><a class="print-btn" href="{{ url_for('export_reports_csv', class_id=selected.id) }}">Download CSV</a></p>
 
-        <!-- Step 2: students of the class -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>{{ selected.class_name }} - {{ selected.section }}</h2>
-                <p>{{ class_sessions }} completed session(s). Minimum required attendance is {{ min_attendance }}%.</p>
-            </div>
+        {% set ns = namespace(att=0, tot=0, short=0, good=0) %}
+        {% for r in student_rows %}
+        {% set ns.att = ns.att + r.attended %}{% set ns.tot = ns.tot + r.total %}
+        {% if r.total and r.percent < min_attendance %}{% set ns.short = ns.short + 1 %}{% elif r.total %}{% set ns.good = ns.good + 1 %}{% endif %}
+        {% endfor %}
 
-            <div class="table-card">
-                {% if student_rows %}
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Roll Number</th>
-                                <th>Name</th>
-                                <th>Total Classes</th>
-                                <th>Attended</th>
-                                <th>Absent</th>
-                                <th>Attendance %</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in student_rows %}
-                            <tr class="{{ 'row-active' if overall and overall.id == r.id else '' }}">
-                                <td><span class="roll-badge">{{ r.roll_number }}</span></td>
-                                <td class="name-col">{{ r.name }}</td>
-                                <td>{{ r.total }}</td>
-                                <td>{{ r.attended }}</td>
-                                <td>{{ r.absent }}</td>
-                                <td>
-                                    {% if r.total %}
-                                    <span class="pill pill-{{ r.level }}">{{ r.percent }}%</span>
-                                    {% else %}
-                                    <span class="pill pill-none">No data</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id) }}#student-report"
-                                        class="back-link">Subject-wise →</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="empty-state">
-                    <span class="empty-icon">👥</span>
-                    <h3>No students enrolled</h3>
-                    <p>Enroll students in this class to see their reports.
-                        <a href="{{ url_for('teacher_enrollments', class_id=selected.id) }}" class="back-link">Enroll
-                            students</a>
-                    </p>
-                </div>
-                {% endif %}
+        <!-- ============ Class overview ============ -->
+        <section class="rp-class" aria-labelledby="h-sel">
+            <p class="rp-class__eyebrow">Selected class</p>
+            <h2 id="h-sel">{{ selected.class_name }} - {{ selected.section }}</h2>
+            <p class="rp-class__sub">{{ class_sessions }} completed session{{ '' if class_sessions == 1 else 's' }} · minimum {{ min_attendance }}% required</p>
+            <div class="rp-kpis">
+                <div class="rp-kpi"><strong>{{ student_rows|length }}</strong><span>Students</span></div>
+                <div class="rp-kpi"><strong>{% if ns.tot %}{{ (ns.att * 100 / ns.tot) | round(1) | string | replace('.0', '') }}%{% else %}–{% endif %}</strong><span>Class average</span></div>
+                <div class="rp-kpi rp-kpi--bad"><strong>{{ ns.short }}</strong><span>Below {{ min_attendance }}%</span></div>
             </div>
         </section>
 
-        <!-- Step 3: subject-wise blocks for one student -->
+        <!-- ============ Students ============ -->
+        <section aria-labelledby="h-students">
+            <div class="th-head">
+                <h2 id="h-students">Students</h2>
+                {% if student_rows %}<span class="th-count">{{ student_rows|length }}</span>{% endif %}
+            </div>
+
+            {% if student_rows %}
+            <div class="rp-tools">
+                <div class="th-search">
+                    <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                    <input type="search" id="q" placeholder="Search name or roll number" aria-label="Search students" autocomplete="off">
+                    <button type="button" class="th-search__clear" id="clear" aria-label="Clear search" hidden>&times;</button>
+                </div>
+                <div class="rp-chips" id="filters" role="group" aria-label="Filter students">
+                    <button type="button" class="th-chip is-on" data-f="all">All <b>{{ student_rows|length }}</b></button>
+                    <button type="button" class="th-chip" data-f="low">Shortage <b>{{ ns.short }}</b></button>
+                    <button type="button" class="th-chip" data-f="ok">On track <b>{{ ns.good }}</b></button>
+                </div>
+            </div>
+
+            <ul class="rp-students" id="students">
+                {% for r in student_rows %}
+                {% set lvl = 'none' if not r.total else ('ok' if r.percent >= min_attendance else 'low') %}
+                <li data-level="{{ lvl }}" data-q="{{ (r.name ~ ' ' ~ r.roll_number) | lower }}">
+                    <a class="rp-student rp-student--{{ r.level }}{% if overall and overall.id == r.id %} is-active{% endif %}"
+                        href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id) }}#student-report"
+                        {% if overall and overall.id == r.id %}aria-current="true"{% endif %}>
+                        <span class="rp-ring" style="--p: {{ r.percent if r.total else 0 }}" aria-hidden="true">
+                            <b>{% if r.total %}{{ r.percent | string | replace('.0', '') }}<small>%</small>{% else %}–{% endif %}</b>
+                        </span>
+                        <span class="rp-student__main">
+                            <strong>{{ r.name }}</strong>
+                            <span class="rp-roll">{{ r.roll_number }}</span>
+                            <span class="rp-nums">
+                                {% if r.total %}
+                                <span><b>{{ r.attended }}</b> present</span>
+                                <span><b>{{ r.absent }}</b> absent</span>
+                                <span><b>{{ r.total }}</b> total</span>
+                                {% else %}
+                                <span>No completed sessions</span>
+                                {% endif %}
+                            </span>
+                        </span>
+                        <svg class="ic rp-student__go" aria-hidden="true"><use href="#i-chev" /></svg>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <p class="rp-none" id="none" hidden>No students match.</p>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-users" /></svg>
+                <h3>No students enrolled</h3>
+                <p>Enroll students in this class to see their reports.</p>
+                <a href="{{ url_for('teacher_enrollments', class_id=selected.id) }}" class="th-btn">Enroll students</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ============ One student, subject by subject ============ -->
         {% if overall %}
-        <section class="dashboard-section" id="student-report">
-            <div class="section-heading">
-                <h2>{{ overall.name }} <span class="roll-badge">{{ overall.roll_number }}</span></h2>
-                <p>
-                    Overall: {{ overall.attended }} attended out of {{ overall.total }} classes
-                    {% if overall.total %}({{ overall.percent }}%){% endif %}
-                </p>
+        <section id="student-report" class="rp-detail" aria-labelledby="h-stu">
+            <div class="rp-who rp-who--{{ overall.level|default('none') }}">
+                <span class="rp-ring rp-ring--lg" style="--p: {{ overall.percent if overall.total else 0 }}" aria-hidden="true">
+                    <b>{% if overall.total %}{{ overall.percent | string | replace('.0', '') }}<small>%</small>{% else %}–{% endif %}</b>
+                </span>
+                <div class="rp-who__txt">
+                    <p class="rp-class__eyebrow">Student report</p>
+                    <h2 id="h-stu">{{ overall.name }}</h2>
+                    <span class="rp-roll">{{ overall.roll_number }}</span>
+                    <p class="rp-who__sub">{{ overall.attended }} attended of {{ overall.total }} classes overall</p>
+                </div>
             </div>
 
             {% if subject_cards %}
-            <div class="subject-grid">
+            <div class="th-head rp-head2"><h2>By subject</h2><span class="th-count">{{ subject_cards|length }}</span></div>
+            <div class="rp-subjects">
                 {% for c in subject_cards %}
-                <article class="subject-card level-{{ c.level }}">
-                    <div class="subject-head">
-                        <div>
+                <article class="rp-subject rp-subject--{{ c.level }}">
+                    <div class="rp-subject__top">
+                        <div class="rp-subject__name">
                             <h3>{{ c.name }}</h3>
-                            <span class="subject-code">{{ c.code }}</span>
+                            <span class="rp-roll">{{ c.code }}</span>
                         </div>
-                        <span class="pill pill-{{ c.level }}">{{ c.percent }}%</span>
+                        <span class="rp-pct">{{ c.percent | string | replace('.0', '') }}%</span>
                     </div>
-
-                    <div class="progress">
-                        <div class="progress-bar" data-width="{{ c.percent }}"></div>
+                    <div class="rp-bar" role="img" aria-label="{{ c.percent }} percent attendance">
+                        <i style="--p: {{ c.percent }}"></i><span class="rp-bar__min" style="--m: {{ min_attendance }}" title="Minimum {{ min_attendance }}%"></span>
                     </div>
-
-                    <div class="subject-stats">
-                        <div><strong>{{ c.total }}</strong><span>Total classes</span></div>
+                    <div class="rp-stats">
+                        <div><strong>{{ c.total }}</strong><span>Total</span></div>
                         <div><strong>{{ c.attended }}</strong><span>Present</span></div>
-                        <div><strong>{{ c.absent }}</strong><span>Absent</span></div>
+                        <div class="rp-stats__abs"><strong>{{ c.absent }}</strong><span>Absent</span></div>
                     </div>
-
-                    {% if c.percent < min_attendance %} <p class="subject-warning">Below {{ min_attendance }}% —
-                        attendance shortage</p>
-                        {% endif %}
+                    {% if c.percent < min_attendance %}
+                    <p class="rp-warn"><svg class="ic" aria-hidden="true"><use href="#i-alert" /></svg>Below {{ min_attendance }}% — attendance shortage</p>
+                    {% endif %}
                 </article>
                 {% endfor %}
             </div>
             {% else %}
-            <div class="table-card empty-state">
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg>
                 <h3>No completed sessions yet</h3>
-                <p>Subject-wise blocks appear after at least one session has closed.</p>
+                <p>Subject-wise cards appear after at least one session has closed.</p>
             </div>
             {% endif %}
         </section>
         {% endif %}
 
         {% endif %}
-
-        <!-- Back button: bottom-left of the page -->
-        <div class="page-back">
-            <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
-                <span class="back-btn-arrow">←</span>
-                <span>Back to dashboard</span>
-            </a>
-        </div>
-
     </main>
 
+    <!-- ============ Bottom tab bar (phones) ============ -->
+    <nav class="th-tabbar" aria-label="Main">
+        <a href="{{ url_for('teacher_dashboard') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-home" /></svg></span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('teacher_classes') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+            <span>Classes</span>
+        </a>
+        <a href="{{ url_for('teacher_sessions') }}" class="is-primary">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+            <span>QR</span>
+        </a>
+        <a href="{{ url_for('teacher_reports') }}" aria-current="page">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+            <span>Reports</span>
+        </a>
+    </nav>
+
+
     <script>
-        /* Progress bar widths come from data-width (keeps Jinja out of style="") */
-        document.querySelectorAll('.progress-bar[data-width]').forEach(function (bar) {
-            bar.style.width = bar.dataset.width + '%';
-        });
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            function $(id) { return document.getElementById(id); }
+
+            /* ---------- Theme toggle (same "theme" key as the rest of the site) ---------- */
+            var tbtn = $('themeToggle');
+            function syncTheme() {
+                var dark = root.classList.contains('dark-mode');
+                tbtn.setAttribute('aria-pressed', String(dark));
+                tbtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+                var m = document.querySelector('meta[name="theme-color"]');
+                if (m) m.setAttribute('content', dark ? '#070b14' : '#0b1b33');
+            }
+            tbtn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { }
+                syncTheme();
+            });
+            syncTheme();
+
+            /* ---------- Top bar hairline on scroll ---------- */
+            var top = $('top'), ticking = false;
+            function onScroll() {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(function () { top.classList.toggle('is-stuck', window.scrollY > 6); ticking = false; });
+            }
+            window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+            /* ---------- Class picker: jump straight to the class ---------- */
+            var pick = $('class_id');
+            if (pick) pick.addEventListener('change', function () { if (pick.value) pick.form.submit(); });
+
+            /* ---------- Student list: search + filter ---------- */
+            var list = $('students'), q = $('q'), chips = $('filters'), none = $('none'), clear = $('clear');
+            if (list) {
+                var f = 'all';
+                function apply() {
+                    var term = q.value.trim().toLowerCase(), shown = 0;
+                    clear.hidden = !term;
+                    Array.prototype.forEach.call(list.children, function (li) {
+                        var ok = (f === 'all' || li.getAttribute('data-level') === f) &&
+                            (!term || li.getAttribute('data-q').indexOf(term) > -1);
+                        li.hidden = !ok; if (ok) shown++;
+                    });
+                    none.hidden = shown > 0;
+                }
+                q.addEventListener('input', apply);
+                clear.addEventListener('click', function () { q.value = ''; apply(); q.focus(); });
+                chips.addEventListener('click', function (e) {
+                    var b = e.target.closest('.th-chip'); if (!b) return;
+                    f = b.getAttribute('data-f');
+                    chips.querySelectorAll('.th-chip').forEach(function (c) { c.classList.toggle('is-on', c === b); });
+                    apply();
+                });
+            }
+
+            /* ---------- Bring the opened student's report into view ---------- */
+            if (location.hash === '#student-report') {
+                var t = $('student-report');
+                if (t) setTimeout(function () { t.scrollIntoView({ block: 'start' }); }, 60);
+            }
+        })();
     </script>
-
-  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
-
 </body>
 
 </html>

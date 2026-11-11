@@ -3,151 +3,306 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classes & Subjects | Attendly</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1b33">
+    <title>Classes &amp; Subjects | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_classes.css') }}">
     <script>
-        /* Dark mode: apply the saved choice before the page paints (no white flash) */
+        /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
         (function () {
-            try {
-                if (localStorage.getItem('theme') === 'dark') {
-                    document.documentElement.classList.add('dark-mode');
-                }
-            } catch (e) { }
+            var d = document.documentElement;
+            d.classList.add("js", "th-html");
+            try { if (localStorage.getItem('theme') === 'dark') d.classList.add('dark-mode'); } catch (e) { }
         })();
     </script>
 </head>
 
-<body>
+<body class="th-page">
 
-    <main class="dashboard-container">
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></symbol>
+            <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></symbol>
+            <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12.5 2.8 2.8L16.5 9.5" /></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+            <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" /></symbol>
+            <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+            <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+            <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+            <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2z" /></symbol>
+            <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+            <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+            <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" /></symbol>
+            <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h7M9 17h7" /></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+        </defs>
+    </svg>
 
-        <section class="welcome-section">
-            <div class="welcome-content">
-                <span class="welcome-badge">CLASSES & SUBJECTS</span>
-                <h1>Set up your Classes</h1>
-                <p>Create the classes and subjects you teach. Students and attendance sessions will use these.</p>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Top bar ============ -->
+    <header class="th-top" id="top">
+        <div class="th-top__in">
+            <a class="th-brand" href="{{ url_for('teacher_dashboard') }}" aria-label="Attendly dashboard">
+                <span class="th-logo">
+                    <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt=""
+                        width="36" height="36">
+                </span>
+                <span class="th-brand__text">
+                    <strong>Attendly</strong>
+                    <small>Faculty portal</small>
+                </span>
+            </a>
+
+            <nav class="th-nav" aria-label="Main">
+                <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('teacher_classes') }}" aria-current="page">Classes</a>
+                <a href="{{ url_for('teacher_sessions') }}">QR Sessions</a>
+                <a href="{{ url_for('teacher_reports') }}">Reports</a>
+            </nav>
+
+            <div class="th-actions">
+                <button class="th-icon-btn" id="themeToggle" type="button" aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+                    <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+                </button>
+                <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
+                        <svg class="ic" aria-hidden="true"><use href="#i-logout" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
+        </div>
+    </header>
+
+    <main class="th-main" id="main">
+
+        <section class="ss-intro">
+            <p class="ss-eyebrow">Classes &amp; subjects</p>
+            <h1>Set up your classes</h1>
+            <p class="ss-lead">Create the classes and subjects you teach. Students and attendance sessions use these.</p>
         </section>
 
         {% with messages = get_flashed_messages() %}
         {% if messages %}
-        <div class="table-card">
+        <div class="ss-flashes" role="status">
             {% for message in messages %}
-            <p class="flash-line">{{ message }}</p>
+            <p class="ss-flash"><svg class="ic" aria-hidden="true"><use href="#i-info" /></svg><span>{{ message }}</span></p>
             {% endfor %}
         </div>
         {% endif %}
         {% endwith %}
 
-        <!-- Add class -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Add a Class</h2>
-            </div>
-            <form method="POST" class="form-card">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="form_type" value="class">
-                <input type="text" name="class_name" placeholder="Class name, e.g. B.Tech CSE 3rd Year" required>
-                <input type="text" name="section" placeholder="Section, e.g. A" required>
-                <button type="submit" class="form-btn">Add Class</button>
-            </form>
-        </section>
+        <div class="cl-grid">
 
-        <!-- Add subject -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>Add a Subject</h2>
-            </div>
-            <form method="POST" class="form-card">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <input type="hidden" name="form_type" value="subject">
-                <input type="text" name="subject_name" placeholder="Subject name, e.g. Data Structures" required>
-                <input type="text" name="subject_code" placeholder="Subject code, e.g. CS301" required>
-                <button type="submit" class="form-btn">Add Subject</button>
-            </form>
-        </section>
+            <!-- ============ Classes ============ -->
+            <section class="cl-col" aria-labelledby="h-classes">
+                <div class="th-head">
+                    <h2 id="h-classes">My classes</h2>
+                    {% if classes %}<span class="th-count">{{ classes|length }}</span>{% endif %}
+                </div>
 
-        <!-- My classes -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>My Classes</h2>
-            </div>
-            <div class="table-card">
+                <form method="POST" class="ss-form cl-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="form_type" value="class">
+                    <div class="ss-field">
+                        <label for="class_name">Class name</label>
+                        <input class="cl-input" id="class_name" type="text" name="class_name" placeholder="e.g. B.Tech CSE 3rd Year" autocomplete="off" required>
+                    </div>
+                    <div class="ss-field">
+                        <label for="section">Section</label>
+                        <input class="cl-input" id="section" type="text" name="section" placeholder="e.g. A" autocomplete="off" autocapitalize="characters" required>
+                    </div>
+                    <button type="submit" class="th-btn th-btn--lg" data-label="Add class">
+                        <svg class="ic" aria-hidden="true"><use href="#i-plus" /></svg><span>Add class</span>
+                    </button>
+                </form>
+
                 {% if classes %}
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Class</th>
-                                <th>Section</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for c in classes %}
-                            <tr>
-                                <td class="name-col">{{ c.class_name }}</td>
-                                <td><span class="roll-badge">{{ c.section }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                {% if classes|length > 6 %}
+                <div class="th-search cl-search" data-filter="classList">
+                    <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                    <input type="search" placeholder="Search classes" aria-label="Search classes" autocomplete="off">
+                    <p class="cl-none" hidden>No matching class.</p>
                 </div>
+                {% endif %}
+                <ul class="cl-list" id="classList">
+                    {% for c in classes %}
+                    <li class="cl-item">
+                        <span class="cl-item__ic" aria-hidden="true"><svg class="ic"><use href="#i-book" /></svg></span>
+                        <span class="cl-item__main">
+                            <strong>{{ c.class_name }}</strong>
+                            <span class="cl-badge">Section {{ c.section }}</span>
+                        </span>
+                        <span class="cl-item__acts">
+                            <a class="cl-act" href="{{ url_for('teacher_enrollments', class_id=c.id) }}">
+                                <svg class="ic" aria-hidden="true"><use href="#i-users" /></svg><span>Students</span></a>
+                            <a class="cl-act" href="{{ url_for('teacher_reports', class_id=c.id) }}">
+                                <svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg><span>Reports</span></a>
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
                 {% else %}
-                <div class="empty-state">
+                <div class="th-empty">
+                    <svg class="ic" aria-hidden="true"><use href="#i-book" /></svg>
                     <h3>No classes yet</h3>
-                    <p>Add your first class above.</p>
+                    <p>Add your first class with the form above.</p>
                 </div>
                 {% endif %}
-            </div>
-        </section>
+            </section>
 
-        <!-- My subjects -->
-        <section class="dashboard-section">
-            <div class="section-heading">
-                <h2>My Subjects</h2>
-            </div>
-            <div class="table-card">
+            <!-- ============ Subjects ============ -->
+            <section class="cl-col" aria-labelledby="h-subjects">
+                <div class="th-head">
+                    <h2 id="h-subjects">My subjects</h2>
+                    {% if subjects %}<span class="th-count">{{ subjects|length }}</span>{% endif %}
+                </div>
+
+                <form method="POST" class="ss-form cl-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="form_type" value="subject">
+                    <div class="ss-field">
+                        <label for="subject_name">Subject name</label>
+                        <input class="cl-input" id="subject_name" type="text" name="subject_name" placeholder="e.g. Data Structures" autocomplete="off" required>
+                    </div>
+                    <div class="ss-field">
+                        <label for="subject_code">Subject code</label>
+                        <input class="cl-input" id="subject_code" type="text" name="subject_code" placeholder="e.g. CS301" autocomplete="off" autocapitalize="characters" required>
+                    </div>
+                    <button type="submit" class="th-btn th-btn--lg" data-label="Add subject">
+                        <svg class="ic" aria-hidden="true"><use href="#i-plus" /></svg><span>Add subject</span>
+                    </button>
+                </form>
+
                 {% if subjects %}
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Code</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for s in subjects %}
-                            <tr>
-                                <td class="name-col">{{ s.subject_name }}</td>
-                                <td><span class="roll-badge">{{ s.subject_code }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="empty-state">
-                    <h3>No subjects yet</h3>
-                    <p>Add your first subject above.</p>
+                {% if subjects|length > 6 %}
+                <div class="th-search cl-search" data-filter="subjectList">
+                    <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                    <input type="search" placeholder="Search subjects" aria-label="Search subjects" autocomplete="off">
+                    <p class="cl-none" hidden>No matching subject.</p>
                 </div>
                 {% endif %}
-            </div>
-        </section>
-
-        <!-- Back button: bottom-left of the page -->
-        <div class="page-back">
-            <a href="{{ url_for('teacher_dashboard') }}" class="back-btn">
-                <span class="back-btn-arrow">←</span>
-                <span>Back to dashboard</span>
-            </a>
+                <ul class="cl-list" id="subjectList">
+                    {% for s in subjects %}
+                    <li class="cl-item">
+                        <span class="cl-item__ic cl-item__ic--violet" aria-hidden="true"><svg class="ic"><use href="#i-doc" /></svg></span>
+                        <span class="cl-item__main">
+                            <strong>{{ s.subject_name }}</strong>
+                            <span class="cl-badge">{{ s.subject_code }}</span>
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="th-empty">
+                    <svg class="ic" aria-hidden="true"><use href="#i-doc" /></svg>
+                    <h3>No subjects yet</h3>
+                    <p>Add your first subject with the form above.</p>
+                </div>
+                {% endif %}
+            </section>
         </div>
 
+        {% if classes and subjects %}
+        <a class="ss-live cl-next" href="{{ url_for('teacher_sessions') }}">
+            <span class="ss-live__txt"><small>You're all set</small><strong>Start an attendance session</strong></span>
+            <span class="ss-live__btn">Go <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+        </a>
+        {% endif %}
     </main>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+    <!-- ============ Bottom tab bar (phones) ============ -->
+    <nav class="th-tabbar" aria-label="Main">
+        <a href="{{ url_for('teacher_dashboard') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-home" /></svg></span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('teacher_classes') }}" aria-current="page">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+            <span>Classes</span>
+        </a>
+        <a href="{{ url_for('teacher_sessions') }}" class="is-primary">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+            <span>QR</span>
+        </a>
+        <a href="{{ url_for('teacher_reports') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+            <span>Reports</span>
+        </a>
+    </nav>
 
+
+    <script>
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            function $(id) { return document.getElementById(id); }
+
+            /* ---------- Theme toggle (same "theme" key as the rest of the site) ---------- */
+            var tbtn = $('themeToggle');
+            function syncTheme() {
+                var dark = root.classList.contains('dark-mode');
+                tbtn.setAttribute('aria-pressed', String(dark));
+                tbtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+                var m = document.querySelector('meta[name="theme-color"]');
+                if (m) m.setAttribute('content', dark ? '#070b14' : '#0b1b33');
+            }
+            tbtn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { }
+                syncTheme();
+            });
+            syncTheme();
+
+            /* ---------- Top bar hairline on scroll ---------- */
+            var top = $('top'), ticking = false;
+            function onScroll() {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(function () { top.classList.toggle('is-stuck', window.scrollY > 6); ticking = false; });
+            }
+            window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+            /* ---------- Add forms: one tap = one submit ---------- */
+            document.querySelectorAll('form.cl-form').forEach(function (f) {
+                f.addEventListener('submit', function () {
+                    var b = f.querySelector('button[type=submit]');
+                    b.disabled = true; b.classList.add('is-busy');
+                    b.querySelector('span').textContent = 'Adding…';
+                });
+            });
+            window.addEventListener('pageshow', function () {
+                document.querySelectorAll('form.cl-form button[type=submit]').forEach(function (b) {
+                    b.disabled = false; b.classList.remove('is-busy');
+                    b.querySelector('span').textContent = b.getAttribute('data-label');
+                });
+            });
+
+            /* ---------- Quick filter for long lists ---------- */
+            document.querySelectorAll('[data-filter]').forEach(function (box) {
+                var list = document.getElementById(box.getAttribute('data-filter'));
+                var input = box.querySelector('input');
+                input.addEventListener('input', function () {
+                    var q = input.value.trim().toLowerCase(), shown = 0;
+                    Array.prototype.forEach.call(list.children, function (li) {
+                        var ok = !q || li.textContent.toLowerCase().indexOf(q) > -1;
+                        li.hidden = !ok; if (ok) shown++;
+                    });
+                    box.querySelector('.cl-none').hidden = shown > 0;
+                });
+            });
+        })();
+    </script>
 </body>
 
 </html>

@@ -5,7 +5,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0284c7">
   <meta name="description"
     content="Attendly is a smart QR-based attendance management system that helps teachers and students record, track, and review attendance.">
   <title>Attendly | Smart Attendance Management</title>
@@ -38,23 +39,29 @@
       <!-- Brand / logo area -->
       <a class="brand" href="#home" aria-label="Attendly home">
         <!-- Icon -->
-        <img class="brand__mark" src="{{ url_for('static', filename='images/icon.png') }}"
-          alt="Attendly Logo">
+        <img class="brand__mark" src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png"
+          alt="Attendly Logo" width="36" height="36">
         <!-- Logo Text with blue dot -->
-        <span class="brand__name">Attendly
+        <span class="brand__name">Attendly</span>
       </a>
 
+      <!-- Mobile menu button (hidden on desktop) -->
+      <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Open menu" aria-expanded="false"
+        aria-controls="site-menu">
+        <span class="nav-toggle__bar" aria-hidden="true"></span>
+      </button>
+
       <!-- Navigation links -->
-      <ul class="site-nav__list" style="align-items: center;">
+      <ul class="site-nav__list" id="site-menu">
         <li class="site-nav__item"><a class="site-nav__link" href="#features">Features</a></li>
         <li class="site-nav__item"><a class="site-nav__link" href="#how-it-works">How it works</a></li>
         <li class="site-nav__item"><a class="site-nav__link" href="#about">About</a></li>
 
         <!-- Dark mode toggle -->
-        <li class="site-nav__item" style="display: flex; align-items: center; margin-left: 10px; margin-right: 15px;">
-          <span class="divider" style="opacity: 0.5; margin-right: 15px;">|</span>
-          <button id="theme-toggle" aria-label="Toggle Dark Mode"
-            style="background: transparent; border: none; cursor: pointer; color: #f1c40f; padding: 0; display: flex; align-items: center;">
+        <li class="site-nav__item site-nav__item--theme">
+          <span class="divider" aria-hidden="true">|</span>
+          <span class="theme-label">Dark / Light mode</span>
+          <button id="theme-toggle" type="button" aria-label="Toggle Dark Mode">
             <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
@@ -411,7 +418,10 @@
     const bodyElement = document.documentElement;
     const themeIcon = document.getElementById('theme-icon');
 
-    if (localStorage.getItem('theme') === 'dark') {
+    function readTheme() { try { return localStorage.getItem('theme'); } catch (e) { return null; } }
+    function saveTheme(v) { try { localStorage.setItem('theme', v); } catch (e) { } }
+
+    if (readTheme() === 'dark') {
       bodyElement.classList.add('dark-mode');
       setMoonIcon();
     }
@@ -421,10 +431,10 @@
       const isDarkMode = bodyElement.classList.contains('dark-mode');
 
       if (isDarkMode) {
-        localStorage.setItem('theme', 'dark');
+        saveTheme('dark');
         setMoonIcon();
       } else {
-        localStorage.setItem('theme', 'light');
+        saveTheme('light');
         setSunIcon();
       }
     });
@@ -465,6 +475,40 @@
       const hiddenElements = document.querySelectorAll('.slide-from-left, .slide-from-right, .slide-from-bottom');
       hiddenElements.forEach((el) => observer.observe(el));
     });
+
+    /* ----------------------------------------------------
+       3. MOBILE MENU (hamburger)
+       ---------------------------------------------------- */
+    (function () {
+      const header = document.querySelector('.site-header');
+      const btn = document.getElementById('nav-toggle');
+      const menu = document.getElementById('site-menu');
+      if (!header || !btn || !menu) return;
+
+      function setOpen(open) {
+        header.classList.toggle('is-open', open);
+        btn.setAttribute('aria-expanded', String(open));
+        btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      }
+
+      btn.addEventListener('click', () => setOpen(!header.classList.contains('is-open')));
+
+      /* close after choosing a link */
+      menu.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+
+      /* close on Escape (and give focus back to the button) */
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && header.classList.contains('is-open')) { setOpen(false); btn.focus(); }
+      });
+
+      /* close when tapping outside the header */
+      document.addEventListener('click', (e) => {
+        if (header.classList.contains('is-open') && !header.contains(e.target)) setOpen(false);
+      });
+
+      /* reset when the window grows past the mobile breakpoint */
+      window.matchMedia('(min-width: 821px)').addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+    })();
   </script>
 
 </body>
