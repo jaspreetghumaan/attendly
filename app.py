@@ -675,10 +675,14 @@ def teacher_classes():
 
         classes = conn.execute(
             """
-            SELECT id, class_name, section
-            FROM classes
-            WHERE created_by = ?
-            ORDER BY class_name, section
+            SELECT c.id, c.class_name, c.section,
+                   (SELECT COUNT(*) FROM student_enrollments e
+                     WHERE e.class_id = c.id) AS student_count,
+                   (SELECT COUNT(*) FROM attendance_sessions s
+                     WHERE s.class_id = c.id) AS session_count
+            FROM classes c
+            WHERE c.created_by = ?
+            ORDER BY c.class_name, c.section
             """,
             (teacher_id,),
         ).fetchall()
@@ -706,6 +710,41 @@ def teacher_classes():
 # =========================================================
 # TEACHER: ENROLL STUDENTS IN CLASSES
 # =========================================================
+
+
+@app.route("/teacher/classes/<int:class_id>/delete", methods=["POST"])
+def delete_class(class_id):
+    """Permanently delete one of the teacher's classes.
+
+    Foreign keys use ON DELETE CASCADE, so the class's enrollments, sessions
+    and attendance records are removed with it. Student accounts are kept.
+    """
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    conn = get_db_connection()
+
+    try:
+        # Only the teacher who created the class may delete it.
+        target = conn.execute(
+            """
+            SELECT id, class_name, section
+            FROM classes
+            WHERE id = ? AND created_by = ?
+            """,
+            (class_id, session["user_id"]),
+        ).fetchone()
+
+        if target is None:
+            flash("Class not found.")
+        else:
+            conn.execute("DELETE FROM classes WHERE id = ?", (class_id,))
+            conn.commit()
+            flash(f"Class {target['class_name']} - {target['section']} was deleted.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("teacher_classes"))
 
 @app.route("/teacher/enrollments", methods=["GET", "POST"])
 def teacher_enrollments():

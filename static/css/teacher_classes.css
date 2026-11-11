@@ -664,6 +664,28 @@ html.dark-mode .ss-pill--expired { color: #fbbf24; }
 @media (min-width: 640px) { .cl-form .th-btn--lg { width: 100%; } }
 @media (hover: hover) { .cl-act:hover { border-color: var(--brand); background: var(--tint); } }
 
+
+/* delete class */
+body.th-page { --bad: #dc2626; }
+html.dark-mode body.th-page { --bad: #f87171; }
+.cl-act--del { flex: none; min-width: 44px; padding: 0 12px; font: inherit; font-size: 13.5px; font-weight: 650; color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); border-color: color-mix(in srgb, var(--bad) 30%, var(--line)); cursor: pointer; }
+.cl-act--del .ic { color: var(--bad); }
+.cl-item__acts .cl-act:not(.cl-act--del) { flex: 1; }
+.cl-confirm { width: 100%; display: grid; gap: 10px; padding: 14px; background: color-mix(in srgb, var(--bad) 7%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--bad) 40%, var(--line)); border-radius: var(--r-md); }
+.cl-confirm__title { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 750; color: var(--bad); }
+.cl-confirm__txt { font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.cl-confirm__txt b { color: var(--ink); }
+.cl-confirm__btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cl-danger, .cl-keep { min-height: 48px; font: inherit; font-size: 14.5px; font-weight: 700; border-radius: 999px; border: 0; cursor: pointer; }
+.cl-danger { color: #fff; background: var(--bad); }
+.cl-danger:disabled { opacity: .7; }
+.cl-keep { color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); }
+.js .cl-confirm { display: none; }
+.js .cl-confirm.is-open { display: grid; animation: th-rise .25s var(--ease); }
+.cl-item.is-deleting { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
+@media (min-width: 900px) { .cl-confirm { flex: 1 0 100%; } .cl-item { flex-wrap: wrap; } .cl-item__main { flex: 1 1 8rem; } }
+@media (max-width: 359px) { .cl-act--del .cl-del-txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }
+
 @keyframes th-rise { from { opacity: 0; transform: translateY(14px); } }
 .th-main > * { animation: th-rise .6s var(--ease) both; }
 .th-main > *:nth-child(2) { animation-delay: 70ms; }
