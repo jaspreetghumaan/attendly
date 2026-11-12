@@ -1,6 +1,7 @@
 # Main application file for the QR Attendance System
 import hashlib
 import io
+import math
 import secrets
 import smtplib
 import sqlite3
@@ -28,6 +29,8 @@ from database import get_db_connection
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 csrf = CSRFProtect(app)
+# Browsers will not send the session cookie with cross-site POSTs (extra CSRF defence)
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 # =========================================================
 # HELPERS
@@ -294,6 +297,150 @@ def register():
 
 
 # =========================================================
+# LOGIN LOCKOUT (brute-force protection)
+#
+# After MAX_FAILED_LOGINS wrong passwords for one email, that email is
+# locked for LOCKOUT_MINUTES. Every typed email is counted, even one with
+# no account, and a wrong email takes as long to check as a wrong password.
+# So neither the message nor the timing shows whether an account exists.
+# =========================================================
+
+MAX_FAILED_LOGINS = 5
+LOCKOUT_MINUTES = 15
+# A wrong password older than this no longer counts toward the limit.
+FAILED_LOGIN_WINDOW_MINUTES = 15
+INVALID_LOGIN_MESSAGE = "Invalid email or password."
+
+# Checked when the email does not exist. It is random, so no typed
+# password can match it.
+DUMMY_PASSWORD_HASH = generate_password_hash(secrets.token_urlsafe(32))
+
+
+def _ensure_login_attempts_table():
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                email TEXT PRIMARY KEY,
+                failed_count INTEGER NOT NULL DEFAULT 0,
+                last_failed_at TEXT,
+                locked_until TEXT
+            )
+            """
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def _locked_message(locked_until):
+    seconds_left = (locked_until - datetime.now()).total_seconds()
+    minutes = max(1, math.ceil(seconds_left / 60))
+    return f"Too many wrong attempts. Please try again in {minutes} minute(s)."
+
+
+def _register_attempt(email, succeeded):
+    """Record one login attempt. Return when the lock ends, or None if not locked.
+
+    The lock check and the counter update happen in one transaction.
+    BEGIN IMMEDIATE takes the database write lock first, so parallel requests
+    run one at a time. A request that started before the lock was set still
+    sees the lock here, so it cannot clear the lock or add more guesses.
+    """
+    now = datetime.now()
+    conn = get_db_connection()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+
+        row = conn.execute(
+            "SELECT failed_count, last_failed_at, locked_until "
+            "FROM login_attempts WHERE email = ?",
+            (email,),
+        ).fetchone()
+
+        if row is not None and row["locked_until"]:
+            locked_until = datetime.fromisoformat(row["locked_until"])
+            if locked_until > now:
+                # Still locked: change nothing, not even for a correct password.
+                conn.commit()
+                return locked_until
+
+        if succeeded:
+            conn.execute("DELETE FROM login_attempts WHERE email = ?", (email,))
+            conn.commit()
+            return None
+
+        count = 0
+        if row is not None and row["last_failed_at"]:
+            last_failed = datetime.fromisoformat(row["last_failed_at"])
+            if now - last_failed <= timedelta(minutes=FAILED_LOGIN_WINDOW_MINUTES):
+                count = row["failed_count"]
+        count += 1
+
+        locked_until = None
+        if count >= MAX_FAILED_LOGINS:
+            locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
+            count = 0
+
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO login_attempts
+                (email, failed_count, last_failed_at, locked_until)
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                email,
+                count,
+                now.isoformat(timespec="seconds"),
+                locked_until.isoformat(timespec="seconds") if locked_until else None,
+            ),
+        )
+        conn.commit()
+        return locked_until
+
+    except Exception:
+        conn.rollback()
+        raise
+
+    finally:
+        conn.close()
+
+
+def attempt_login(email, password):
+    """Check an email and password against the lockout rules.
+
+    Returns (user, error). On success error is None. On failure user is None
+    and error is the message to show the person.
+    """
+    _ensure_login_attempts_table()
+
+    conn = get_db_connection()
+    try:
+        user = conn.execute(
+            "SELECT * FROM users WHERE email = ?",
+            (email,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    # The hash check always runs, even when the email does not exist.
+    # Skipping it would make a wrong email return much faster than a wrong password.
+    stored_hash = user["password"] if user is not None else DUMMY_PASSWORD_HASH
+    password_ok = check_password_hash(stored_hash, password)
+    succeeded = user is not None and password_ok
+
+    locked_until = _register_attempt(email, succeeded)
+    if locked_until is not None:
+        return None, _locked_message(locked_until)
+
+    if not succeeded:
+        return None, INVALID_LOGIN_MESSAGE
+
+    return user, None
+
+
+# =========================================================
 # STUDENT LOGIN
 # URL: /login
 # Template: login.html
@@ -308,21 +455,10 @@ def login():
         password = request.form.get("password", "")
         next_url = request.form.get("next", "")
 
-        conn = get_db_connection()
+        user, error = attempt_login(email, password)
 
-        try:
-            user = conn.execute(
-                "SELECT * FROM users WHERE email = ?",
-                (email,)
-            ).fetchone()
-
-        finally:
-            conn.close()
-
-        if not user or not check_password_hash(
-            user["password"], password
-        ):
-            flash("Invalid email or password.")
+        if error:
+            flash(error)
             return redirect(url_for("login", next=next_url) if next_url else url_for("login"))
 
         if user["role"] != "student":
@@ -360,21 +496,10 @@ def faculty_login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
-        conn = get_db_connection()
+        user, error = attempt_login(email, password)
 
-        try:
-            user = conn.execute(
-                "SELECT * FROM users WHERE email = ?",
-                (email,)
-            ).fetchone()
-
-        finally:
-            conn.close()
-
-        if not user or not check_password_hash(
-            user["password"], password
-        ):
-            flash("Invalid email or password.")
+        if error:
+            flash(error)
             return redirect(url_for("faculty_login"))
 
         if user["role"] != "teacher":
