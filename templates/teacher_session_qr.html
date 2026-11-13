@@ -187,6 +187,17 @@
                             <span class="qr-row__st">
                                 <span class="ss-pill {{ 'ss-pill--live' if r.status == 'Present' else 'ss-pill--expired' }}"><i></i>{{ r.status }}</span>
                                 <small>{{ r.marked_at[11:16] if r.marked_at else '' }}</small>
+                                <form method="POST" action="{{ url_for('set_manual_attendance', session_id=s.id) }}" class="qr-mark">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="student_id" value="{{ r.student_id }}">
+                                    {% if r.status == 'Present' %}
+                                    <input type="hidden" name="status" value="Absent">
+                                    <button type="submit" class="qr-btn" style="min-height:34px;padding:0 10px;font-size:12px"><svg class="ic" aria-hidden="true"><use href="#i-x" /></svg><span>Mark absent</span></button>
+                                    {% else %}
+                                    <input type="hidden" name="status" value="Present">
+                                    <button type="submit" class="qr-btn" style="min-height:34px;padding:0 10px;font-size:12px"><svg class="ic" aria-hidden="true"><use href="#i-check" /></svg><span>Mark present</span></button>
+                                    {% endif %}
+                                </form>
                             </span>
                         </div>
                     </li>
