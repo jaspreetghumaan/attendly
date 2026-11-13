@@ -79,8 +79,9 @@ SESSION_HOURS = int(os.environ.get("ATTENDLY_SESSION_HOURS", "8"))
 # scanning just before a change still succeeds. A photo sent to an absent
 # friend stops working within about a minute and a half.
 # ---------------------------------------------------------------------------
-QR_ROTATE_SECONDS = int(os.environ.get("ATTENDLY_QR_ROTATE_SECONDS", "30"))
-QR_GRACE_WINDOWS = 2
+QR_ROTATE_SECONDS = int(os.environ.get("ATTENDLY_QR_ROTATE_SECONDS", "5"))
+# Older codes still accepted. Students need time to scan and log in, so keep this above 0.
+QR_GRACE_WINDOWS = int(os.environ.get("ATTENDLY_QR_GRACE_WINDOWS", "4"))
 
 # ---------------------------------------------------------------------------
 # Password reset emails

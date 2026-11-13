@@ -1089,6 +1089,28 @@ def session_qr_page(session_id):
     )
 
 
+@app.route("/teacher/sessions/<int:session_id>/qr.json")
+def session_qr_state(session_id):
+    """Current QR code for the live page. Polled every second so codes never look stale."""
+    if not is_teacher_logged_in():
+        abort(401)
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    if not _is_open(s, _now_iso()):
+        return {"open": False}
+
+    window = _qr_window()
+    return {
+        "open": True,
+        "src": url_for("session_qr_image", session_id=s["id"]) + f"?w={window}",
+        "link": build_scan_url(s["id"], current_qr_code(s["qr_token"])),
+        "seconds_left": config.QR_ROTATE_SECONDS - (time.time() % config.QR_ROTATE_SECONDS),
+    }
+
+
 @app.route("/teacher/sessions/<int:session_id>/qr.png")
 def session_qr_image(session_id):
 

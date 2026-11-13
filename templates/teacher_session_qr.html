@@ -346,6 +346,34 @@
                     .then(function () { busy = false; });
             }
             setInterval(refresh, 5000);
+
+            /* QR codes rotate every few seconds: poll the small QR endpoint every second */
+            (function pollQr() {
+                var img = $('qrImg');
+                if (!img) return;
+                var url = location.pathname.replace(/\/?$/, '') + '/qr.json';
+                function tick() {
+                    fetch(url, { cache: 'no-store', credentials: 'same-origin' })
+                        .then(function (res) { return res.ok ? res.json() : null; })
+                        .then(function (data) {
+                            if (!data) return;
+                            if (!data.open) { location.reload(); return; }
+                            var cur = $('qrImg');
+                            if (cur && data.src !== cur.getAttribute('src')) {
+                                var pre = new Image();
+                                pre.onload = function () { cur.setAttribute('src', data.src); };
+                                pre.src = data.src;
+                            }
+                            ['qrCopy', 'qrShare'].forEach(function (id) {
+                                var b = $(id); if (b) b.setAttribute('data-link', data.link);
+                            });
+                            var shown = document.querySelector('.qr-url');
+                            if (shown) shown.textContent = data.link;
+                        })
+                        .catch(function () { /* network blip: try again next second */ });
+                }
+                setInterval(tick, 1000);
+            })();
             document.addEventListener('visibilitychange', refresh);
 
             /* ---------- Copy / share link ---------- */

@@ -197,37 +197,6 @@ body>.dashboard-header {
   gap: .75rem;
 }
 
-.logout-button,
-.logout-btn {
-  font-family: inherit;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .5rem;
-  padding: .5rem 1.25rem;
-  font-size: .875rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--ink);
-  border-radius: 9999px;
-  transition: background var(--ease), transform var(--ease);
-}
-
-.logout-button:hover,
-.logout-btn:hover {
-  background: var(--blue-bright);
-  transform: translateY(-1px);
-}
-
-.logout-arrow {
-  transition: transform var(--ease);
-}
-
-.logout-button:hover .logout-arrow,
-.logout-btn:hover .logout-arrow {
-  transform: translate(2px, -2px);
-}
 
 /* Profile dropdown (icon button next to Logout) */
 .profile-menu {
