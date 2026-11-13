@@ -219,6 +219,12 @@
                             <strong>{{ e.name }}</strong>
                             <span class="en-meta"><span class="en-roll">{{ e.roll_number }}</span>{% if e.course %}<span class="en-course">{{ e.course }}</span>{% endif %}</span>
                         </span>
+                        <form method="POST" action="{{ url_for('remove_enrollment') }}" class="en-remove" data-name="{{ e.name }}" style="margin-left:auto">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="class_id" value="{{ selected.id }}">
+                            <input type="hidden" name="student_id" value="{{ e.student_id }}">
+                            <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Remove {{ e.name }} from this class"><svg class="ic" aria-hidden="true"><use href="#i-minus" /></svg><span>Remove</span></button>
+                        </form>
                     </div>
                 </li>
                 {% endfor %}
@@ -332,6 +338,16 @@
             window.addEventListener('pageshow', function () { var b = $('addBtn'); b.disabled = false; b.querySelector('span').textContent = 'Add selected'; sync(); });
             sync();
         })();
+    </script>
+    <script nonce="{{ csp_nonce() }}">
+        document.querySelectorAll('form.en-remove').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                var name = form.getAttribute('data-name');
+                if (!window.confirm('Remove ' + name + ' from this class?\n\nTheir attendance for this class will be deleted too.')) {
+                    event.preventDefault();
+                }
+            });
+        });
     </script>
 </body>
 
