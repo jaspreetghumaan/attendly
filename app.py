@@ -431,6 +431,67 @@ def faculty_login():
 
 
 # =========================================================
+# TEACHER SIGN-UP (needs the college sign-up code from config)
+# =========================================================
+
+@app.route("/faculty_register", methods=["GET", "POST"])
+def faculty_register():
+
+    enabled = bool(config.TEACHER_SIGNUP_CODE)
+
+    if request.method == "POST":
+
+        if not enabled:
+            flash("Teacher sign-up is turned off. Ask your administrator.")
+            return redirect(url_for("faculty_register"))
+
+        if not limiter.allow(f"tregister:{client_ip()}", 10, 3600):
+            flash("Too many sign-up attempts. Please try again later.")
+            return redirect(url_for("faculty_register"))
+
+        name, name_ok = _clean_text(request.form.get("name"), 100)
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm = request.form.get("confirm_password", "")
+        code = request.form.get("teacher_code", "").strip()
+
+        if not name or not valid_email(email):
+            flash("Enter your name and a valid email address.")
+        elif not name_ok:
+            flash("Name is too long.")
+        elif len(password) < MIN_PASSWORD or len(password) > MAX_PASSWORD:
+            flash(f"Password must be between {MIN_PASSWORD} and {MAX_PASSWORD} characters.")
+        elif password != confirm:
+            flash("Passwords do not match.")
+        elif not hmac.compare_digest(code.encode("utf-8"), config.TEACHER_SIGNUP_CODE.encode("utf-8")):
+            flash("The sign-up code is incorrect.")
+        else:
+            conn = get_db_connection()
+            try:
+                conn.execute(
+                    "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'teacher')",
+                    (name, email, generate_password_hash(password)),
+                )
+                conn.commit()
+                log.info("Teacher account created via sign-up")
+                flash("Teacher account created. You can log in now.")
+                return redirect(url_for("faculty_login"))
+            except sqlite3.IntegrityError:
+                conn.rollback()
+                flash("An account with this email already exists.")
+            except Exception:
+                conn.rollback()
+                log.exception("Teacher sign-up failed")
+                flash("Sign-up failed. Please try again.")
+            finally:
+                conn.close()
+
+        return redirect(url_for("faculty_register"))
+
+    return render_template("faculty_register.html", enabled=enabled)
+
+
+# =========================================================
 # LOGOUT
 # =========================================================
 
@@ -994,6 +1055,28 @@ def teacher_sessions():
 
             if not owned_class or not owned_subject:
                 flash("Please choose your own class and subject.")
+                return redirect(url_for("teacher_sessions"))
+
+            # Duplicate-session guard. BEGIN IMMEDIATE holds the write lock, so two
+            # simultaneous "start" clicks cannot both pass the check.
+            conn.execute("BEGIN IMMEDIATE")
+            running = conn.execute(
+                """
+                SELECT start_time, expires_at
+                FROM attendance_sessions
+                WHERE class_id = ? AND status = 'open' AND expires_at > ?
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (class_id, _now_iso()),
+            ).fetchone()
+            if running:
+                conn.rollback()
+                flash(
+                    f"A session for this class is already running "
+                    f"(started {running['start_time'][11:16]}, ends {running['expires_at'][11:16]}). "
+                    f"Close it first, then start a new one."
+                )
                 return redirect(url_for("teacher_sessions"))
 
             now = datetime.now()
