@@ -9,6 +9,7 @@ import secrets
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 
 # The database always lives in the project folder, wherever the app starts from.
 DATABASE_PATH = BASE_DIR / "smartattend.db"
