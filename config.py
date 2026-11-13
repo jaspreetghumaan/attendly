@@ -69,8 +69,8 @@ TRUST_PROXY = os.environ.get("ATTENDLY_TRUST_PROXY") == "1"
 # Cookies are sent over HTTPS only when the site is served over HTTPS.
 COOKIE_SECURE = USE_HTTPS or PUBLIC_BASE_URL.startswith("https://")
 
-# Logged-in sessions end after this many hours of inactivity.
-SESSION_HOURS = int(os.environ.get("ATTENDLY_SESSION_HOURS", "8"))
+# Logged-in sessions end after this many minutes of inactivity.
+SESSION_MINUTES = int(os.environ.get("ATTENDLY_SESSION_MINUTES", "15"))
 
 # ---------------------------------------------------------------------------
 # Anti-proxy QR codes

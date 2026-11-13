@@ -53,8 +53,8 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,          # JavaScript cannot read the session cookie
     SESSION_COOKIE_SAMESITE="Lax",         # not sent on cross-site POSTs
     SESSION_COOKIE_SECURE=config.COOKIE_SECURE,
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=config.SESSION_HOURS),
-    WTF_CSRF_TIME_LIMIT=config.SESSION_HOURS * 3600,  # matches the session length
+    PERMANENT_SESSION_LIFETIME=timedelta(minutes=config.SESSION_MINUTES),
+    WTF_CSRF_TIME_LIMIT=config.SESSION_MINUTES * 60,  # matches the session length
     MAX_CONTENT_LENGTH=64 * 1024,          # reject oversized request bodies
 )
 csrf = CSRFProtect(app)

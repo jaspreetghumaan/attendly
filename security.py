@@ -30,7 +30,7 @@ log = logging.getLogger("attendly.security")
 # whether an account exists.
 # ---------------------------------------------------------------------------
 MAX_FAILED_LOGINS = 5
-LOCKOUT_MINUTES = 15
+LOCKOUT_MINUTES = 5
 FAILED_LOGIN_WINDOW_MINUTES = 15
 INVALID_LOGIN_MESSAGE = "Invalid email or password."
 
