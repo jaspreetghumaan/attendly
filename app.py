@@ -638,28 +638,40 @@ def teacher_dashboard():
             flash("Teacher account not found.")
             return redirect(url_for("faculty_login"))
 
+        # Privacy: a teacher sees only the students in THEIR OWN classes (no emails
+        # of students outside those classes) and only attendance from THEIR OWN sessions.
         total_students = conn.execute(
             """
-            SELECT COUNT(*)
-            FROM students
-            JOIN users ON students.user_id = users.id
-            WHERE users.role = 'student'
-            """
+            SELECT COUNT(DISTINCT se.student_id)
+            FROM student_enrollments se
+            JOIN classes c ON c.id = se.class_id
+            WHERE c.created_by = ?
+            """,
+            (session["user_id"],),
         ).fetchone()[0]
 
         total_attendance = conn.execute(
-            "SELECT COUNT(*) FROM attendance_records WHERE status = 'Present'"
+            """
+            SELECT COUNT(*)
+            FROM attendance_records ar
+            JOIN attendance_sessions s ON s.id = ar.session_id
+            WHERE s.teacher_id = ? AND ar.status = 'Present'
+            """,
+            (session["user_id"],),
         ).fetchone()[0]
 
         students = conn.execute(
             """
-            SELECT users.name, users.email, students.roll_number, students.department,
+            SELECT DISTINCT users.name, users.email, students.roll_number, students.department,
                    students.course, students.year, students.semester, students.residence_type
-            FROM students
-            JOIN users ON students.user_id = users.id
-            WHERE users.role = 'student'
+            FROM student_enrollments se
+            JOIN classes c ON c.id = se.class_id
+            JOIN students ON students.id = se.student_id
+            JOIN users ON users.id = students.user_id
+            WHERE c.created_by = ? AND users.role = 'student'
             ORDER BY students.roll_number
-            """
+            """,
+            (session["user_id"],),
         ).fetchall()
 
         return render_template(
