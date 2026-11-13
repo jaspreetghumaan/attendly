@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1b33">
+    <title>Enroll Students | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_enrollments.css') }}">
+    <script nonce="{{ csp_nonce() }}">
+        /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
+        (function () {
+            var d = document.documentElement;
+            d.classList.add("js", "th-html");
+            try { if (localStorage.getItem('theme') === 'dark') d.classList.add('dark-mode'); } catch (e) { }
+        })();
+    </script>
+</head>
+
+<body class="th-page">
+
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></symbol>
+            <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></symbol>
+            <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12.5 2.8 2.8L16.5 9.5" /></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+            <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" /></symbol>
+            <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+            <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+            <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+            <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2z" /></symbol>
+            <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+            <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+            <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></symbol>
+            <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8" /></symbol>
+            <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" /></symbol>
+            <symbol id="i-userplus" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0M19 8v6M16 11h6" /></symbol>
+        </defs>
+    </svg>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Top bar ============ -->
+    <header class="th-top" id="top">
+        <div class="th-top__in">
+            <a class="th-brand" href="{{ url_for('teacher_dashboard') }}" aria-label="Attendly dashboard">
+                <span class="th-logo">
+                    <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt=""
+                        width="36" height="36">
+                </span>
+                <span class="th-brand__text">
+                    <strong>Attendly</strong>
+                    <small>Faculty portal</small>
+                </span>
+            </a>
+
+            <nav class="th-nav" aria-label="Main">
+                <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('teacher_classes') }}" aria-current="page">Classes</a>
+                <a href="{{ url_for('teacher_sessions') }}">QR Sessions</a>
+                <a href="{{ url_for('teacher_reports') }}">Reports</a>
+            </nav>
+
+            <div class="th-actions">
+                <button class="th-icon-btn" id="themeToggle" type="button" aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+                    <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+                </button>
+                <a href="{{ url_for('change_password') }}" class="th-icon-btn th-icon-btn--text"><span>Password</span></a>
+                <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
+                        <svg class="ic" aria-hidden="true"><use href="#i-logout" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+<main class="th-main" id="main">
+
+        <a class="en-back" href="{{ url_for('teacher_classes') }}"><svg class="ic" aria-hidden="true"><use href="#i-back" /></svg>My classes</a>
+
+        <section class="ss-intro en-intro">
+            <p class="ss-eyebrow">Enrollment</p>
+            <h1>Enroll students</h1>
+            <p class="ss-lead">Pick a class, then tick the students who belong to it.</p>
+        </section>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="ss-flashes" role="status">
+            {% for message in messages %}
+            <p class="ss-flash"><svg class="ic" aria-hidden="true"><use href="#i-info" /></svg><span>{{ message }}</span></p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- ============ Choose class ============ -->
+        <section aria-labelledby="h-class">
+            <div class="th-head"><h2 id="h-class">Class</h2></div>
+            {% if classes %}
+            <form method="GET" class="en-pick">
+                <div class="ss-select">
+                    <select id="class_id" name="class_id" required aria-label="Select class">
+                        <option value="">Select a class</option>
+                        {% for c in classes %}
+                        <option value="{{ c.id }}" {% if selected and selected.id == c.id %}selected{% endif %}>{{ c.class_name }} - {{ c.section }}</option>
+                        {% endfor %}
+                    </select>
+                    <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
+                </div>
+                <button type="submit" class="th-btn">Show students</button>
+            </form>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-book" /></svg>
+                <h3>No classes yet</h3>
+                <p>Create a class first, then come back to add students.</p>
+                <a href="{{ url_for('teacher_classes') }}" class="th-btn">Add a class</a>
+            </div>
+            {% endif %}
+        </section>
+
+        {% if selected %}
+
+        <section class="en-class" aria-label="Selected class">
+            <div>
+                <p class="en-class__eyebrow">Selected class</p>
+                <h2>{{ selected.class_name }} - {{ selected.section }}</h2>
+            </div>
+            <div class="en-class__nums">
+                <div><strong>{{ enrolled|length }}</strong><span>In class</span></div>
+                <div><strong>{{ students|length }}</strong><span>To add</span></div>
+            </div>
+        </section>
+
+        <!-- ============ Add students ============ -->
+        <section aria-labelledby="h-add">
+            <div class="th-head">
+                <h2 id="h-add">Add students</h2>
+                {% if students %}<span class="th-count">{{ students|length }}</span>{% endif %}
+            </div>
+
+            {% if students %}
+            <form method="POST" id="addForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="class_id" value="{{ selected.id }}">
+
+                <div class="en-tools">
+                    <div class="th-search">
+                        <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+                        <input type="search" id="q" placeholder="Search name or roll number" aria-label="Search students" autocomplete="off">
+                    </div>
+                    {% set courses = students | map(attribute='course') | select | unique | list %}
+                    {% if courses|length > 1 %}
+                    <div class="en-chips" id="courses" role="group" aria-label="Filter by course">
+                        <button type="button" class="th-chip is-on" data-c="">All</button>
+                        {% for c in courses %}<button type="button" class="th-chip" data-c="{{ c|lower }}">{{ c }}</button>{% endfor %}
+                    </div>
+                    {% endif %}
+                    <button type="button" class="en-selall" id="selAll" hidden>Select all shown</button>
+                </div>
+
+                <ul class="en-list" id="addList">
+                    {% for s in students %}
+                    <li data-q="{{ (s.name ~ ' ' ~ s.roll_number ~ ' ' ~ (s.course or '')) | lower }}" data-c="{{ (s.course or '') | lower }}">
+                        <label class="en-pick-row">
+                            <input type="checkbox" name="student_ids" value="{{ s.id }}" class="en-check">
+                            <span class="en-box" aria-hidden="true"><svg class="ic"><use href="#i-check" /></svg></span>
+                            <span class="en-row__main">
+                                <strong>{{ s.name }}</strong>
+                                <span class="en-meta"><span class="en-roll">{{ s.roll_number }}</span>{% if s.course %}<span class="en-course">{{ s.course }}</span>{% endif %}</span>
+                            </span>
+                        </label>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p class="en-none" id="none" hidden>No students match.</p>
+
+                <div class="en-bar" id="bar">
+                    <p><b id="selCount">0</b> selected</p>
+                    <button type="submit" class="th-btn" id="addBtn"><svg class="ic" aria-hidden="true"><use href="#i-userplus" /></svg><span>Add selected</span></button>
+                </div>
+            </form>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-users" /></svg>
+                <h3>No students to add</h3>
+                <p>Either no students have registered yet, or all of them are already in this class.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ============ Already in class ============ -->
+        <section aria-labelledby="h-in">
+            <div class="th-head">
+                <h2 id="h-in">In this class</h2>
+                <span class="th-count">{{ enrolled|length }}</span>
+            </div>
+            {% if enrolled %}
+            <ul class="en-list en-list--in">
+                {% for e in enrolled %}
+                <li>
+                    <div class="en-row">
+                        <span class="en-av" aria-hidden="true">{{ (e.name or '?')[:1] | upper }}</span>
+                        <span class="en-row__main">
+                            <strong>{{ e.name }}</strong>
+                            <span class="en-meta"><span class="en-roll">{{ e.roll_number }}</span>{% if e.course %}<span class="en-course">{{ e.course }}</span>{% endif %}</span>
+                        </span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-users" /></svg>
+                <h3>No students yet</h3>
+                <p>Tick students above and add them.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        {% endif %}
+    </main>
+
+    <!-- ============ Bottom tab bar (phones) ============ -->
+    <nav class="th-tabbar" aria-label="Main">
+        <a href="{{ url_for('teacher_dashboard') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-home" /></svg></span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('teacher_classes') }}" aria-current="page">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+            <span>Classes</span>
+        </a>
+        <a href="{{ url_for('teacher_sessions') }}" class="is-primary">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+            <span>QR</span>
+        </a>
+        <a href="{{ url_for('teacher_reports') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+            <span>Reports</span>
+        </a>
+    </nav>
+
+
+    <script nonce="{{ csp_nonce() }}">
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            function $(id) { return document.getElementById(id); }
+
+            /* ---------- Theme toggle (same "theme" key as the rest of the site) ---------- */
+            var tbtn = $('themeToggle');
+            function syncTheme() {
+                var dark = root.classList.contains('dark-mode');
+                tbtn.setAttribute('aria-pressed', String(dark));
+                tbtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+                var m = document.querySelector('meta[name="theme-color"]');
+                if (m) m.setAttribute('content', dark ? '#070b14' : '#0b1b33');
+            }
+            tbtn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { }
+                syncTheme();
+            });
+            syncTheme();
+
+            /* ---------- Top bar hairline on scroll ---------- */
+            var top = $('top'), ticking = false;
+            function onScroll() {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(function () { top.classList.toggle('is-stuck', window.scrollY > 6); ticking = false; });
+            }
+            window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+            /* ---------- Class picker: jump straight to the class ---------- */
+            var pick = $('class_id');
+            if (pick) pick.addEventListener('change', function () { if (pick.value) pick.form.submit(); });
+
+            /* ---------- Add students: search, course filter, select all, sticky bar ---------- */
+            var form = $('addForm'); if (!form) return;
+            var list = $('addList'), q = $('q'), none = $('none'), bar = $('bar'), cnt = $('selCount'),
+                all = $('selAll'), courses = $('courses'), course = '';
+            function checks() { return list.querySelectorAll('.en-check'); }
+            function sync() {
+                var n = list.querySelectorAll('.en-check:checked').length;
+                cnt.textContent = n; bar.classList.toggle('is-on', n > 0);
+                var vis = visible().length;
+                all.textContent = vis && visible().every(function (c) { return c.checked; }) ? 'Clear shown' : 'Select all shown';
+            }
+            function visible() {
+                return Array.prototype.filter.call(checks(), function (c) { return !c.closest('li').hidden; });
+            }
+            function apply() {
+                var term = q.value.trim().toLowerCase(), shown = 0;
+                Array.prototype.forEach.call(list.children, function (li) {
+                    var ok = (!course || li.getAttribute('data-c') === course) && (!term || li.getAttribute('data-q').indexOf(term) > -1);
+                    li.hidden = !ok; if (ok) shown++;
+                });
+                none.hidden = shown > 0; sync();
+            }
+            q.addEventListener('input', apply);
+            if (courses) courses.addEventListener('click', function (e) {
+                var b = e.target.closest('.th-chip'); if (!b) return;
+                course = b.getAttribute('data-c');
+                courses.querySelectorAll('.th-chip').forEach(function (c) { c.classList.toggle('is-on', c === b); });
+                apply();
+            });
+            all.hidden = false;
+            all.addEventListener('click', function () {
+                var v = visible(), every = v.length && v.every(function (c) { return c.checked; });
+                v.forEach(function (c) { c.checked = !every; }); sync();
+            });
+            list.addEventListener('change', sync);
+            form.addEventListener('submit', function (e) {
+                if (!list.querySelector('.en-check:checked')) { e.preventDefault(); return; }
+                var b = $('addBtn'); b.disabled = true; b.querySelector('span').textContent = 'Adding…';
+            });
+            window.addEventListener('pageshow', function () { var b = $('addBtn'); b.disabled = false; b.querySelector('span').textContent = 'Add selected'; sync(); });
+            sync();
+        })();
+    </script>
+</body>
+
+</html>

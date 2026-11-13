@@ -1,0 +1,392 @@
+<!-- Attendance Sessions | mobile-first redesign
+     Styles: static/css/teacher_sessions.css (self-contained)
+     Jinja data: classes, subjects, sessions, now_iso (server time, optional but recommended) -->
+{#- Works out a session's state. "live" needs the server's current time (now_iso). -#}
+{% macro state(s, now) -%}
+{%- if s.status == 'open' -%}
+{%- if not now -%}open{%- elif s.expires_at > now -%}live{%- else -%}expired{%- endif -%}
+{%- else -%}closed{%- endif -%}
+{%- endmacro %}
+{% set now_iso = now_iso | default('') %}
+{% set ns = namespace(live=[], past=0) %}
+{% for s in sessions %}
+{% set st = state(s, now_iso) | trim %}
+{% if st == 'live' or st == 'open' %}{% set ns.live = ns.live + [s] %}{% else %}{% set ns.past = ns.past + 1 %}{% endif %}
+{% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b1b33">
+    <title>Attendance Sessions | Attendly</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_sessions.css') }}">
+    <script nonce="{{ csp_nonce() }}">
+        /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
+        (function () {
+            var d = document.documentElement;
+            d.classList.add("js", "th-html");
+            try { if (localStorage.getItem('theme') === 'dark') d.classList.add('dark-mode'); } catch (e) { }
+        })();
+    </script>
+</head>
+
+<body class="th-page">
+
+    <!-- Icon sprite -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></symbol>
+            <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" /></symbol>
+            <symbol id="i-qr" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></symbol>
+            <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12.5 2.8 2.8L16.5 9.5" /></symbol>
+            <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+            <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></symbol>
+            <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" /></symbol>
+            <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+            <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+            <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+            <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" /></symbol>
+            <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2z" /></symbol>
+            <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+            <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></symbol>
+            <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol>
+        </defs>
+    </svg>
+
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Top bar ============ -->
+    <header class="th-top" id="top">
+        <div class="th-top__in">
+            <a class="th-brand" href="{{ url_for('teacher_dashboard') }}" aria-label="Attendly dashboard">
+                <span class="th-logo">
+                    <img src="https://i.ibb.co/Wvj58Fs4/Gemini-Generated-Image-g6qyag6qyag6qyag.png" alt=""
+                        width="36" height="36">
+                </span>
+                <span class="th-brand__text">
+                    <strong>Attendly</strong>
+                    <small>Faculty portal</small>
+                </span>
+            </a>
+
+            <nav class="th-nav" aria-label="Main">
+                <a href="{{ url_for('teacher_dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('teacher_classes') }}">Classes</a>
+                <a href="{{ url_for('teacher_sessions') }}" aria-current="page">QR Sessions</a>
+                <a href="{{ url_for('teacher_reports') }}">Reports</a>
+            </nav>
+
+            <div class="th-actions">
+                <button class="th-icon-btn" id="themeToggle" type="button" aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
+                    <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
+                </button>
+                <a href="{{ url_for('change_password') }}" class="th-icon-btn th-icon-btn--text"><span>Password</span></a>
+                <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
+                        <svg class="ic" aria-hidden="true"><use href="#i-logout" /></svg>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="th-main" id="main">
+
+        <!-- ============ Intro ============ -->
+        <section class="ss-intro">
+            <p class="ss-eyebrow">QR attendance</p>
+            <h1>Attendance sessions</h1>
+            <p class="ss-lead">Pick a class and subject, set the time window, and students scan your QR to mark
+                themselves present.</p>
+        </section>
+
+        <!-- ============ Flash messages ============ -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="ss-flashes" role="status">
+            {% for message in messages %}
+            <p class="ss-flash"><svg class="ic" aria-hidden="true"><use href="#i-info" /></svg><span>{{ message }}</span></p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- ============ A session is running right now ============ -->
+        {% if ns.live %}
+        {% set l = ns.live[0] %}
+        <a class="ss-live" href="{{ url_for('session_qr_page', session_id=l.id) }}">
+            <span class="ss-live__dot" aria-hidden="true"></span>
+            <span class="ss-live__txt">
+                <small>{% if now_iso %}Session is live{% else %}Session is open{% endif %}{% if ns.live|length > 1 %} · +{{
+                    ns.live|length - 1 }} more{% endif %}</small>
+                <strong>{{ l.subject_name }}</strong>
+                <span>{{ l.class_name }} - {{ l.section }} · ends {{ l.expires_at[11:16] }}</span>
+            </span>
+            <span class="ss-live__btn">Show QR <svg class="ic" aria-hidden="true"><use href="#i-arrow" /></svg></span>
+        </a>
+        {% endif %}
+
+        <!-- ============ New session ============ -->
+        <section class="ss-section" aria-labelledby="h-new" id="new">
+            <div class="th-head">
+                <h2 id="h-new">New session</h2>
+            </div>
+
+            {% if classes and subjects %}
+            <form method="POST" class="ss-form" id="startForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="ss-field ss-field--class">
+                    <label for="class_id">Class</label>
+                    <div class="ss-select">
+                        <select id="class_id" name="class_id" required>
+                            <option value="">Select class</option>
+                            {% for c in classes %}
+                            <option value="{{ c.id }}" {% if classes|length==1 %}selected{% endif %}>{{ c.class_name }} - {{ c.section }}</option>
+                            {% endfor %}
+                        </select>
+                        <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
+                    </div>
+                </div>
+
+                <div class="ss-field ss-field--subject">
+                    <label for="subject_id">Subject</label>
+                    <div class="ss-select">
+                        <select id="subject_id" name="subject_id" required>
+                            <option value="">Select subject</option>
+                            {% for s in subjects %}
+                            <option value="{{ s.id }}" {% if subjects|length==1 %}selected{% endif %}>{{ s.subject_name }} ({{ s.subject_code }})</option>
+                            {% endfor %}
+                        </select>
+                        <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
+                    </div>
+                </div>
+
+                <div class="ss-field ss-field--time">
+                    <label for="duration">How long should the QR stay active?</label>
+                    <div class="ss-presets" id="presets" role="group" aria-label="Quick durations">
+                        <button type="button" class="th-chip" data-min="5">5 min</button>
+                        <button type="button" class="th-chip" data-min="10">10 min</button>
+                        <button type="button" class="th-chip" data-min="15">15 min</button>
+                        <button type="button" class="th-chip" data-min="30">30 min</button>
+                        <button type="button" class="th-chip" data-min="60">60 min</button>
+                    </div>
+                    <div class="ss-stepper">
+                        <button type="button" id="durMinus" aria-label="Decrease minutes"><svg class="ic" aria-hidden="true"><use href="#i-minus" /></svg></button>
+                        <div class="ss-stepper__val">
+                            <input type="number" id="duration" name="duration" min="1" max="60" value="10"
+                                inputmode="numeric" required>
+                            <span>minutes</span>
+                        </div>
+                        <button type="button" id="durPlus" aria-label="Increase minutes"><svg class="ic" aria-hidden="true"><use href="#i-plus" /></svg></button>
+                    </div>
+                </div>
+
+                <div class="ss-submit">
+                    <button type="submit" class="th-btn th-btn--lg" id="startBtn">
+                        <svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg>
+                        <span>Start session</span>
+                    </button>
+                    <p class="ss-note"><svg class="ic" aria-hidden="true"><use href="#i-info" /></svg>
+                        <span>Every enrolled student is marked Absent until they scan the QR.</span></p>
+                </div>
+            </form>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-book" /></svg>
+                <h3>Setup needed</h3>
+                <p>You need at least one class and one subject before you can start a session.</p>
+                <a href="{{ url_for('teacher_classes') }}" class="th-btn">Add classes &amp; subjects</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- ============ Recent sessions ============ -->
+        <section class="ss-section" aria-labelledby="h-recent">
+            <div class="th-head">
+                <h2 id="h-recent">Recent sessions</h2>
+                {% if sessions %}<span class="th-count">{{ sessions|length }}</span>{% endif %}
+            </div>
+
+            {% if sessions %}
+            <div class="ss-filters" id="filters" role="group" aria-label="Filter sessions" hidden>
+                <button type="button" class="th-chip is-on" data-f="all">All <b>{{ sessions|length }}</b></button>
+                {% if ns.live %}<button type="button" class="th-chip" data-f="live">Live <b>{{ ns.live|length }}</b></button>{% endif %}
+                {% if ns.past %}<button type="button" class="th-chip" data-f="past">Past <b>{{ ns.past }}</b></button>{% endif %}
+            </div>
+
+            <ul class="ss-list" id="list">
+                {% for s in sessions %}
+                {% set st = state(s, now_iso) | trim %}
+                <li data-state="{{ 'live' if st in ('live', 'open') else 'past' }}">
+                    <a class="ss-card ss-card--{{ st }}" href="{{ url_for('session_qr_page', session_id=s.id) }}">
+                        <span class="ss-card__ic" aria-hidden="true">
+                            <svg class="ic"><use href="#{% if st in ('live', 'open') %}i-qr{% elif st == 'expired' %}i-clock{% else %}i-check{% endif %}" /></svg>
+                        </span>
+                        <span class="ss-card__main">
+                            <span class="ss-card__row">
+                                <strong>{{ s.subject_name }}</strong>
+                                <span class="ss-pill ss-pill--{{ st }}"><i></i>{% if st == 'live' %}Live{% elif st == 'open' %}Open{% elif st == 'expired' %}Expired{% else %}Closed{% endif %}</span>
+                            </span>
+                            <span class="ss-card__class">{{ s.class_name }} - {{ s.section }}</span>
+                            <span class="ss-meta">
+                                <span><svg class="ic" aria-hidden="true"><use href="#i-cal" /></svg><time class="js-date" datetime="{{ s.session_date }}">{{ s.session_date }}</time></span>
+                                <span><svg class="ic" aria-hidden="true"><use href="#i-clock" /></svg>{{ s.start_time[11:16] }} – {{ s.expires_at[11:16] }}</span>
+                            </span>
+                        </span>
+                        <span class="ss-card__go" aria-hidden="true">
+                            <span class="ss-card__label">{% if st in ('live', 'open') %}Show QR{% else %}View{% endif %}</span>
+                            <svg class="ic"><use href="#i-chev" /></svg>
+                        </span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="th-empty">
+                <svg class="ic" aria-hidden="true"><use href="#i-folder" /></svg>
+                <h3>No sessions yet</h3>
+                <p>Sessions you start will appear here.</p>
+                {% if classes and subjects %}<a href="#new" class="th-btn">Start your first session</a>{% endif %}
+            </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <!-- ============ Bottom tab bar (phones) ============ -->
+    <nav class="th-tabbar" aria-label="Main">
+        <a href="{{ url_for('teacher_dashboard') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-home" /></svg></span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('teacher_classes') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-book" /></svg></span>
+            <span>Classes</span>
+        </a>
+        <a href="{{ url_for('teacher_sessions') }}" class="is-primary" aria-current="page">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-qr" /></svg></span>
+            <span>QR</span>
+        </a>
+        <a href="{{ url_for('teacher_reports') }}">
+            <span class="th-tabbar__ic"><svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg></span>
+            <span>Reports</span>
+        </a>
+    </nav>
+
+    <script nonce="{{ csp_nonce() }}">
+        (function () {
+            'use strict';
+            var root = document.documentElement;
+            function $(id) { return document.getElementById(id); }
+
+            /* ---------- Theme toggle (same "theme" key as the rest of the site) ---------- */
+            var tbtn = $('themeToggle');
+            function syncTheme() {
+                var dark = root.classList.contains('dark-mode');
+                tbtn.setAttribute('aria-pressed', String(dark));
+                tbtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+                var m = document.querySelector('meta[name="theme-color"]');
+                if (m) m.setAttribute('content', dark ? '#070b14' : '#0b1b33');
+            }
+            tbtn.addEventListener('click', function () {
+                var dark = root.classList.toggle('dark-mode');
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { }
+                syncTheme();
+            });
+            syncTheme();
+
+            /* ---------- Top bar hairline on scroll ---------- */
+            var top = $('top'), ticking = false;
+            function onScroll() {
+                if (ticking) return; ticking = true;
+                requestAnimationFrame(function () { top.classList.toggle('is-stuck', window.scrollY > 6); ticking = false; });
+            }
+            window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+            /* ---------- Friendly dates: "Today", "Yesterday", "Tue, 3 Nov" ---------- */
+            var now = new Date(), t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            document.querySelectorAll('.js-date').forEach(function (el) {
+                var p = (el.getAttribute('datetime') || '').split('-');
+                if (p.length !== 3) return;
+                var d = new Date(+p[0], +p[1] - 1, +p[2]);
+                if (isNaN(d)) return;
+                var diff = Math.round((t0 - d) / 86400000);
+                el.textContent = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday' :
+                    d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+            });
+
+            /* ---------- Filter chips for the session list ---------- */
+            var list = $('list'), filters = $('filters');
+            if (list && filters) {
+                var chipsCount = filters.querySelectorAll('.th-chip').length;
+                if (chipsCount > 1 && list.children.length > 3) {
+                    filters.hidden = false;
+                    filters.addEventListener('click', function (e) {
+                        var b = e.target.closest('.th-chip'); if (!b) return;
+                        var f = b.getAttribute('data-f');
+                        filters.querySelectorAll('.th-chip').forEach(function (c) { c.classList.toggle('is-on', c === b); });
+                        Array.prototype.forEach.call(list.children, function (li) {
+                            li.hidden = !(f === 'all' || li.getAttribute('data-state') === f);
+                        });
+                    });
+                }
+            }
+
+            /* ---------- Start-session form ---------- */
+            var form = $('startForm'); if (!form) return;
+            var cls = $('class_id'), sub = $('subject_id'), dur = $('duration');
+            var presets = $('presets'), btn = $('startBtn');
+            var KEY = 'attendly.lastSession';
+
+            function clamp(n) { n = parseInt(n, 10); if (isNaN(n)) n = 10; return Math.min(60, Math.max(1, n)); }
+            function syncPresets() {
+                var v = parseInt(dur.value, 10);
+                presets.querySelectorAll('.th-chip').forEach(function (c) {
+                    c.classList.toggle('is-on', parseInt(c.getAttribute('data-min'), 10) === v);
+                });
+            }
+            presets.addEventListener('click', function (e) {
+                var b = e.target.closest('.th-chip'); if (!b) return;
+                dur.value = b.getAttribute('data-min'); syncPresets();
+            });
+            $('durMinus').addEventListener('click', function () { dur.value = clamp(clamp(dur.value) - 1); syncPresets(); });
+            $('durPlus').addEventListener('click', function () { dur.value = clamp(clamp(dur.value) + 1); syncPresets(); });
+            dur.addEventListener('input', syncPresets);
+            dur.addEventListener('blur', function () { dur.value = clamp(dur.value); syncPresets(); });
+            dur.addEventListener('focus', function () { dur.select(); });
+
+            /* remember what you picked last time: teachers usually repeat the same class */
+            try {
+                var saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+                if (saved) {
+                    if (!cls.value && saved.c && cls.querySelector('option[value="' + saved.c + '"]')) cls.value = saved.c;
+                    if (!sub.value && saved.s && sub.querySelector('option[value="' + saved.s + '"]')) sub.value = saved.s;
+                    if (saved.d) dur.value = clamp(saved.d);
+                }
+            } catch (e) { }
+            syncPresets();
+
+            form.addEventListener('submit', function () {
+                dur.value = clamp(dur.value);
+                try { localStorage.setItem(KEY, JSON.stringify({ c: cls.value, s: sub.value, d: dur.value })); } catch (e) { }
+                /* one tap = one session (a double tap used to create two) */
+                btn.disabled = true; btn.classList.add('is-busy');
+                btn.querySelector('span').textContent = 'Starting…';
+            });
+            window.addEventListener('pageshow', function () {   /* back button after submit */
+                btn.disabled = false; btn.classList.remove('is-busy');
+                btn.querySelector('span').textContent = 'Start session';
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+# Virtual environments
+.venv/
+.venv-*/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Databases and backups (contain personal data)
+*.db
+*.db-wal
+*.db-shm
+database_backup/
+
+# Secrets (never commit these)
+.env
+.secret_key
+.secret_key.*.tmp
+
+# Logs
+*.log
+
+# Local tools (not part of the project)
+cloudflared.exe
