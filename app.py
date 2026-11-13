@@ -853,7 +853,7 @@ def teacher_enrollments():
         if selected:
             enrolled = conn.execute(
                 """
-                SELECT s.roll_number, s.course, u.name
+                SELECT s.id AS student_id, s.roll_number, s.course, u.name
                 FROM student_enrollments e
                 JOIN students s ON s.id = e.student_id
                 JOIN users u ON u.id = s.user_id
@@ -886,6 +886,61 @@ def teacher_enrollments():
         students=students,
         enrolled=enrolled,
     )
+
+
+@app.route("/teacher/enrollments/remove", methods=["POST"])
+def remove_enrollment():
+    """Take a student out of one of the teacher's classes.
+
+    Their attendance for that class's sessions is deleted too, so a mistaken
+    enrollment leaves no trace in the reports.
+    """
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    class_id = request.form.get("class_id", type=int)
+    student_id = request.form.get("student_id", type=int)
+
+    conn = get_db_connection()
+    try:
+        owned = None
+        if class_id:
+            owned = conn.execute(
+                "SELECT id FROM classes WHERE id = ? AND created_by = ?",
+                (class_id, session["user_id"]),
+            ).fetchone()
+        if owned is None or not student_id:
+            flash("Please choose one of your own classes.")
+            return redirect(url_for("teacher_enrollments"))
+
+        student = conn.execute(
+            "SELECT u.name FROM students s JOIN users u ON u.id = s.user_id WHERE s.id = ?",
+            (student_id,),
+        ).fetchone()
+
+        cursor = conn.execute(
+            "DELETE FROM student_enrollments WHERE class_id = ? AND student_id = ?",
+            (class_id, student_id),
+        )
+        if cursor.rowcount == 0:
+            conn.rollback()
+            flash("That student is not in this class.")
+        else:
+            conn.execute(
+                """
+                DELETE FROM attendance_records
+                WHERE student_id = ?
+                  AND session_id IN (SELECT id FROM attendance_sessions WHERE class_id = ?)
+                """,
+                (student_id, class_id),
+            )
+            conn.commit()
+            log.info("Student removed from class class_id=%s student_id=%s", class_id, student_id)
+            flash(f"{student['name'] if student else 'Student'} was removed from the class.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("teacher_enrollments", class_id=class_id))
 
 
 # =========================================================
@@ -1053,7 +1108,8 @@ def session_qr_page(session_id):
     try:
         attendance_rows = conn.execute(
             """
-            SELECT st.roll_number,
+            SELECT st.id AS student_id,
+                   st.roll_number,
                    u.name,
                    COALESCE(ar.status, 'Absent') AS status,
                    ar.marked_at
@@ -1151,6 +1207,49 @@ def close_session(session_id):
 
     flash("Session closed. Students who did not scan stay marked Absent.")
     return redirect(url_for("teacher_sessions"))
+
+
+@app.route("/teacher/sessions/<int:session_id>/attendance", methods=["POST"])
+def set_manual_attendance(session_id):
+    """Teacher marks one enrolled student Present or Absent by hand."""
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    student_id = request.form.get("student_id", type=int)
+    status = request.form.get("status", "")
+    if not student_id or status not in ("Present", "Absent"):
+        abort(400)
+
+    now_iso = _now_iso()
+    conn = get_db_connection()
+    try:
+        enrolled = conn.execute(
+            "SELECT 1 FROM student_enrollments WHERE class_id = ? AND student_id = ?",
+            (s["class_id"], student_id),
+        ).fetchone()
+        if not enrolled:
+            abort(404)
+
+        conn.execute(
+            """
+            INSERT INTO attendance_records (session_id, student_id, status, marked_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT (session_id, student_id)
+            DO UPDATE SET status = excluded.status, marked_at = excluded.marked_at
+            """,
+            (session_id, student_id, status, now_iso if status == "Present" else None),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    log.info("Manual attendance session=%s student_id=%s status=%s", session_id, student_id, status)
+    flash(f"Marked {status.lower()} by hand.")
+    return redirect(url_for("session_qr_page", session_id=session_id))
 
 
 # =========================================================
