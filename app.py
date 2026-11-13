@@ -7,7 +7,6 @@ import logging
 import re
 import secrets
 import smtplib
-import sqlite3
 import threading
 import time
 from datetime import datetime, timedelta
@@ -31,7 +30,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import config
 import security
-from database import create_tables, get_db_connection
+from database import IntegrityError, create_tables, get_db_connection
 from security import (
     attempt_login,
     client_ip,
@@ -342,7 +341,7 @@ def register():
             conn.commit()
             flash("Registration successful! You can now log in.")
 
-        except sqlite3.IntegrityError:
+        except IntegrityError:
             conn.rollback()
             flash("Email or roll number already exists.")
 
@@ -476,7 +475,7 @@ def faculty_register():
                 log.info("Teacher account created via sign-up")
                 flash("Teacher account created. You can log in now.")
                 return redirect(url_for("faculty_login"))
-            except sqlite3.IntegrityError:
+            except IntegrityError:
                 conn.rollback()
                 flash("An account with this email already exists.")
             except Exception:
@@ -781,7 +780,8 @@ def teacher_classes():
                         )
                         conn.commit()
                         flash("Class created successfully.")
-                    except sqlite3.IntegrityError:
+                    except IntegrityError:
+                        conn.rollback()
                         flash("You already have this class and section.")
 
             elif form_type == "subject":
@@ -801,7 +801,8 @@ def teacher_classes():
                         )
                         conn.commit()
                         flash("Subject created successfully.")
-                    except sqlite3.IntegrityError:
+                    except IntegrityError:
+                        conn.rollback()
                         flash("You already have a subject with this code.")
 
             return redirect(url_for("teacher_classes"))
@@ -892,7 +893,7 @@ def teacher_enrollments():
             added = 0
             for student_id in request.form.getlist("student_ids", type=int):
                 cursor = conn.execute(
-                    "INSERT OR IGNORE INTO student_enrollments (class_id, student_id) VALUES (?, ?)",
+                    "INSERT INTO student_enrollments (class_id, student_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
                     (class_id, student_id),
                 )
                 added += cursor.rowcount
@@ -1059,7 +1060,7 @@ def teacher_sessions():
 
             # Duplicate-session guard. BEGIN IMMEDIATE holds the write lock, so two
             # simultaneous "start" clicks cannot both pass the check.
-            conn.execute("BEGIN IMMEDIATE")
+            conn.begin_write()
             running = conn.execute(
                 """
                 SELECT start_time, expires_at
@@ -1101,7 +1102,7 @@ def teacher_sessions():
             cursor = conn.execute(
                 """
                 INSERT INTO attendance_records (session_id, student_id, status)
-                SELECT ?, student_id, 'Absent'
+                SELECT CAST(? AS INTEGER), student_id, 'Absent'
                 FROM student_enrollments
                 WHERE class_id = ?
                 """,
@@ -1369,7 +1370,7 @@ def _class_report_rows(conn, class_id, teacher_id, now_iso):
               AND {FINISHED_SESSION}
         ) x ON x.student_id = st.id
         WHERE se.class_id = :class_id
-        GROUP BY st.id
+        GROUP BY st.id, u.id
         ORDER BY st.roll_number
         """,
         {"class_id": class_id, "teacher_id": teacher_id, "now": now_iso},
@@ -1628,7 +1629,7 @@ def mark_attendance(session_id, code):
                     (attendance_session["id"], student["id"], now_iso),
                 )
             conn.commit()
-        except sqlite3.IntegrityError:
+        except IntegrityError:
             # Two scans arrived at the same moment. The first one already counted.
             conn.rollback()
             return render_template("attend_result.html", ok=True,

@@ -161,7 +161,7 @@ def _register_attempt(email, succeeded):
     now = datetime.now()
     conn = get_db_connection()
     try:
-        conn.execute("BEGIN IMMEDIATE")
+        conn.begin_write()
 
         row = conn.execute(
             "SELECT failed_count, last_failed_at, locked_until "
@@ -194,9 +194,13 @@ def _register_attempt(email, succeeded):
 
         conn.execute(
             """
-            INSERT OR REPLACE INTO login_attempts
+            INSERT INTO login_attempts
                 (email, failed_count, last_failed_at, locked_until)
             VALUES (?, ?, ?, ?)
+            ON CONFLICT (email) DO UPDATE SET
+                failed_count = excluded.failed_count,
+                last_failed_at = excluded.last_failed_at,
+                locked_until = excluded.locked_until
             """,
             (
                 email,

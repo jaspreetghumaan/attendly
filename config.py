@@ -4,6 +4,7 @@ Every value can be overridden with an environment variable (names are unchanged
 from the previous version, so existing setups keep working).
 """
 import os
+from dotenv import load_dotenv
 import secrets
 from pathlib import Path
 
@@ -11,6 +12,13 @@ BASE_DIR = Path(__file__).resolve().parent
 
 # The database always lives in the project folder, wherever the app starts from.
 DATABASE_PATH = BASE_DIR / "smartattend.db"
+
+# Database to use.
+#   empty  -> the local SQLite file above (the default)
+#   postgresql://...  -> an external PostgreSQL database such as Supabase.
+# Set ATTENDLY_DATABASE_URL to the connection string from your Supabase dashboard.
+# Never put the password in a file you share.
+DATABASE_URL = os.environ.get("ATTENDLY_DATABASE_URL", "")
 
 # ---------------------------------------------------------------------------
 # Secret key
@@ -97,6 +105,14 @@ SMTP_FROM = os.environ.get("ATTENDLY_SMTP_FROM", SMTP_USER)
 # reset email to the same account (stops inbox flooding).
 RESET_TOKEN_MINUTES = 30
 RESET_REQUEST_COOLDOWN_SECONDS = 60
+
+# ---------------------------------------------------------------------------
+# Teacher sign-up
+# Teachers register at /faculty_register and must type this code. Leave it empty
+# to turn teacher sign-up off (create accounts with create_teacher.py instead).
+# Share the code only with the teachers who should be able to register.
+# ---------------------------------------------------------------------------
+TEACHER_SIGNUP_CODE = os.environ.get("ATTENDLY_TEACHER_CODE", "")
 
 # Login attempts allowed per IP address in a 10-minute window. Set generously:
 # a whole class on one campus WiFi shares a single public IP. Per-account lockout
