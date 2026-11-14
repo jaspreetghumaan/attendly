@@ -58,3 +58,20 @@ SMTP_PASSWORD = os.environ.get("ATTENDLY_SMTP_PASSWORD", "")
 SMTP_FROM = os.environ.get("ATTENDLY_SMTP_FROM", SMTP_USER)
 # How long a reset link stays valid
 RESET_TOKEN_MINUTES = 30
+
+def _int_env(name, default):
+    """Read a whole-number environment variable. Bad values fall back to the default."""
+    try:
+        return max(0, int(os.environ.get(name, default)))
+    except ValueError:
+        return default
+
+
+# Rotating QR: the QR code changes every this many seconds, so a photo of it
+# stops working soon after. Set ATTENDLY_QR_ROTATE_SECONDS=0 to turn this off.
+QR_ROTATE_SECONDS = _int_env("ATTENDLY_QR_ROTATE_SECONDS", 30)
+# After a rotation, the previous code still works for this many seconds,
+# so a student who scanned just before the change is not rejected.
+QR_GRACE_SECONDS = 5
+# How many minutes the teacher adds with "+5 min" or "Reopen".
+SESSION_EXTEND_MINUTES = 5

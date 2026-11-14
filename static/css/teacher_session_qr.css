@@ -689,3 +689,13 @@ html.dark-mode .qr-row--present .qr-av { color: #052e16; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+/* ---------- Added: extend, reopen, manual marking, CSV ---------- */
+.qr-export { margin-top: 12px; }
+.qr-extend { display: flex; justify-content: center; margin-top: 10px; }
+.qr-extend .qr-btn { min-width: 10rem; }
+.qr-reopen { display: grid; justify-items: center; gap: 10px; margin-top: 4px; }
+.qr-link { font-size: 14px; font-weight: 650; color: var(--brand-ink); }
+.qr-mark { margin: 0; }
+.qr-mark__btn { font: inherit; font-size: 12px; font-weight: 700; padding: 4px 10px; color: var(--brand-ink); background: var(--tint); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.qr-mark__btn:hover { border-color: var(--brand); }
+.qr-manual { font-style: normal; font-weight: 700; color: var(--brand-ink); }

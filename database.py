@@ -13,6 +13,19 @@ def get_db_connection():
     return conn
 
 
+def ensure_columns(conn):
+    """Add columns that newer versions need. Safe to run more than once."""
+    record_columns = {
+        row["name"]
+        for row in conn.execute("PRAGMA table_info(attendance_records)").fetchall()
+    }
+    if not record_columns:
+        return  # table not created yet; create_tables() will make it with the new column
+    # 'student' = scanned the QR, 'teacher' = marked by hand. NULL = older rows.
+    if "marked_by" not in record_columns:
+        conn.execute("ALTER TABLE attendance_records ADD COLUMN marked_by TEXT")
+
+
 def create_tables():
     """Create and update database tables without deleting existing data."""
 
@@ -247,6 +260,9 @@ def create_tables():
                 UNIQUE (session_id, student_id)
             )
         """)
+        # Columns added after the first release (old databases get them too).
+        ensure_columns(conn)
+
         # Verify foreign-key relationships before committing.
         foreign_key_errors = conn.execute(
             "PRAGMA foreign_key_check"

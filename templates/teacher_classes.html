@@ -76,6 +76,7 @@
                     <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
                     <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
                 </button>
+                <a class="th-icon-btn th-icon-btn--text" href="{{ url_for('change_password') }}" style="text-decoration:none"><span>Password</span></a>
                 <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
@@ -145,27 +146,31 @@
                         <span class="cl-item__main">
                             <strong>{{ c.class_name }}</strong>
                             <span class="cl-badge">Section {{ c.section }}</span>
+                            {% if c.session_count %}<span class="cl-badge" title="Attendance history exists, so this class cannot be deleted">Has sessions</span>{% endif %}
                         </span>
                         <span class="cl-item__acts">
                             <a class="cl-act" href="{{ url_for('teacher_enrollments', class_id=c.id) }}">
                                 <svg class="ic" aria-hidden="true"><use href="#i-users" /></svg><span>Students</span></a>
                             <a class="cl-act" href="{{ url_for('teacher_reports', class_id=c.id) }}">
                                 <svg class="ic" aria-hidden="true"><use href="#i-chart" /></svg><span>Reports</span></a>
+                            {% if not c.session_count %}
                             <button type="button" class="cl-act cl-act--del" data-del aria-label="Delete {{ c.class_name }} - {{ c.section }}">
                                 <svg class="ic" aria-hidden="true"><use href="#i-trash" /></svg><span class="cl-del-txt">Delete</span></button>
+                            {% endif %}
                         </span>
+                        {% if not c.session_count %}
                         <form method="POST" action="{{ url_for('delete_class', class_id=c.id) }}" class="cl-confirm">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <p class="cl-confirm__title"><svg class="ic" aria-hidden="true"><use href="#i-alert" /></svg>Delete {{ c.class_name }} - {{ c.section }}?</p>
-                            <p class="cl-confirm__txt">This permanently removes
-                                <b>{{ c.student_count }} enrolled student{{ '' if c.student_count == 1 else 's' }}</b> from this class and
-                                <b>{{ c.session_count }} session{{ '' if c.session_count == 1 else 's' }}</b> with all their attendance records.
+                            <p class="cl-confirm__txt">This removes the class and its
+                                <b>{{ c.student_count }} enrolled student{{ '' if c.student_count == 1 else 's' }}</b> from it.
                                 Student accounts are not deleted. This cannot be undone.</p>
                             <div class="cl-confirm__btns">
                                 <button type="submit" class="cl-danger">Yes, delete class</button>
                                 <button type="button" class="cl-keep" data-keep>Keep it</button>
                             </div>
                         </form>
+                        {% endif %}
                     </li>
                     {% endfor %}
                 </ul>
@@ -216,7 +221,23 @@
                         <span class="cl-item__main">
                             <strong>{{ s.subject_name }}</strong>
                             <span class="cl-badge">{{ s.subject_code }}</span>
+                            {% if s.session_count %}<span class="cl-badge" title="Attendance history exists, so this subject cannot be deleted">Has sessions</span>{% endif %}
                         </span>
+                        {% if not s.session_count %}
+                        <span class="cl-item__acts">
+                            <button type="button" class="cl-act cl-act--del" data-del aria-label="Delete {{ s.subject_name }}">
+                                <svg class="ic" aria-hidden="true"><use href="#i-trash" /></svg><span class="cl-del-txt">Delete</span></button>
+                        </span>
+                        <form method="POST" action="{{ url_for('delete_subject', subject_id=s.id) }}" class="cl-confirm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <p class="cl-confirm__title"><svg class="ic" aria-hidden="true"><use href="#i-alert" /></svg>Delete {{ s.subject_name }}?</p>
+                            <p class="cl-confirm__txt">Only subjects with no attendance sessions can be deleted. This cannot be undone.</p>
+                            <div class="cl-confirm__btns">
+                                <button type="submit" class="cl-danger">Yes, delete subject</button>
+                                <button type="button" class="cl-keep" data-keep>Keep it</button>
+                            </div>
+                        </form>
+                        {% endif %}
                     </li>
                     {% endfor %}
                 </ul>
@@ -305,14 +326,15 @@
             });
 
             /* ---------- Delete class: ask first, right inside the card ---------- */
-            var classList = document.getElementById('classList');
-            if (classList) {
-                classList.addEventListener('click', function (e) {
+            ['classList', 'subjectList'].forEach(function (id) {
+                var list = document.getElementById(id);
+                if (!list) return;
+                list.addEventListener('click', function (e) {
                     var del = e.target.closest('[data-del]'), keep = e.target.closest('[data-keep]');
                     if (!del && !keep) return;
                     var li = e.target.closest('.cl-item'), box = li.querySelector('.cl-confirm');
                     if (del) {
-                        classList.querySelectorAll('.cl-confirm.is-open').forEach(function (o) { if (o !== box) o.classList.remove('is-open'); });
+                        list.querySelectorAll('.cl-confirm.is-open').forEach(function (o) { if (o !== box) o.classList.remove('is-open'); });
                         box.classList.add('is-open'); li.classList.add('is-deleting');
                         box.querySelector('.cl-keep').focus();
                     } else {
@@ -320,10 +342,10 @@
                         li.querySelector('[data-del]').focus();
                     }
                 });
-                classList.addEventListener('submit', function (e) {
+                list.addEventListener('submit', function (e) {
                     var b = e.target.querySelector('.cl-danger'); if (b) { b.disabled = true; b.textContent = 'Deleting…'; }
                 });
-            }
+            });
 
             /* ---------- Quick filter for long lists ---------- */
             document.querySelectorAll('[data-filter]').forEach(function (box) {

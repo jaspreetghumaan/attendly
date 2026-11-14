@@ -79,6 +79,7 @@
                     <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
                     <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
                 </button>
+                <a class="th-icon-btn th-icon-btn--text" href="{{ url_for('change_password') }}" style="text-decoration:none"><span>Password</span></a>
                 <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
@@ -99,15 +100,28 @@
             <span class="ss-pill {{ 'ss-pill--live' if is_open else 'ss-pill--closed' }}"><i></i>{{ 'Live' if is_open else 'Closed' }}</span>
             <h1>{{ s.subject_name }}</h1>
             <p>{{ s.class_name }} - {{ s.section }} · <time class="js-date" datetime="{{ s.session_date }}">{{ s.session_date }}</time></p>
+            <p class="qr-export"><a class="th-btn" href="{{ url_for('session_export_csv', session_id=s.id) }}" download>Download CSV</a></p>
         </section>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="ss-flashes" role="status">
+            {% for message in messages %}
+            <p class="ss-flash"><svg class="ic" aria-hidden="true"><use href="#i-info" /></svg><span>{{ message }}</span></p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
         {% if is_open %}
         <!-- ============ QR ============ -->
-        <section class="qr-card" id="qrBox" aria-label="Attendance QR code">
+        <section class="qr-card" id="qrBox" aria-label="Attendance QR code"
+                data-rotate="{{ rotate_seconds }}" data-state="{{ state_url }}"
+                data-server-ms="{{ qr.server_ms }}" data-next-at="{{ qr.next_at or 0 }}">
             <button type="button" class="qr-exit" id="qrExit" aria-label="Close full screen" hidden><svg class="ic" aria-hidden="true"><use href="#i-x" /></svg></button>
             <p class="qr-scan">Scan to mark attendance</p>
             <div class="qr-frame">
-                <img src="{{ url_for('session_qr_image', session_id=s.id) }}" alt="Attendance QR code" class="qr-img" width="320" height="320">
+                <img src="{{ qr.image_url }}" id="qrImg" alt="Attendance QR code" class="qr-img" width="320" height="320">
             </div>
             <div class="qr-time" id="timer" data-expires="{{ s.expires_at }}" data-now="{{ now_iso|default('') }}">
                 <svg class="ic" aria-hidden="true"><use href="#i-clock" /></svg>
@@ -115,10 +129,14 @@
             </div>
             <div class="qr-acts">
                 <button type="button" class="qr-btn" id="qrFull"><svg class="ic" aria-hidden="true"><use href="#i-expand" /></svg><span>Full screen</span></button>
-                <button type="button" class="qr-btn" id="qrCopy" data-link="{{ scan_url }}"><svg class="ic" aria-hidden="true"><use href="#i-copy" /></svg><span>Copy link</span></button>
-                <button type="button" class="qr-btn" id="qrShare" data-link="{{ scan_url }}" hidden><svg class="ic" aria-hidden="true"><use href="#i-share" /></svg><span>Share</span></button>
+                <button type="button" class="qr-btn" id="qrCopy" data-link="{{ qr.link }}"><svg class="ic" aria-hidden="true"><use href="#i-copy" /></svg><span>Copy link</span></button>
+                <button type="button" class="qr-btn" id="qrShare" data-link="{{ qr.link }}" hidden><svg class="ic" aria-hidden="true"><use href="#i-share" /></svg><span>Share</span></button>
             </div>
-            <p class="qr-url">{{ scan_url }}</p>
+            <p class="qr-url" id="qrUrl">{{ qr.link }}</p>
+            <form method="POST" action="{{ url_for('extend_session', session_id=s.id) }}" class="qr-extend">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="qr-btn"><svg class="ic" aria-hidden="true"><use href="#i-plus" /></svg><span>Add {{ extend_minutes }} min</span></button>
+            </form>
         </section>
 
         <form method="POST" action="{{ url_for('close_session', session_id=s.id) }}" class="qr-close" id="closeForm">
@@ -136,8 +154,12 @@
         <div class="th-empty">
             <svg class="ic" aria-hidden="true"><use href="#i-check" /></svg>
             <h3>This session has closed</h3>
-            <p>Start a new session to get a fresh QR code.</p>
-            <a href="{{ url_for('teacher_sessions') }}#new" class="th-btn">Start new session</a>
+            <p>Students cannot scan now. Reopen it for {{ extend_minutes }} minutes, or start a new session.</p>
+            <form method="POST" action="{{ url_for('reopen_session', session_id=s.id) }}" class="qr-reopen">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="th-btn">Reopen for {{ extend_minutes }} min</button>
+            </form>
+            <a href="{{ url_for('teacher_sessions') }}#new" class="qr-link">Start a new session</a>
         </div>
         {% endif %}
 
@@ -185,7 +207,13 @@
                             </span>
                             <span class="qr-row__st">
                                 <span class="ss-pill {{ 'ss-pill--live' if r.status == 'Present' else 'ss-pill--expired' }}"><i></i>{{ r.status }}</span>
-                                <small>{{ r.marked_at[11:16] if r.marked_at else '' }}</small>
+                                <small>{{ r.marked_at[11:16] if r.marked_at else '' }}{% if r.marked_by == 'teacher' %} <em class="qr-manual">manual</em>{% endif %}</small>
+                                <form method="POST" action="{{ url_for('manual_mark', session_id=s.id) }}" class="qr-mark">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="student_id" value="{{ r.student_id }}">
+                                    <input type="hidden" name="status" value="{{ 'Absent' if r.status == 'Present' else 'Present' }}">
+                                    <button type="submit" class="qr-mark__btn">{{ 'Mark absent' if r.status == 'Present' else 'Mark present' }}</button>
+                                </form>
                             </span>
                         </div>
                     </li>
@@ -304,6 +332,39 @@
                     tEl.classList.toggle('is-low', s <= 60);
                     setTimeout(tick, 1000);
                 })();
+            }
+
+            /* ---------- Rotating QR: swap the code exactly when the server changes it ---------- */
+            var rotate = +box.getAttribute('data-rotate') || 0;
+            if (rotate > 0) {
+                var qrImg = $('qrImg'), qrUrl = $('qrUrl'), stateUrl = box.getAttribute('data-state');
+                var offset = (+box.getAttribute('data-server-ms')) - Date.now();  /* server clock minus this device's clock */
+                var nextAt = +box.getAttribute('data-next-at'), timer = null;
+                function setLink(link) {
+                    copy.setAttribute('data-link', link);
+                    share.setAttribute('data-link', link);
+                    qrUrl.textContent = link;
+                }
+                function swapQr() {
+                    clearTimeout(timer);
+                    fetch(stateUrl, { credentials: 'same-origin', cache: 'no-store' })
+                        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+                        .then(function (st) {
+                            offset = st.server_ms - Date.now();
+                            qrImg.src = st.image_url;
+                            setLink(st.link);
+                            nextAt = st.next_at;
+                            schedule();
+                        })
+                        .catch(function () { timer = setTimeout(swapQr, 1000); });
+                }
+                function schedule() {
+                    clearTimeout(timer);
+                    var wait = nextAt - (Date.now() + offset);
+                    timer = setTimeout(swapQr, Math.max(50, wait + 150));  /* +150 ms: the server is already in the new window */
+                }
+                document.addEventListener('visibilitychange', function () { if (!document.hidden) swapQr(); });
+                schedule();
             }
 
             /* ---------- Live refresh without reloading the page (the QR never flickers) ---------- */

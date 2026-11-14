@@ -668,3 +668,7 @@ html.dark-mode body.th-page { --ok: #4ade80; --warn: #fbbf24; --bad: #f87171; --
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+/* ---------- Added: subject filter next to the class picker ---------- */
+@media (min-width: 640px) {
+  .rp-pick:has(select[name="subject_id"]) { grid-template-columns: minmax(0, 20rem) minmax(0, 16rem) auto; }
+}

@@ -86,6 +86,7 @@
                     <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
                     <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
                 </button>
+                <a class="th-icon-btn th-icon-btn--text" href="{{ url_for('change_password') }}" style="text-decoration:none"><span>Password</span></a>
                 <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">

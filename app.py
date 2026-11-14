@@ -1,12 +1,14 @@
 # Main application file for the QR Attendance System
 import csv
 import hashlib
+import hmac
 import io
 import math
 import re
 import secrets
 import smtplib
 import sqlite3
+import time
 from datetime import date, datetime, timedelta
 from email.message import EmailMessage
 from urllib.parse import urlsplit
@@ -18,6 +20,7 @@ from flask import (
     abort,
     flash,
     g,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -28,7 +31,7 @@ from flask import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
 import config
-from database import get_db_connection
+from database import ensure_columns, get_db_connection
 
 
 app = Flask(__name__)
@@ -764,6 +767,7 @@ def student_dashboard():
             SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS classes_attended
         FROM attendance_records r
         JOIN attendance_sessions s ON s.id = r.session_id
+        JOIN student_enrollments se ON se.class_id = s.class_id AND se.student_id = r.student_id
         WHERE r.student_id = :student_id AND {FINISHED_SESSION}
         """,
         {"student_id": student["student_id"], "now": now_iso}
@@ -776,6 +780,7 @@ def student_dashboard():
                SUM(CASE WHEN r.status = 'Present' THEN 1 ELSE 0 END) AS attended
         FROM attendance_records r
         JOIN attendance_sessions s ON s.id = r.session_id
+        JOIN student_enrollments se ON se.class_id = s.class_id AND se.student_id = r.student_id
         JOIN subjects sub ON sub.id = s.subject_id
         WHERE r.student_id = :student_id AND {FINISHED_SESSION}
         GROUP BY sub.id
@@ -805,6 +810,7 @@ def student_dashboard():
                s.start_time, r.marked_at
         FROM attendance_records r
         JOIN attendance_sessions s ON s.id = r.session_id
+        JOIN student_enrollments se ON se.class_id = s.class_id AND se.student_id = r.student_id
         JOIN subjects sub ON sub.id = s.subject_id
         WHERE r.student_id = ?
         ORDER BY s.id DESC
@@ -885,6 +891,8 @@ def teacher_dashboard():
             SELECT COUNT(*)
             FROM attendance_records r
             JOIN attendance_sessions s ON s.id = r.session_id
+            JOIN student_enrollments se
+                 ON se.class_id = s.class_id AND se.student_id = r.student_id
             WHERE s.teacher_id = ? AND r.status = 'Present'
             """,
             (teacher_id,),
@@ -1020,10 +1028,12 @@ def teacher_classes():
 
         subjects = conn.execute(
             """
-            SELECT id, subject_name, subject_code
-            FROM subjects
-            WHERE created_by = ?
-            ORDER BY subject_name
+            SELECT sub.id, sub.subject_name, sub.subject_code,
+                   (SELECT COUNT(*) FROM attendance_sessions s
+                     WHERE s.subject_id = sub.id) AS session_count
+            FROM subjects sub
+            WHERE sub.created_by = ?
+            ORDER BY sub.subject_name
             """,
             (teacher_id,),
         ).fetchall()
@@ -1045,10 +1055,10 @@ def teacher_classes():
 
 @app.route("/teacher/classes/<int:class_id>/delete", methods=["POST"])
 def delete_class(class_id):
-    """Permanently delete one of the teacher's classes.
+    """Delete one of the teacher's classes, but only if it has never had a session.
 
-    Foreign keys use ON DELETE CASCADE, so the class's enrollments, sessions
-    and attendance records are removed with it. Student accounts are kept.
+    A class with sessions keeps its attendance history, so it cannot be deleted.
+    Enrollments are removed with the class. Student accounts are kept.
     """
     if not is_teacher_logged_in():
         return redirect(url_for("faculty_login"))
@@ -1069,13 +1079,102 @@ def delete_class(class_id):
         if target is None:
             flash("Class not found.")
         else:
-            conn.execute("DELETE FROM classes WHERE id = ?", (class_id,))
-            conn.commit()
-            flash(f"Class {target['class_name']} - {target['section']} was deleted.")
+            session_count = conn.execute(
+                "SELECT COUNT(*) FROM attendance_sessions WHERE class_id = ?",
+                (class_id,),
+            ).fetchone()[0]
+            if session_count:
+                flash("This class has attendance sessions, so it cannot be deleted. Attendance history is kept.")
+            else:
+                conn.execute("DELETE FROM classes WHERE id = ?", (class_id,))
+                conn.commit()
+                flash(f"Class {target['class_name']} - {target['section']} was deleted.")
     finally:
         conn.close()
 
     return redirect(url_for("teacher_classes"))
+
+
+@app.route("/teacher/subjects/<int:subject_id>/delete", methods=["POST"])
+def delete_subject(subject_id):
+    """Delete one of the teacher's subjects, but only if no session uses it."""
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    conn = get_db_connection()
+    try:
+        target = conn.execute(
+            "SELECT id, subject_name, subject_code FROM subjects WHERE id = ? AND created_by = ?",
+            (subject_id, session["user_id"]),
+        ).fetchone()
+
+        if target is None:
+            flash("Subject not found.")
+        else:
+            session_count = conn.execute(
+                "SELECT COUNT(*) FROM attendance_sessions WHERE subject_id = ?",
+                (subject_id,),
+            ).fetchone()[0]
+            if session_count:
+                flash("This subject has attendance sessions, so it cannot be deleted. Attendance history is kept.")
+            else:
+                conn.execute("DELETE FROM subjects WHERE id = ?", (subject_id,))
+                conn.commit()
+                flash(f"Subject {target['subject_name']} was deleted.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("teacher_classes"))
+
+@app.route("/teacher/enrollments/remove", methods=["POST"])
+def remove_enrollment():
+    """Take a student out of one of the teacher's classes.
+
+    The student's account stays. Their old attendance records are kept, but they
+    stop counting in this class (reports and the student's dashboard) until the
+    student is added back.
+    """
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    class_id = request.form.get("class_id", type=int)
+    student_id = request.form.get("student_id", type=int)
+
+    conn = get_db_connection()
+    try:
+        owned_class = conn.execute(
+            "SELECT id FROM classes WHERE id = ? AND created_by = ?",
+            (class_id, session["user_id"]),
+        ).fetchone()
+        if not owned_class:
+            flash("Please choose one of your own classes.")
+            return redirect(url_for("teacher_enrollments"))
+
+        student = conn.execute(
+            """
+            SELECT u.name
+            FROM student_enrollments e
+            JOIN students st ON st.id = e.student_id
+            JOIN users u ON u.id = st.user_id
+            WHERE e.class_id = ? AND e.student_id = ?
+            """,
+            (class_id, student_id),
+        ).fetchone()
+
+        if student:
+            conn.execute(
+                "DELETE FROM student_enrollments WHERE class_id = ? AND student_id = ?",
+                (class_id, student_id),
+            )
+            conn.commit()
+            flash(f"{student['name']} was removed from the class.")
+        else:
+            flash("Student is not in this class.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("teacher_enrollments", class_id=class_id))
+
 
 @app.route("/teacher/enrollments", methods=["GET", "POST"])
 def teacher_enrollments():
@@ -1141,7 +1240,7 @@ def teacher_enrollments():
         if selected:
             enrolled = conn.execute(
                 """
-                SELECT s.roll_number, s.course, u.name
+                SELECT s.id AS student_id, s.roll_number, s.course, u.name
                 FROM student_enrollments e
                 JOIN students s ON s.id = e.student_id
                 JOIN users u ON u.id = s.user_id
@@ -1332,9 +1431,78 @@ def get_owned_session(session_id):
         conn.close()
 
 
-def build_scan_url(token):
+def build_scan_url(token, code=None):
     base = config.PUBLIC_BASE_URL or request.host_url.rstrip("/")
+    if code:
+        return f"{base}/attend/{token}/{code}"
     return f"{base}/attend/{token}"
+
+
+# =========================================================
+# ROTATING QR CODE
+# The scan link carries a short code that changes every QR_ROTATE_SECONDS.
+# The code is an HMAC of the session token and the time window, made with the
+# server secret, so students cannot predict it. A photo of the QR therefore
+# stops working after one rotation and cannot be used to mark a friend present.
+# =========================================================
+
+def _qr_window(now_ts):
+    """Index of the current rotation window. It changes every QR_ROTATE_SECONDS."""
+    return int(now_ts // config.QR_ROTATE_SECONDS)
+
+
+def _qr_code(qr_token, window):
+    digest = hmac.new(
+        config.SECRET_KEY.encode(),
+        f"{qr_token}:{window}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return digest[:12]
+
+
+def qr_code_is_valid(qr_token, code, now_ts=None):
+    """True if the code belongs to the current window (or the previous one, just after a change)."""
+    if config.QR_ROTATE_SECONDS <= 0:
+        return True  # rotation is off: the plain session link is enough
+    if not code:
+        return False
+
+    now_ts = time.time() if now_ts is None else now_ts
+    window = _qr_window(now_ts)
+    if hmac.compare_digest(code, _qr_code(qr_token, window)):
+        return True
+
+    # The student may have had the previous code on screen when the QR changed.
+    # Accept it only for a few seconds into the new window.
+    grace = min(config.QR_GRACE_SECONDS, config.QR_ROTATE_SECONDS / 6)
+    into_window = now_ts - window * config.QR_ROTATE_SECONDS
+    if into_window < grace:
+        return hmac.compare_digest(code, _qr_code(qr_token, window - 1))
+    return False
+
+
+def qr_state(s, now_ts=None):
+    """Everything the QR page needs for the current window: image, link and when it changes next."""
+    now_ts = time.time() if now_ts is None else now_ts
+    rotate = config.QR_ROTATE_SECONDS
+
+    if rotate <= 0:
+        return {
+            "window": None,
+            "link": build_scan_url(s["qr_token"]),
+            "image_url": url_for("session_qr_image", session_id=s["id"]),
+            "next_at": None,
+            "server_ms": int(now_ts * 1000),
+        }
+
+    window = _qr_window(now_ts)
+    return {
+        "window": window,
+        "link": build_scan_url(s["qr_token"], _qr_code(s["qr_token"], window)),
+        "image_url": url_for("session_qr_image", session_id=s["id"], w=window),
+        "next_at": int((window + 1) * rotate * 1000),
+        "server_ms": int(now_ts * 1000),
+    }
 
 
 @app.route("/teacher/sessions/<int:session_id>")
@@ -1351,10 +1519,12 @@ def session_qr_page(session_id):
     try:
         attendance_rows = conn.execute(
             """
-            SELECT st.roll_number,
+            SELECT st.id AS student_id,
+                   st.roll_number,
                    u.name,
                    COALESCE(ar.status, 'Absent') AS status,
-                   ar.marked_at
+                   ar.marked_at,
+                   ar.marked_by
             FROM student_enrollments se
             JOIN students st ON st.id = se.student_id
             JOIN users u ON u.id = st.user_id
@@ -1377,7 +1547,10 @@ def session_qr_page(session_id):
         "teacher_session_qr.html",
         s=s,
         is_open=is_open,
-        scan_url=build_scan_url(s["qr_token"]),
+        qr=qr_state(s),
+        state_url=url_for("session_qr_state", session_id=s["id"]),
+        rotate_seconds=config.QR_ROTATE_SECONDS,
+        extend_minutes=config.SESSION_EXTEND_MINUTES,
         # lets the page show a live countdown
         now_iso=now_iso,
         attendance_rows=attendance_rows,
@@ -1396,11 +1569,39 @@ def session_qr_image(session_id):
     if not s:
         abort(404)
 
-    img = qrcode.make(build_scan_url(s["qr_token"]))
+    if config.QR_ROTATE_SECONDS > 0:
+        # The page asks for a window (?w=). Only the current or the previous one is allowed,
+        # so the teacher's screen can never show a code from the future.
+        window = _qr_window(time.time())
+        requested = request.args.get("w", type=int)
+        if requested in (window - 1, window):
+            window = requested
+        link = build_scan_url(s["qr_token"], _qr_code(s["qr_token"], window))
+    else:
+        link = build_scan_url(s["qr_token"])
+
+    img = qrcode.make(link)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-    return send_file(buf, mimetype="image/png")
+    response = send_file(buf, mimetype="image/png")
+    response.headers["Cache-Control"] = "no-store"  # the code changes, so never cache it
+    return response
+
+
+@app.route("/teacher/sessions/<int:session_id>/qr-state")
+def session_qr_state(session_id):
+    """Current QR code, scan link and time of the next change. The QR page calls this at each change."""
+    if not is_teacher_logged_in():
+        return jsonify(error="Please log in again."), 401
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    response = jsonify(qr_state(s))
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.route("/teacher/sessions/<int:session_id>/close", methods=["POST"])
@@ -1427,8 +1628,178 @@ def close_session(session_id):
         abort(404)
 
     flash("Session closed. Students who did not scan stay marked Absent.")
-    return redirect(url_for("teacher_sessions"))
+    return redirect(url_for("session_qr_page", session_id=session_id))
 
+
+@app.route("/teacher/sessions/<int:session_id>/extend", methods=["POST"])
+def extend_session(session_id):
+    """Add SESSION_EXTEND_MINUTES to a session that is still running."""
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    minutes = config.SESSION_EXTEND_MINUTES
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            "SELECT id, status, expires_at FROM attendance_sessions WHERE id = ? AND teacher_id = ?",
+            (session_id, session["user_id"]),
+        ).fetchone()
+        if row is None:
+            abort(404)
+
+        if row["status"] != "open" or row["expires_at"] <= now_iso:
+            flash("This session is no longer running. Reopen it to add time.")
+        else:
+            new_expiry = datetime.fromisoformat(row["expires_at"]) + timedelta(minutes=minutes)
+            conn.execute(
+                "UPDATE attendance_sessions SET expires_at = ? WHERE id = ?",
+                (new_expiry.isoformat(timespec="seconds"), session_id),
+            )
+            conn.commit()
+            flash(f"Session extended by {minutes} minutes.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("session_qr_page", session_id=session_id))
+
+
+@app.route("/teacher/sessions/<int:session_id>/reopen", methods=["POST"])
+def reopen_session(session_id):
+    """Open a closed or expired session again for SESSION_EXTEND_MINUTES from now."""
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    minutes = config.SESSION_EXTEND_MINUTES
+    new_expiry = datetime.now() + timedelta(minutes=minutes)
+    conn = get_db_connection()
+    try:
+        cursor = conn.execute(
+            """
+            UPDATE attendance_sessions
+            SET status = 'open', expires_at = ?
+            WHERE id = ? AND teacher_id = ?
+            """,
+            (new_expiry.isoformat(timespec="seconds"), session_id, session["user_id"]),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    if cursor.rowcount == 0:
+        abort(404)
+
+    flash(f"Session reopened for {minutes} minutes. Students can scan again.")
+    return redirect(url_for("session_qr_page", session_id=session_id))
+
+
+@app.route("/teacher/sessions/<int:session_id>/mark", methods=["POST"])
+def manual_mark(session_id):
+    """Teacher marks one enrolled student Present or Absent by hand.
+
+    Use it when a scan fails or a student forgot their phone. Works while the
+    session is running and after it has closed.
+    """
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    student_id = request.form.get("student_id", type=int)
+    status = request.form.get("status")
+    if status not in ("Present", "Absent") or not student_id:
+        flash("Choose a student and a status.")
+        return redirect(url_for("session_qr_page", session_id=session_id) + "#live")
+
+    conn = get_db_connection()
+    try:
+        student = conn.execute(
+            """
+            SELECT u.name
+            FROM student_enrollments se
+            JOIN students st ON st.id = se.student_id
+            JOIN users u ON u.id = st.user_id
+            WHERE se.class_id = ? AND st.id = ?
+            """,
+            (s["class_id"], student_id),
+        ).fetchone()
+
+        if student is None:
+            flash("This student is not enrolled in this class.")
+        else:
+            marked_at = datetime.now().isoformat(timespec="seconds") if status == "Present" else None
+            conn.execute(
+                """
+                INSERT INTO attendance_records (session_id, student_id, status, marked_at, marked_by)
+                VALUES (?, ?, ?, ?, 'teacher')
+                ON CONFLICT (session_id, student_id) DO UPDATE SET
+                    status = excluded.status,
+                    marked_at = excluded.marked_at,
+                    marked_by = excluded.marked_by
+                """,
+                (session_id, student_id, status, marked_at),
+            )
+            conn.commit()
+            flash(f"{student['name']} marked {status}.")
+    finally:
+        conn.close()
+
+    return redirect(url_for("session_qr_page", session_id=session_id) + "#live")
+
+
+@app.route("/teacher/sessions/<int:session_id>/export.csv")
+def session_export_csv(session_id):
+    """Download one session's attendance as CSV (every enrolled student, with status)."""
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    s = get_owned_session(session_id)
+    if not s:
+        abort(404)
+
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT st.roll_number, u.name,
+                   COALESCE(ar.status, 'Absent') AS status,
+                   ar.marked_at,
+                   ar.marked_by
+            FROM student_enrollments se
+            JOIN students st ON st.id = se.student_id
+            JOIN users u ON u.id = st.user_id
+            LEFT JOIN attendance_records ar
+                   ON ar.student_id = st.id AND ar.session_id = ?
+            WHERE se.class_id = ?
+            ORDER BY st.roll_number
+            """,
+            (s["id"], s["class_id"]),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    marked_by_label = {"student": "Student scan", "teacher": "Teacher"}
+
+    output = io.StringIO()
+    output.write("\ufeff")  # BOM, so Excel reads names in Hindi or Punjabi correctly
+    writer = csv.writer(output)
+    writer.writerow(["Roll number", "Name", "Status", "Marked at", "Marked by"])
+    for r in rows:
+        writer.writerow([
+            csv_safe(r["roll_number"]),
+            csv_safe(r["name"]),
+            r["status"],
+            (r["marked_at"] or "").replace("T", " "),
+            marked_by_label.get(r["marked_by"], ""),
+        ])
+
+    response = Response(output.getvalue(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="attendance-{s["session_date"]}-session-{s["id"]}.csv"'
+    )
+    return response
 
 
 # =========================================================
@@ -1460,6 +1831,17 @@ def attendance_level(percent, total):
 FINISHED_SESSION = "(s.status = 'closed' OR s.expires_at <= :now)"
 
 
+# Optional subject filter for the reports (used in both SQL and CSV).
+SUBJECT_FILTER = "AND (:subject_id IS NULL OR s.subject_id = :subject_id)"
+
+
+def report_level(percent, total):
+    """Teacher-side colour: anything under the minimum is 'low' (a shortage). Used for highlighting."""
+    if not total:
+        return "none"
+    return "good" if percent >= MIN_ATTENDANCE else "low"
+
+
 @app.route("/teacher/reports")
 def teacher_reports():
 
@@ -1487,9 +1869,12 @@ def teacher_reports():
         subject_cards = []
         overall = None
         class_sessions = 0
+        subject_options = []
+        csv_url = None
 
         class_id = request.args.get("class_id", type=int)
         student_id = request.args.get("student_id", type=int)
+        subject_id = request.args.get("subject_id", type=int)
 
         if class_id:
             selected = conn.execute(
@@ -1498,13 +1883,39 @@ def teacher_reports():
             ).fetchone()
 
         if selected:
+            # Only subjects that actually have sessions in this class are offered.
+            subject_options = conn.execute(
+                """
+                SELECT DISTINCT sub.id, sub.subject_name, sub.subject_code
+                FROM attendance_sessions s
+                JOIN subjects sub ON sub.id = s.subject_id
+                WHERE s.class_id = ? AND s.teacher_id = ?
+                ORDER BY sub.subject_name
+                """,
+                (selected["id"], teacher_id),
+            ).fetchall()
+            if subject_id not in {o["id"] for o in subject_options}:
+                subject_id = None  # unknown or from another class: show all subjects
+
+            params = {
+                "class_id": selected["id"],
+                "teacher_id": teacher_id,
+                "now": now_iso,
+                "subject_id": subject_id,
+            }
+
+            csv_args = {"class_id": selected["id"]}
+            if subject_id:
+                csv_args["subject_id"] = subject_id
+            csv_url = url_for("teacher_reports_csv", **csv_args)
+
             class_sessions = conn.execute(
                 f"""
                 SELECT COUNT(*) FROM attendance_sessions s
                 WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
-                  AND {FINISHED_SESSION}
+                  AND {FINISHED_SESSION} {SUBJECT_FILTER}
                 """,
-                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+                params,
             ).fetchone()[0]
 
             rows = conn.execute(
@@ -1520,13 +1931,13 @@ def teacher_reports():
                     FROM attendance_records ar
                     JOIN attendance_sessions s ON s.id = ar.session_id
                     WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
-                      AND {FINISHED_SESSION}
+                      AND {FINISHED_SESSION} {SUBJECT_FILTER}
                 ) x ON x.student_id = st.id
                 WHERE se.class_id = :class_id
                 GROUP BY st.id
                 ORDER BY st.roll_number
                 """,
-                {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+                params,
             ).fetchall()
 
             for r in rows:
@@ -1539,7 +1950,7 @@ def teacher_reports():
                     "attended": r["attended"],
                     "absent": r["total"] - r["attended"],
                     "percent": pct,
-                    "level": attendance_level(pct, r["total"]),
+                    "level": report_level(pct, r["total"]),
                 })
 
             if student_id:
@@ -1558,16 +1969,11 @@ def teacher_reports():
                     JOIN subjects sub ON sub.id = s.subject_id
                     WHERE ar.student_id = :student_id
                       AND s.class_id = :class_id AND s.teacher_id = :teacher_id
-                      AND {FINISHED_SESSION}
+                      AND {FINISHED_SESSION} {SUBJECT_FILTER}
                     GROUP BY sub.id
                     ORDER BY sub.subject_name
                     """,
-                    {
-                        "student_id": chosen_student["id"],
-                        "class_id": selected["id"],
-                        "teacher_id": teacher_id,
-                        "now": now_iso,
-                    },
+                    dict(params, student_id=chosen_student["id"]),
                 ).fetchall()
 
                 for c in cards:
@@ -1580,7 +1986,7 @@ def teacher_reports():
                         "attended": attended,
                         "absent": c["total"] - attended,
                         "percent": pct,
-                        "level": attendance_level(pct, c["total"]),
+                        "level": report_level(pct, c["total"]),
                     })
 
                 overall = chosen_student
@@ -1596,17 +2002,20 @@ def teacher_reports():
         class_sessions=class_sessions,
         overall=overall,
         subject_cards=subject_cards,
+        subject_options=subject_options,
+        subject_id=subject_id,
+        csv_url=csv_url,
         min_attendance=MIN_ATTENDANCE,
     )
 
 
 # =========================================================
-# STUDENT: SCAN QR AND MARK ATTENDANCE
+# TEACHER: ATTENDANCE REPORTS CSV
 # =========================================================
 
 @app.route("/teacher/reports.csv")
 def teacher_reports_csv():
-    """Download one of this teacher's class reports as CSV.
+    """Download one of this teacher's class reports as CSV (optionally for one subject).
 
     The numbers match the reports page. Text cells go through csv_safe(), so a
     name such as =HYPERLINK(...) is saved as plain text and not run as a formula.
@@ -1617,6 +2026,7 @@ def teacher_reports_csv():
     teacher_id = session["user_id"]
     now_iso = datetime.now().isoformat(timespec="seconds")
     class_id = request.args.get("class_id", type=int)
+    subject_id = request.args.get("subject_id", type=int)
 
     conn = get_db_connection()
     try:
@@ -1629,6 +2039,18 @@ def teacher_reports_csv():
 
         if selected is None:
             abort(404)
+
+        if subject_id:
+            subject = conn.execute(
+                """
+                SELECT sub.id, sub.subject_name
+                FROM subjects sub
+                WHERE sub.id = ? AND sub.created_by = ?
+                """,
+                (subject_id, teacher_id),
+            ).fetchone()
+            if subject is None:
+                abort(404)
 
         rows = conn.execute(
             f"""
@@ -1643,13 +2065,18 @@ def teacher_reports_csv():
                 FROM attendance_records ar
                 JOIN attendance_sessions s ON s.id = ar.session_id
                 WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
-                  AND {FINISHED_SESSION}
+                  AND {FINISHED_SESSION} {SUBJECT_FILTER}
             ) x ON x.student_id = st.id
             WHERE se.class_id = :class_id
             GROUP BY st.id
             ORDER BY st.roll_number
             """,
-            {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+            {
+                "class_id": selected["id"],
+                "teacher_id": teacher_id,
+                "now": now_iso,
+                "subject_id": subject_id,
+            },
         ).fetchall()
     finally:
         conn.close()
@@ -1667,13 +2094,21 @@ def teacher_reports_csv():
             attendance_percent(r["attended"], r["total"]),
         ])
 
+    filename = f"class-{selected['id']}-attendance"
+    if subject_id:
+        filename += f"-subject-{subject_id}"
     response = Response(output.getvalue(), mimetype="text/csv")
-    response.headers["Content-Disposition"] = f'attachment; filename="class-{selected["id"]}-attendance.csv"'
+    response.headers["Content-Disposition"] = f'attachment; filename="{filename}.csv"'
     return response
 
 
+# =========================================================
+# STUDENT: SCAN QR AND MARK ATTENDANCE
+# =========================================================
+
 @app.route("/attend/<token>")
-def mark_attendance(token):
+@app.route("/attend/<token>/<code>")
+def mark_attendance(token, code=None):
 
     # HEAD requests (uptime checks, link previews) must never write attendance.
     # Flask runs the GET code for HEAD, so return before any database write.
@@ -1698,7 +2133,7 @@ def mark_attendance(token):
 
         attendance_session = conn.execute(
             """
-            SELECT id, class_id, status, expires_at
+            SELECT id, class_id, qr_token, status, expires_at
             FROM attendance_sessions
             WHERE qr_token = ?
             """,
@@ -1709,6 +2144,13 @@ def mark_attendance(token):
             return render_template(
                 "attend_result.html", ok=False,
                 message="This QR code is not valid."
+            )
+
+        # The QR changes every few seconds. An old photo of it is rejected here.
+        if not qr_code_is_valid(attendance_session["qr_token"], code):
+            return render_template(
+                "attend_result.html", ok=False,
+                message="This QR code has expired. Scan the code on the teacher's screen."
             )
 
         now_iso = datetime.now().isoformat(timespec="seconds")
@@ -1749,14 +2191,18 @@ def mark_attendance(token):
 
         if record:
             conn.execute(
-                "UPDATE attendance_records SET status = 'Present', marked_at = ? WHERE id = ?",
+                """
+                UPDATE attendance_records
+                SET status = 'Present', marked_at = ?, marked_by = 'student'
+                WHERE id = ?
+                """,
                 (now_iso, record["id"]),
             )
         else:
             conn.execute(
                 """
-                INSERT INTO attendance_records (session_id, student_id, status, marked_at)
-                VALUES (?, ?, 'Present', ?)
+                INSERT INTO attendance_records (session_id, student_id, status, marked_at, marked_by)
+                VALUES (?, ?, 'Present', ?, 'student')
                 """,
                 (attendance_session["id"], student["id"], now_iso),
             )
@@ -1905,6 +2351,70 @@ def reset_password(token):
                                back=back, token=token)
     finally:
         conn.close()
+
+
+# =========================================================
+# CHANGE PASSWORD (teachers and students, while logged in)
+# =========================================================
+
+@app.route("/change-password", methods=["GET", "POST"])
+def change_password():
+
+    if "user_id" not in session or session.get("role") not in ("teacher", "student"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        current = request.form.get("current_password", "")
+        new = request.form.get("new_password", "")
+        confirm = request.form.get("confirm_password", "")
+
+        conn = get_db_connection()
+        try:
+            user = conn.execute(
+                "SELECT password FROM users WHERE id = ?",
+                (session["user_id"],),
+            ).fetchone()
+
+            if user is None:
+                session.clear()
+                flash("Account not found.")
+                return redirect(url_for("login"))
+
+            problem = password_problem(new)
+            if not check_password_hash(user["password"], current):
+                flash("Your current password is not correct.")
+            elif problem:
+                flash(problem)
+            elif new != confirm:
+                flash("The new passwords do not match.")
+            elif check_password_hash(user["password"], new):
+                flash("Choose a password that is different from your current one.")
+            else:
+                conn.execute(
+                    "UPDATE users SET password = ? WHERE id = ?",
+                    (generate_password_hash(new), session["user_id"]),
+                )
+                conn.commit()
+                flash("Your password has been changed.")
+                return redirect(url_for("change_password"))
+        finally:
+            conn.close()
+
+    back = url_for("teacher_dashboard") if session["role"] == "teacher" else url_for("student_dashboard")
+    return render_template("change_password.html", back=back)
+
+
+# Add newer columns to an existing database on every start (safe to repeat).
+def _upgrade_schema():
+    conn = get_db_connection()
+    try:
+        ensure_columns(conn)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+_upgrade_schema()
 
 
 if __name__ == "__main__":

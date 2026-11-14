@@ -75,6 +75,7 @@
                     <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
                     <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
                 </button>
+                <a class="th-icon-btn th-icon-btn--text" href="{{ url_for('change_password') }}" style="text-decoration:none"><span>Password</span></a>
                 <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
@@ -108,6 +109,17 @@
                     </select>
                     <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
                 </div>
+                {% if selected and subject_options %}
+                <div class="ss-select">
+                    <select id="subject_id" name="subject_id" aria-label="Filter by subject">
+                        <option value="">All subjects</option>
+                        {% for o in subject_options %}
+                        <option value="{{ o.id }}" {% if subject_id == o.id %}selected{% endif %}>{{ o.subject_name }} ({{ o.subject_code }})</option>
+                        {% endfor %}
+                    </select>
+                    <svg class="ic" aria-hidden="true"><use href="#i-down" /></svg>
+                </div>
+                {% endif %}
                 <button type="submit" class="th-btn">Show students</button>
             </form>
             {% else %}
@@ -128,13 +140,13 @@
         {% if r.total and r.percent < min_attendance %}{% set ns.short = ns.short + 1 %}{% elif r.total %}{% set ns.good = ns.good + 1 %}{% endif %}
         {% endfor %}
 
-        <p class="rp-export"><a href="{{ url_for('teacher_reports_csv', class_id=selected.id) }}" class="th-btn" download>Download CSV</a></p>
+        <p class="rp-export"><a href="{{ csv_url }}" class="th-btn" download>Download CSV</a></p>
 
         <!-- ============ Class overview ============ -->
         <section class="rp-class" aria-labelledby="h-sel">
             <p class="rp-class__eyebrow">Selected class</p>
             <h2 id="h-sel">{{ selected.class_name }} - {{ selected.section }}</h2>
-            <p class="rp-class__sub">{{ class_sessions }} completed session{{ '' if class_sessions == 1 else 's' }} · minimum {{ min_attendance }}% required</p>
+            <p class="rp-class__sub">{{ class_sessions }} completed session{{ '' if class_sessions == 1 else 's' }}{% for o in subject_options if o.id == subject_id %} · {{ o.subject_name }}{% endfor %} · minimum {{ min_attendance }}% required</p>
             <div class="rp-kpis">
                 <div class="rp-kpi"><strong>{{ student_rows|length }}</strong><span>Students</span></div>
                 <div class="rp-kpi"><strong>{% if ns.tot %}{{ (ns.att * 100 / ns.tot) | round(1) | string | replace('.0', '') }}%{% else %}–{% endif %}</strong><span>Class average</span></div>
@@ -168,7 +180,7 @@
                 {% set lvl = 'none' if not r.total else ('ok' if r.percent >= min_attendance else 'low') %}
                 <li data-level="{{ lvl }}" data-q="{{ (r.name ~ ' ' ~ r.roll_number) | lower }}">
                     <a class="rp-student rp-student--{{ r.level }}{% if overall and overall.id == r.id %} is-active{% endif %}"
-                        href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id) }}#student-report"
+                        href="{{ url_for('teacher_reports', class_id=selected.id, student_id=r.id, subject_id=subject_id or None) }}#student-report"
                         {% if overall and overall.id == r.id %}aria-current="true"{% endif %}>
                         <span class="rp-ring" style="--p: {{ r.percent if r.total else 0 }}" aria-hidden="true">
                             <b>{% if r.total %}{{ r.percent | string | replace('.0', '') }}<small>%</small>{% else %}–{% endif %}</b>
@@ -310,6 +322,8 @@
             /* ---------- Class picker: jump straight to the class ---------- */
             var pick = $('class_id');
             if (pick) pick.addEventListener('change', function () { if (pick.value) pick.form.submit(); });
+            var subj = $('subject_id');
+            if (subj) subj.addEventListener('change', function () { subj.form.submit(); });
 
             /* ---------- Student list: search + filter ---------- */
             var list = $('students'), q = $('q'), chips = $('filters'), none = $('none'), clear = $('clear');

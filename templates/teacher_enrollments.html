@@ -75,6 +75,7 @@
                     <svg class="ic ic-moon" aria-hidden="true"><use href="#i-moon" /></svg>
                     <svg class="ic ic-sun" aria-hidden="true"><use href="#i-sun" /></svg>
                 </button>
+                <a class="th-icon-btn th-icon-btn--text" href="{{ url_for('change_password') }}" style="text-decoration:none"><span>Password</span></a>
                 <form action="{{ url_for('logout') }}" method="POST" class="th-logout">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="th-icon-btn th-icon-btn--text" aria-label="Log out">
@@ -218,6 +219,12 @@
                             <strong>{{ e.name }}</strong>
                             <span class="en-meta"><span class="en-roll">{{ e.roll_number }}</span>{% if e.course %}<span class="en-course">{{ e.course }}</span>{% endif %}</span>
                         </span>
+                        <form method="POST" action="{{ url_for('remove_enrollment') }}" class="en-remove" data-confirm="Remove {{ e.name }} from this class? Their past attendance is kept but stops counting here until they are added back.">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="class_id" value="{{ selected.id }}">
+                            <input type="hidden" name="student_id" value="{{ e.student_id }}">
+                            <button type="submit" class="en-remove__btn" aria-label="Remove {{ e.name }} from class">Remove</button>
+                        </form>
                     </div>
                 </li>
                 {% endfor %}
@@ -288,6 +295,13 @@
             /* ---------- Class picker: jump straight to the class ---------- */
             var pick = $('class_id');
             if (pick) pick.addEventListener('change', function () { if (pick.value) pick.form.submit(); });
+
+            /* ---------- Remove a student: ask first ---------- */
+            document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+                f.addEventListener('submit', function (e) {
+                    if (!window.confirm(f.getAttribute('data-confirm'))) e.preventDefault();
+                });
+            });
 
             /* ---------- Add students: search, course filter, select all, sticky bar ---------- */
             var form = $('addForm'); if (!form) return;
