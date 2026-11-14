@@ -1,13 +1,3 @@
-"""Copy the data in the local SQLite file (smartattend.db) into the database
-set in ATTENDLY_DATABASE_URL (Supabase). Run this ONCE.
-
-Steps:
-  1. Set ATTENDLY_DATABASE_URL to your Supabase connection string.
-  2. python migrate_sqlite_to_supabase.py
-
-Ids are kept the same, so logins, classes and attendance keep working.
-Rows that already exist in Supabase are skipped, so it is safe to run again.
-"""
 import sqlite3
 import sys
 
