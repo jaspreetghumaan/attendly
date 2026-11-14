@@ -1,4 +1,5 @@
 import os
+import secrets
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -6,9 +7,37 @@ BASE_DIR = Path(__file__).resolve().parent
 # DB ka path hamesha project folder ke andar, chahe app kahin se bhi chale
 DATABASE_PATH = BASE_DIR / "smartattend.db"
 
-# Secret key: environment variable se lo. Nahi mili to demo ke liye ek fixed key.
-# Production mein kabhi bhi yeh fallback mat use karna.
-SECRET_KEY = os.environ.get("ATTENDLY_SECRET_KEY", "dev-only-change-me")
+# Secret key session cookies aur CSRF tokens ko sign karti hai. Do tarike se milti hai:
+#   1. ATTENDLY_SECRET_KEY environment variable (production mein yahi use karein)
+#   2. Warna ek random key, jo project folder mein .secret_key file mein save hoti hai.
+#      Pehli baar app chalne par khud ban jaati hai, aur agli baar wahi use hoti hai,
+#      taaki restart ke baad bhi login na tootay. Yeh file git mein commit mat karna.
+SECRET_KEY_FILE = BASE_DIR / ".secret_key"
+
+
+def _load_or_create_secret_key():
+    """Saved key padho, warna ek random key banakar save karo."""
+    if SECRET_KEY_FILE.exists():
+        return SECRET_KEY_FILE.read_text().strip()
+
+    # Pehle temp file mein poori key likho, phir usse asli naam par link karo.
+    # Asli file tabhi dikhti hai jab key poori likhi ho. Agar do process ek saath
+    # start hon, to sirf ek link jeetega aur dono ko wahi key milegi.
+    tmp_path = SECRET_KEY_FILE.with_name(f".secret_key.{os.getpid()}.tmp")
+    fd = os.open(tmp_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(secrets.token_hex(32))
+    try:
+        os.link(tmp_path, SECRET_KEY_FILE)
+    except FileExistsError:
+        pass  # doosri process ne pehle bana di, uski key use karenge
+    finally:
+        tmp_path.unlink()
+
+    return SECRET_KEY_FILE.read_text().strip()
+
+
+SECRET_KEY = os.environ.get("ATTENDLY_SECRET_KEY") or _load_or_create_secret_key()
 
 # Debug sirf tab on hoga jab aap ATTENDLY_DEBUG=1 set karo
 DEBUG = os.environ.get("ATTENDLY_DEBUG") == "1"

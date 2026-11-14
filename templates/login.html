@@ -11,7 +11,7 @@
 
     <!-- Separate CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-  <script>
+  <script nonce="{{ csp_nonce }}">
     /* Dark mode: apply the saved choice before the page paints (no white flash) */
     (function () {
       try {
@@ -160,7 +160,7 @@
         </section>
 
     </main>
-    <script>
+    <script nonce="{{ csp_nonce }}">
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
 

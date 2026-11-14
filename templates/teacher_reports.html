@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#0b1b33">
     <title>Attendance Reports | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_reports.css') }}">
-    <script>
+    <script nonce="{{ csp_nonce }}">
         /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
         (function () {
             var d = document.documentElement;
@@ -127,6 +127,8 @@
         {% set ns.att = ns.att + r.attended %}{% set ns.tot = ns.tot + r.total %}
         {% if r.total and r.percent < min_attendance %}{% set ns.short = ns.short + 1 %}{% elif r.total %}{% set ns.good = ns.good + 1 %}{% endif %}
         {% endfor %}
+
+        <p class="rp-export"><a href="{{ url_for('teacher_reports_csv', class_id=selected.id) }}" class="th-btn" download>Download CSV</a></p>
 
         <!-- ============ Class overview ============ -->
         <section class="rp-class" aria-labelledby="h-sel">
@@ -275,7 +277,7 @@
     </nav>
 
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             'use strict';
             var root = document.documentElement;

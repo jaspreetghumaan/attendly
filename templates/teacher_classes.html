@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#0b1b33">
     <title>Classes &amp; Subjects | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_classes.css') }}">
-    <script>
+    <script nonce="{{ csp_nonce }}">
         /* Runs before first paint: saved dark mode (no white flash) + "js" flag */
         (function () {
             var d = document.documentElement;
@@ -259,7 +259,7 @@
     </nav>
 
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             'use strict';
             var root = document.documentElement;

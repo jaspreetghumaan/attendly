@@ -1,18 +1,23 @@
 # Main application file for the QR Attendance System
+import csv
 import hashlib
 import io
 import math
+import re
 import secrets
 import smtplib
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from email.message import EmailMessage
+from urllib.parse import urlsplit
 
 import qrcode
 from flask import (
     Flask,
+    Response,
     abort,
     flash,
+    g,
     redirect,
     render_template,
     request,
@@ -29,8 +34,15 @@ from database import get_db_connection
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 csrf = CSRFProtect(app)
-# Browsers will not send the session cookie with cross-site POSTs (extra CSRF defence)
-app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+# Cookie and session settings
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,            # JavaScript cannot read the session cookie
+    SESSION_COOKIE_SAMESITE="Lax",           # browsers do not send it on cross-site POSTs
+    SESSION_COOKIE_SECURE=config.USE_HTTPS,  # cookie goes over HTTPS only when the app runs on HTTPS
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),  # a login ends after 8 hours
+    WTF_CSRF_TIME_LIMIT=None,                # CSRF token lasts as long as the session
+    MAX_CONTENT_LENGTH=64 * 1024,            # reject oversized form posts
+)
 
 # =========================================================
 # HELPERS
@@ -41,13 +53,127 @@ def is_teacher_logged_in():
 
 
 def is_safe_next_url(url):
-    """Allow only local paths like /attend/abc. Block other sites."""
+    """Allow only paths on this site, such as /attend/abc.
+
+    Browsers remove tab and newline characters from inside a URL. So a value
+    like a slash, a tab, then another slash would turn into a link to another
+    site. Any whitespace, control character or backslash is therefore rejected,
+    and so is any URL that has a scheme or a host.
+    """
+    if not url or len(url) > 512:
+        return False
+    if any(ch.isspace() or ord(ch) < 32 or ch == "\\" for ch in url):
+        return False
+    parts = urlsplit(url)
     return (
-        bool(url)
-        and url.startswith("/")
+        url.startswith("/")
         and not url.startswith("//")
-        and "\\" not in url
+        and not parts.scheme
+        and not parts.netloc
     )
+
+
+# =========================================================
+# INPUT CHECKS
+# =========================================================
+
+PASSWORD_MIN_LENGTH = 8
+PASSWORD_MAX_LENGTH = 128
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+ROLL_NUMBER_PATTERN = re.compile(r"^[A-Za-z0-9/_-]{1,30}$")
+SECTION_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,10}$")
+SUBJECT_CODE_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,20}$")
+
+
+def password_problem(password):
+    """Return a message if the password is too weak, otherwise None.
+
+    Rule: 8 to 128 characters, with at least one letter and at least one number.
+    """
+    if len(password) < PASSWORD_MIN_LENGTH:
+        return "Password must be at least 8 characters long."
+    if len(password) > PASSWORD_MAX_LENGTH:
+        return "Password must be 128 characters or fewer."
+    if not any(ch.isalpha() for ch in password) or not any(ch.isdigit() for ch in password):
+        return "Password must contain at least one letter and one number."
+    return None
+
+
+def text_ok(text, max_length):
+    """True if the text fits the length limit and has no control characters."""
+    if len(text) > max_length:
+        return False
+    return not any(ord(ch) < 32 or ord(ch) == 127 for ch in text)
+
+
+CSV_FORMULA_START = ("=", "+", "-", "@")
+
+
+def csv_safe(value):
+    """Stop spreadsheet apps from running a cell as a formula.
+
+    A student name such as =HYPERLINK(...) would be executed by Excel when the
+    file is opened. A leading apostrophe makes the cell plain text.
+    """
+    if value is None:
+        return ""
+    text = str(value)
+    if text.lstrip().startswith(CSV_FORMULA_START):
+        return "'" + text
+    return text
+
+
+# =========================================================
+# SECURITY HEADERS AND CONTENT SECURITY POLICY
+# Every inline <script> in a template must have nonce="{{ csp_nonce }}".
+# The browser blocks inline scripts that do not have the right nonce.
+# =========================================================
+
+@app.before_request
+def create_csp_nonce():
+    g.csp_nonce = secrets.token_urlsafe(16)
+
+
+@app.context_processor
+def inject_csp_nonce():
+    return {"csp_nonce": g.get("csp_nonce", "")}
+
+
+@app.after_request
+def set_security_headers(response):
+    nonce = g.get("csp_nonce", "")
+
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; "
+        "style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+        "style-src-attr 'unsafe-inline'; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https://i.ibb.co; "
+        "media-src 'self' blob:; "
+        "connect-src 'self'; "
+        "form-action 'self'; "
+        "base-uri 'self'; "
+        "object-src 'none'; "
+        "frame-ancestors 'none'"
+    )
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response.headers["Permissions-Policy"] = (
+        "camera=(self), microphone=(), geolocation=(), payment=()"
+    )
+
+    if config.USE_HTTPS:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000"
+
+    # Pages with personal data must not stay in the browser cache, otherwise
+    # the Back button after logout can show them again.
+    if response.mimetype == "text/html":
+        response.headers["Cache-Control"] = "no-store"
+
+    return response
 
 
 # =========================================================
@@ -116,9 +242,10 @@ def register():
             flash("Please fill in all required fields.")
             return redirect(url_for("register"))
 
-        # Password validation
-        if len(password) < 8:
-            flash("Password must be at least 8 characters long.")
+        # Password validation: 8+ characters, with at least one letter and one number
+        problem = password_problem(password)
+        if problem:
+            flash(problem)
             return redirect(url_for("register"))
 
         if password != confirm_password:
@@ -150,6 +277,49 @@ def register():
         ):
             flash("Enter a valid 6-digit PIN code.")
             return redirect(url_for("register"))
+
+        # Length, format and character checks
+        if not text_ok(name, 100) or len(name) < 2:
+            flash("Enter your full name (2 to 100 characters, no special control characters).")
+            return redirect(url_for("register"))
+
+        if len(email) > 254 or not EMAIL_PATTERN.match(email):
+            flash("Enter a valid email address.")
+            return redirect(url_for("register"))
+
+        if not ROLL_NUMBER_PATTERN.match(roll_number):
+            flash("Roll number may contain only letters, digits, /, _ and - (max 30 characters).")
+            return redirect(url_for("register"))
+
+        text_limits = [
+            ("Department", department, 100),
+            ("Course", course, 150),
+            ("Specialization", specialization, 100),
+            ("Section", section, 10),
+            ("College", college, 150),
+            ("Address", address, 255),
+            ("City", city, 100),
+            ("State", state, 100),
+            ("Guardian name", guardian_name, 100),
+        ]
+        for label, value, limit in text_limits:
+            if not text_ok(value, limit):
+                flash(f"{label} is too long or contains invalid characters.")
+                return redirect(url_for("register"))
+
+        if gender and gender not in ("Male", "Female"):
+            flash("Please select a valid gender.")
+            return redirect(url_for("register"))
+
+        if dob:
+            try:
+                birth_date = date.fromisoformat(dob)
+            except ValueError:
+                flash("Enter a valid date of birth.")
+                return redirect(url_for("register"))
+            if birth_date > date.today():
+                flash("Date of birth cannot be in the future.")
+                return redirect(url_for("register"))
 
         # Department and course validation
         department_courses = {
@@ -203,6 +373,18 @@ def register():
 
         except ValueError:
             flash("Year, semester, and admission year must be valid numbers.")
+            return redirect(url_for("register"))
+
+        if year is not None and not 1 <= year <= 6:
+            flash("Year must be between 1 and 6.")
+            return redirect(url_for("register"))
+
+        if semester is not None and not 1 <= semester <= 12:
+            flash("Semester must be between 1 and 12.")
+            return redirect(url_for("register"))
+
+        if admission_year is not None and not 1990 <= admission_year <= date.today().year + 1:
+            flash("Enter a valid admission year.")
             return redirect(url_for("register"))
 
         # Hash password
@@ -413,6 +595,13 @@ def attempt_login(email, password):
     Returns (user, error). On success error is None. On failure user is None
     and error is the message to show the person.
     """
+    # A blank form or an oversized email is not a guess at a real password,
+    # so it is rejected here and does not count toward the lockout.
+    if not email or not password:
+        return None, "Please enter your email and password."
+    if len(email) > 254:
+        return None, INVALID_LOGIN_MESSAGE
+
     _ensure_login_attempts_table()
 
     conn = get_db_connection()
@@ -468,7 +657,9 @@ def login():
             )
             return redirect(url_for("login"))
 
+        # New session on every login. Anything from an older session is dropped.
         session.clear()
+        session.permanent = True
         session["user_id"] = user["id"]
         session["name"] = user["name"]
         session["role"] = user["role"]
@@ -510,6 +701,7 @@ def faculty_login():
             return redirect(url_for("faculty_login"))
 
         session.clear()
+        session.permanent = True
         session["user_id"] = user["id"]
         session["name"] = user["name"]
         session["role"] = user["role"]
@@ -674,26 +866,33 @@ def teacher_dashboard():
             flash("Teacher account not found.")
             return redirect(url_for("faculty_login"))
 
+        # Only this teacher's own data: students enrolled in this teacher's classes,
+        # and attendance from this teacher's sessions. Other teachers' data is never counted.
+        teacher_id = session["user_id"]
+
         total_students = conn.execute(
             """
-            SELECT COUNT(*)
-            FROM students
-            JOIN users ON students.user_id = users.id
-            WHERE users.role = 'student'
-            """
+            SELECT COUNT(DISTINCT e.student_id)
+            FROM student_enrollments e
+            JOIN classes c ON c.id = e.class_id
+            WHERE c.created_by = ?
+            """,
+            (teacher_id,),
         ).fetchone()[0]
 
         total_attendance = conn.execute(
             """
             SELECT COUNT(*)
-            FROM attendance_records
-            WHERE status = 'Present'
-            """
+            FROM attendance_records r
+            JOIN attendance_sessions s ON s.id = r.session_id
+            WHERE s.teacher_id = ? AND r.status = 'Present'
+            """,
+            (teacher_id,),
         ).fetchone()[0]
 
         students = conn.execute(
             """
-            SELECT
+            SELECT DISTINCT
                 users.name,
                 users.email,
                 students.roll_number,
@@ -702,11 +901,14 @@ def teacher_dashboard():
                 students.year,
                 students.semester,
                 students.residence_type
-            FROM students
-            JOIN users ON students.user_id = users.id
-            WHERE users.role = 'student'
+            FROM student_enrollments e
+            JOIN classes c ON c.id = e.class_id
+            JOIN students ON students.id = e.student_id
+            JOIN users ON users.id = students.user_id
+            WHERE c.created_by = ?
             ORDER BY students.roll_number
-            """
+            """,
+            (teacher_id,),
         ).fetchall()
 
         return render_template(
@@ -762,6 +964,8 @@ def teacher_classes():
 
                 if not class_name or not section:
                     flash("Class name and section are required.")
+                elif not text_ok(class_name, 60) or not SECTION_PATTERN.match(section):
+                    flash("Class name can be up to 60 characters. Section may use letters, digits and - (max 10).")
                 else:
                     try:
                         conn.execute(
@@ -782,6 +986,8 @@ def teacher_classes():
 
                 if not subject_name or not subject_code:
                     flash("Subject name and code are required.")
+                elif not text_ok(subject_name, 100) or not SUBJECT_CODE_PATTERN.match(subject_code):
+                    flash("Subject name can be up to 100 characters. Code may use letters, digits, - and _ (max 20).")
                 else:
                     try:
                         conn.execute(
@@ -1398,8 +1604,81 @@ def teacher_reports():
 # STUDENT: SCAN QR AND MARK ATTENDANCE
 # =========================================================
 
+@app.route("/teacher/reports.csv")
+def teacher_reports_csv():
+    """Download one of this teacher's class reports as CSV.
+
+    The numbers match the reports page. Text cells go through csv_safe(), so a
+    name such as =HYPERLINK(...) is saved as plain text and not run as a formula.
+    """
+    if not is_teacher_logged_in():
+        return redirect(url_for("faculty_login"))
+
+    teacher_id = session["user_id"]
+    now_iso = datetime.now().isoformat(timespec="seconds")
+    class_id = request.args.get("class_id", type=int)
+
+    conn = get_db_connection()
+    try:
+        selected = None
+        if class_id:
+            selected = conn.execute(
+                "SELECT id, class_name, section FROM classes WHERE id = ? AND created_by = ?",
+                (class_id, teacher_id),
+            ).fetchone()
+
+        if selected is None:
+            abort(404)
+
+        rows = conn.execute(
+            f"""
+            SELECT st.roll_number, u.name,
+                   COUNT(x.status) AS total,
+                   COALESCE(SUM(CASE WHEN x.status = 'Present' THEN 1 ELSE 0 END), 0) AS attended
+            FROM student_enrollments se
+            JOIN students st ON st.id = se.student_id
+            JOIN users u ON u.id = st.user_id
+            LEFT JOIN (
+                SELECT ar.student_id, ar.status
+                FROM attendance_records ar
+                JOIN attendance_sessions s ON s.id = ar.session_id
+                WHERE s.class_id = :class_id AND s.teacher_id = :teacher_id
+                  AND {FINISHED_SESSION}
+            ) x ON x.student_id = st.id
+            WHERE se.class_id = :class_id
+            GROUP BY st.id
+            ORDER BY st.roll_number
+            """,
+            {"class_id": selected["id"], "teacher_id": teacher_id, "now": now_iso},
+        ).fetchall()
+    finally:
+        conn.close()
+
+    output = io.StringIO()
+    output.write("\ufeff")  # BOM, so Excel reads names in Hindi or Punjabi correctly
+    writer = csv.writer(output)
+    writer.writerow(["Roll number", "Name", "Sessions held", "Attended", "Attendance %"])
+    for r in rows:
+        writer.writerow([
+            csv_safe(r["roll_number"]),
+            csv_safe(r["name"]),
+            r["total"],
+            r["attended"],
+            attendance_percent(r["attended"], r["total"]),
+        ])
+
+    response = Response(output.getvalue(), mimetype="text/csv")
+    response.headers["Content-Disposition"] = f'attachment; filename="class-{selected["id"]}-attendance.csv"'
+    return response
+
+
 @app.route("/attend/<token>")
 def mark_attendance(token):
+
+    # HEAD requests (uptime checks, link previews) must never write attendance.
+    # Flask runs the GET code for HEAD, so return before any database write.
+    if request.method == "HEAD":
+        return "", 200
 
     if "user_id" not in session or session.get("role") != "student":
         flash("Please log in as a student to mark attendance.")
@@ -1607,8 +1886,9 @@ def reset_password(token):
         if request.method == "POST":
             password = request.form.get("password", "")
             confirm = request.form.get("confirm_password", "")
-            if len(password) < 8:
-                flash("Password must be at least 8 characters long.")
+            problem = password_problem(password)
+            if problem:
+                flash(problem)
             elif password != confirm:
                 flash("Passwords do not match.")
             else:
@@ -1629,4 +1909,4 @@ def reset_password(token):
 
 if __name__ == "__main__":
     ssl_ctx = "adhoc" if config.USE_HTTPS else None
-    app.run(host=config.HOST, debug=True, ssl_context=ssl_ctx)
+    app.run(host=config.HOST, debug=config.DEBUG, ssl_context=ssl_ctx)

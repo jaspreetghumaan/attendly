@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#0b1b33">
     <title>Teacher Dashboard | Attendly</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher_dashboard.css') }}">
-    <script>
+    <script nonce="{{ csp_nonce }}">
         /* Runs before first paint: saved dark mode (no white flash) + "js" flag for progressive enhancement */
         (function () {
             var d = document.documentElement;
@@ -232,7 +232,7 @@
         </a>
     </nav>
 
-    <script>
+    <script nonce="{{ csp_nonce }}">
         (function () {
             'use strict';
             var root = document.documentElement;
@@ -297,14 +297,18 @@
             var PAGE = 12, shown = PAGE, dept = '', term = '';
 
             /* build chips from the data (only worth showing with 2+ departments) */
+            function escHtml(s) {
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
             var counts = {};
             items.forEach(function (li) { var d = li.getAttribute('data-dept'); if (d) counts[d] = (counts[d] || 0) + 1; });
             var depts = Object.keys(counts).sort();
             if (depts.length > 1) {
                 var html = '<button type="button" class="th-chip is-on" data-d="">All <b>' + items.length + '</b></button>';
                 depts.forEach(function (d) {
-                    html += '<button type="button" class="th-chip" data-d="' + d.replace(/"/g, '&quot;') + '">' +
-                        d.replace(/</g, '&lt;') + ' <b>' + counts[d] + '</b></button>';
+                    html += '<button type="button" class="th-chip" data-d="' + escHtml(d) + '">' +
+                        escHtml(d) + ' <b>' + counts[d] + '</b></button>';
                 });
                 chips.innerHTML = html;
                 chips.addEventListener('click', function (e) {

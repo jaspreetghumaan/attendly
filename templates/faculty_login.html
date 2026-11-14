@@ -14,7 +14,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/faculty_login.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth-mobile.css') }}">
-  <script>
+  <script nonce="{{ csp_nonce }}">
     /* Dark mode: apply the saved choice before the page paints (no white flash) */
     (function () {
       try {
@@ -128,7 +128,7 @@
         </section>
 
     </main>
-    <script>
+    <script nonce="{{ csp_nonce }}">
         const passwordInput = document.getElementById('password');
         const togglePasswordBtn = document.getElementById('togglePassword');
         const eyeOpenIcon = document.getElementById('eyeOpenIcon');
